@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %} Become a Supplier | Green 2B{% endblock %}
+
+{% block content %}
+<h2> Apply to Become a Supplier </h2>
+<p> Join our network of verified sustainable suppliers and connect with businesses looking for eco-friendly products <p>
+
+<form method="POST" action="/supplier-apply" style="max-width: 600px;">
+    <label> Name: </label>
+    <input type="text", name="name" required><br><br>
+
+    <label> Company Name: </label>
+    <input type=""text" name="company" required><br><br>
+
+    <label>Email:</label>
+    <input type="email" name="email" required><br><br>
+
+    <label>Company Website:</label>
+    <input type="url" name="website"><br><br>
+
+    <label>Product Categories:</label>
+    <input type="text" name="products" placeholder="e.g. Recycled materials, Organic textiles"><br><br>
+
+    <label>Message:</label><br>
+    <textarea name="message" rows="4" placeholder="Tell us about your sustainability practices..." required></textarea><br><br>
+
+    <button type="submit">Submit Application</button>
+</form>
+{% endblock %}

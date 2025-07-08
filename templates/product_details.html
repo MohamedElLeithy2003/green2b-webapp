@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} | Green2B{% endblock %}
+
+{% block content %}
+<h2>{{ product.name }}</h2>
+<p>Category: {{ product.category }}</p>
+<p>Price: {{ product.price }}</p>
+<p>Sustainability Score: {{ product.score }}</p>
+<p>Impact Data: {{ product.impact }}</p>
+<br>
+<a href="/products" class="btn btn-secondary">Back to Products</a>
+
+{% endblock %}

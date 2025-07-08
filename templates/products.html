@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Products | Green2B{% endblock %}
+
+{% block content %}
+<h2>Our Sustainable Products</h2>
+<div style="display: flex; gap: 2rem;">
+    {% for product in products %}
+    <div style="border: 1px solid #ccc; padding: 1rem; width: 300px;">
+        <h3>{{ product.name }}</h3>
+        <p>Category: {{ product.category }}</p>
+        <p>Price: {{ product.price }}</p>
+        <a href="/products/{{ product.id }}" class="btn btn-primary">View Details</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
