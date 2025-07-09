@@ -9,6 +9,7 @@
 <p>Sustainability Score: {{ product.score }}</p>
 <p>Impact Data: {{ product.impact }}</p>
 <br>
+<a href="{{url_for ('add_to_cart', product_id=product.id)}}" class="btn btn-success"> Add to Cart </a>
 <a href="/products" class="btn btn-secondary">Back to Products</a>
 
 {% endblock %}

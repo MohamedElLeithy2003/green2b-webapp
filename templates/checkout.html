@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %} Checkout | Green2B{% endblock %}
+{% block content %}
+
+<h2> Checkout </h2>
+
+<form method="POST" style="max-width: 600px; margin: 0 auto;">
+    <fieldset style="border: 1px solid #ccc; padding: 1rem; margin-bottom: 1.5rem;">
+        <legend><strong>Customer Information</strong></legend>
+        <label>Full Name:</label><br>
+        <input type="text" name="name" required><br><br>
+
+        <label>Email:</label><br>
+        <input type="email" name="email" required><br><br>
+
+        <label>Phone:</label><br>
+        <input type="tel" name="phone" required><br>
+    </fieldset>
+    <fieldset style="border: 1px solid #ccc; padding: 1rem; margin-bottom: 1.5rem;">
+        <legend><strong>Shipping Address</strong></legend>
+        <label>Street Address:</label><br>
+        <input type="text" name="address" required><br><br>
+
+        <label>City:</label><br>
+        <input type="text" name="city" required><br><br>
+
+        <label>Postal Code: </label><br>
+        <input type="text" name="postcode" required><br><br>
+
+        <label>Country:</label><br>
+        <input type="text" name="country" required><br>
+    </fieldset>
+
+    <button type="submit" class="btn btn-success">Place Order</button>
+</form>
+{% endblock %}

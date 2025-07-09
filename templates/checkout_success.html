@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h2> Order Confirmation </h2>
+<p> Thank you for your order! </p>
+
+{% with order = session.get('last_order') %}
+    {% if order %}
+        <p><strong>Name:</strong> {{ order.name }}</p>
+        <p><strong>Email:</strong> {{ order.email }}</p>
+        <p><strong>Phone:</strong> {{ order.phone }}</p>
+        <p><strong>Shipping Address:</strong> {{ order.address }}, {{ order.city }}, {{ order.postcode }}, {{ order.country }} </p>
+
+        {% if order.items %}
+            <h4> Order Items </h4>
+            <ul>
+                {% for item in order['items'] %}
+                    <li>{{ item.name }} - {{ item.price }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p> No items found</p>
+        {% endif %}
+    {% else %}
+        <p> No order data found </p>
+    {% endif %}
+{% endwith %}
+
+
+<a href="{{url_for ('home')}}" class="btn btn-success"> Back to Home</a>
+{% endblock %}

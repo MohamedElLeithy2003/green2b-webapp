@@ -10,6 +10,7 @@
         <p>Category: {{ product.category }}</p>
         <p>Price: {{ product.price }}</p>
         <a href="/products/{{ product.id }}" class="btn btn-primary">View Details</a>
+        <a href="{{url_for ('add_to_cart', product_id=product.id)}}" class="btn btn-success"> Add to Cart </a>
     </div>
     {% endfor %}
 </div>
