@@ -3,28 +3,70 @@
 {% block title %}Home | Green2B{% endblock %}
 
 {% block content %}
-<section style="background: linear-gradient(135deg, #0b3d2e, #095c43); color: white; padding: 6rem 2rem; text-align: center; border-radius: 8px; margin-bottom: 3rem;">
-    <h1 style="font-size: 3rem; margin-bottom: 1rem; font-weight: 700;">Sourcing Eco-Friendly Products, Simplified</h1>
-    <p style="font-size: 1.25rem; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+<!-- Hero Section -->
+<section style="background: linear-gradient(135deg, #0b3d2e, #095c43); color: white; padding: 6rem 2rem; text-align: center; border-radius: 12px; margin-bottom: 4rem;">
+    <h1 style="font-size: 3rem; font-weight: 700; margin-bottom: 1rem;">Sourcing Eco-Friendly Products, Simplified</h1>
+    <p style="font-size: 1.2rem; max-width: 650px; margin: 0 auto 2.5rem;">
         Connect with verified sustainable suppliers and meet your ESG goals with ease — affordable, transparent, and bulk-friendly.
     </p>
     <a href="/products" 
-       style="background-color: #fff; color: #0b3d2e; padding: 1rem 2rem; font-size: 1.2rem; font-weight: 600; border-radius: 4px; text-decoration: none; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: background-color 0.3s ease;">
-       Browse Products
+       style="background-color: #fff; color: #0b3d2e; padding: 1rem 2rem; font-size: 1.1rem; font-weight: 600; border-radius: 6px; text-decoration: none; box-shadow: 0 4px 8px rgba(0,0,0,0.15); transition: background-color 0.3s;">
+        Browse Products
     </a>
 </section>
-<h2> Welcome to Green2B</h2>
-<p>Green2B is a platform dedicated to promoting sustainable and eco-friendly products. Our mission is to connect consumers with businesses that prioritize environmental responsibility.</p>
 
-<ul>
-    <li> AI Driven Sustainability Scoring</li>
-    <li> Bulk Order Aggregation</li>
-    <li> Verified Green Suppliers</li>
-</ul>
-<section style="background-color: #e8f5e9; padding: 2rem; text-align: center; margin-top: 2rem;">
-    <h2 style="margin-bottom: 0.5rem;">Become a Green2B Supplier</h2>
-    <p style="margin-bottom: 1.5rem;">Showcase your sustainable products to businesses across industries. Transparent, impactful, and scalable.</p>
-    <a href="{{ url_for('supplier_apply') }}" class="btn btn-success" style="padding: 0.8rem 1.6rem; background-color: #007b5e; color: white; text-decoration: none; border-radius: 5px;">Apply Now</a>
+<!-- Introduction -->
+<section style="max-width: 900px; margin: 0 auto 3rem; text-align: center;">
+    <h2 style="font-size: 2rem; margin-bottom: 1rem;">Welcome to Green2B</h2>
+    <p style="font-size: 1.1rem; color: #444;">
+        Green2B is a platform dedicated to promoting sustainable and eco-friendly products. Our mission is to connect businesses with suppliers who prioritize environmental responsibility.
+    </p>
+
+    <ul style="list-style: none; padding: 0; margin-top: 2rem;">
+        <li style="margin-bottom: 0.5rem;">AI-Driven Sustainability Scoring</li>
+        <li style="margin-bottom: 0.5rem;">Bulk Order Aggregation</li>
+        <li style="margin-bottom: 0.5rem;">Verified Green Suppliers</li>
+    </ul>
+</section>
+
+<!-- Newsletter Signup -->
+<form action="{{ url_for('signup') }}" method="POST">
+<div style="max-width: 500px; margin: 3rem auto; padding: 2rem; background-color: #f9f9f9; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center;">
+    <h3 style="margin-bottom: 1.5rem;">Subscribe to our newsletter for the latest offers and updates:</h3>
+
+        <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            placeholder="Your email" 
+            required 
+            style="padding: 0.75rem; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem;"
+        >
+        <button type="submit", class="btn"> Subscribe </button>
+        </form>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+              <ul>
+                {% for message in messages %}
+                  <li>{{ message }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+        {% endwith %}
+        </div>
+
+<!-- Supplier CTA -->
+<section style="background-color: #e8f5e9; padding: 3rem 2rem; text-align: center; border-radius: 12px; margin-top: 3rem;">
+    <h2 style="margin-bottom: 0.75rem;">Become a Green2B Supplier</h2>
+    <p style="margin-bottom: 1.5rem; font-size: 1.1rem; color: #333;">
+        Showcase your sustainable products to businesses across industries. Transparent, impactful, and scalable.
+    </p>
+    <a href="{{ url_for('supplier_apply') }}" 
+       class="btn btn-success" 
+       style="padding: 0.8rem 1.6rem; background-color: #007b5e; color: white; text-decoration: none; font-weight: 600; border-radius: 6px;">
+        Apply Now
+    </a>
 </section>
 {% endblock %}
+
 

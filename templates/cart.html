@@ -1,14 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
-<h2> Your Cart </h2>
-{% if cart %}
-    <ul>
-        {% for item in cart %}
-            <li>{{ item.name }} - {{item.price}}</li>
-        {% endfor %}
-    </ul>
-    <p><strong>Total:</strong> {{ total }}</p>
-    <a href="{{ url_for('checkout') }}" class="btn btn-primary">Proceed to Checkout</a>
+<div style="max-width: 800px; margin: 2rem auto; padding: 2rem; background: #f9f9f9; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0,05);">
+    <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2rem;"> Your Cart </h2>
+    {% if cart %}
+        <ul style="list-style: none; padding: 0;">
+            {% for item in cart %}
+                <li style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #ddd;">{{ item.name }} - {{item.price}}</li>
+            {% endfor %}
+        </ul>
+        <p><strong>Total:</strong> {{ total }}</p>
+        <form action="{{ url_for('create_checkout_session') }}" method="POST">
+        <button type="submit" style="padding: 10px 20px; font-size: 16px;">
+            Proceed to Payment (Test Mode)
+        </button>
+    </form>
+</div>
 {% else %}
     <p> Your cart is empty </p>
 {% endif %}

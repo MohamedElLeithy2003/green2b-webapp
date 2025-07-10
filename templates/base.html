@@ -8,14 +8,18 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            font-size: 20px;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
+            color: #222;
         }
         header {
+            position: sticky;
+            top: 0;
             background-color: #4CAF50;
             color: white;
-            padding: 10px 0;
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -27,8 +31,27 @@
             margin-left: 20px;
             padding: 10px 15px;
         }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .btn {
+            background-color: #00704A;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background-color: #005c3d;
+        }
         nav {
             margin: 20px 0;
+            font-size: 18px;
         }
         nav a {
             margin: 0 15px;
@@ -39,9 +62,9 @@
             text-align: center;
             margin-top: 3rem;
             padding: 10px 0;
-            background-color: #333;
+            background-color: #005c3d;
             color: white;
-            font-size: 14px;
+            font-size: 18px;
         }
     </style>
 </head>
@@ -63,9 +86,11 @@
         {% endblock %}
     
     <footer>
+        <nav>
         <p>&copy; 2025 Green2B. All rights reserved.</p>
         <a href="{{ url_for('terms')}}"> Terms of Service </a>
         <a href="{{ url_for('privacy')}}"> Privacy Policy </a>
+        </nav>
     </footer>
 </body>
 </html>

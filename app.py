@@ -1,3 +1,4 @@
+import stripe
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mail import Mail, Message
 
@@ -11,11 +12,32 @@ app.config['MAIL_USERNAME'] = 'your-email@gmail.com'
 app.config['MAIL_PASSWORD'] = 'your-email-password'
 app.config['MAIL_DEFAULT_SENDER'] = ('Green2B', 'your-email@gmail.com')
 
+
 mail = Mail(app)
+
+stripe.api_key = "sk_test_51O8jQdE43TmUArKlFz7rQnZI4yeZ9iVsoImn0Bs2wI5Bx8PqufupGZ8KZBYB00jy6h8qlI0s8hoiD1z2UOJcUPBy00CHFoTpGp"
+
+subscribers = []
 
 @app.route('/')
 def home():
     return render_template('home.html')
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    email = request.form.get('email')
+    if not email:
+        flash("Please enter a valid email address.")
+        return redirect(url_for('home'))
+    
+    if email in subscribers:
+        flash("You are already subscribed")
+        return redirect(url_for('home'))
+    
+    subscribers.append(email)
+    flash("Thank you for subscribing!")
+
+    return redirect(url_for('home'))
 
 @app.route('/about')
 def about():
@@ -30,7 +52,30 @@ products_data = [
 
 @app.route('/products')
 def products():
-    return render_template('products.html', products=products_data)
+    query = request.args.get('q', '').lower()
+    filter_category = request.args.get('category', '').lower()
+    filter_impact = request.args.get('impact', '').lower()
+
+    filtered_products = products_data
+
+    if query:
+        filtered_products = [
+            p for p in filtered_products
+            if query in p['name'].lower() or query in p['score'].lower()
+        ]
+    
+    if filter_category:
+        filtered_products = [
+            p for p in filtered_products
+            if filter_category == p['category'].lower()
+        ]
+    
+    if filter_impact:
+        filtered_products = [
+            p for p in filtered_products
+            if filter_impact in p['impact'].lower()
+        ]
+    return render_template('products.html', products=filtered_products, query=query, filter_category=filter_category, filter_impact=filter_impact)
 
 @app.route('/products/<int:product_id>')
 def product_detail(product_id):
@@ -113,7 +158,7 @@ def checkout():
         session.pop('cart', None)
         flash("Order placed successfully!")
         return redirect(url_for('checkout_success'))
-    return render_template('checkout.html', cart=session.get('cart', []))
+    return render_template('checkout.html', cart=session.get('cart', []), publishable_key="pk_test_51O8jQdE43TmUArKlpffHWwtJ8w8poxqLbjyBFa2Ot2ZvEyqgqFrsPKyHyySRdrgelYHik3uQCmtst66eHHRECu0o008aBTzQVL")
 
 @app.route('/checkout-success')
 def checkout_success():
@@ -187,6 +232,38 @@ def terms():
 @app.route('/privacy')
 def privacy():
     return render_template('privacy.html')
+
+@app.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    cart = session.get('cart', [])
+    if not cart:
+        flash("Cart is empty")
+        return redirect(url_for('cart'))
+
+    line_items = [
+        {
+            'price_data': {
+                'currency': 'usd',
+                'product_data': {'name': item['name']},
+                'unit_amount': int(item['price'] * 100),  
+            },
+            'quantity': 1,
+        }
+        for item in cart
+    ]
+    try:
+        session_stripe = stripe.checkout.Session.create(
+            payment_method_types = ['card'],
+            line_items=line_items,
+            mode='payment',
+            success_url = url_for('checkout_success', _external=True),
+            cancel_url = url_for('cart', _external=True),
+        )
+        return redirect(session_stripe.url, code=303)
+    except Exception as e:
+        flash("Error creating Stripe session")
+        print(f"Stripe Error: {e}")
+        return redirect(url_for('cart'))
 
 if __name__ == '__main__':
     app.run(debug=True)
