@@ -1,6 +1,7 @@
 import stripe
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mail import Mail, Message
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.secret_key = 'd11c57a2dde5240c1ba0a1bd96be6fdc979173696d613bb44342ea520a3e6379'
@@ -11,7 +12,12 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'your-email@gmail.com'
 app.config['MAIL_PASSWORD'] = 'your-email-password'
 app.config['MAIL_DEFAULT_SENDER'] = ('Green2B', 'your-email@gmail.com')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///green2b.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+db = SQLAlchemy(app)
+with app.app_context():
+    db.create_all()
 
 mail = Mail(app)
 
@@ -48,6 +54,7 @@ products_data = [
     {'id': 1, 'name': 'Product 1', 'category': 'ecofriendly', 'price': 24.99, 'score': "85/100", "impact": "Low carbon footprint, recyclable materials"},
     {'id': 2, 'name': 'Product 2', 'category': 'organic', 'price': 29.99, 'score': "90/100", "impact": "Made from organic materials, biodegradable package"},
     {'id': 3, 'name': 'Product 3', 'category': 'recycled', 'price': 19.99, 'score': "80/100", "impact": "Made from recycled materials, energy-efficient production"},
+    {'id': 4, 'name': 'Product 4', 'category': 'organic and recycled', 'price': 34.99, 'score': "95/100", "impact": "Made from organic and recycled materials" }
 ]
 
 @app.route('/products')
