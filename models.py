@@ -10,7 +10,7 @@ class User(db.Model):
     role = db.Column(db.Enum('supplier', 'buyer', 'admin', name='user_roles'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    supplier = db.relationship('Supplier', backref='user', userlist=False)
+    supplier = db.relationship('Supplier', backref='user', uselist=False)
     orders = db.relationship('Order', backref='buyer', lazy=True)
 
 class EmailSubscription(db.Model):
@@ -20,7 +20,7 @@ class EmailSubscription(db.Model):
 
 class Supplier(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Fix here
     company_name = db.Column(db.String(120))
     verified = db.Column(db.Boolean, default=False)
     sustainability_score = db.Column(db.Float)
@@ -34,6 +34,7 @@ class Product(db.Model):
     price = db.Column(db.Numeric(10, 2), nullable=False)
     category = db.Column(db.String(80))
     description = db.Column(db.Text)
+    status = db.Column(db.String(50))
 
     order_items = db.relationship('OrderItem', backref='order', lazy=True)
 

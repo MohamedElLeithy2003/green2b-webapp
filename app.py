@@ -2,8 +2,12 @@ import stripe
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
+from models import db, Product
+from flask_migrate import Migrate
+
 
 app = Flask(__name__)
+migrate = Migrate(app, db)
 app.secret_key = 'd11c57a2dde5240c1ba0a1bd96be6fdc979173696d613bb44342ea520a3e6379'
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -15,7 +19,7 @@ app.config['MAIL_DEFAULT_SENDER'] = ('Green2B', 'your-email@gmail.com')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///green2b.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+db.init_app(app)
 with app.app_context():
     db.create_all()
 
@@ -207,10 +211,75 @@ def supplier_success():
     return render_template('supplier_success.html')
 
 
+def get_current_supplier_id():
+    return 1
 
-@app.route('/faq')
-def faq():
-    faqs = [
+@app.route('/supplier/products')
+def supplier_products():
+   supplier_id = get_current_supplier_id()
+   products = Product.query.filter_by(supplier_id=supplier_id).all()
+   return render_template('supplier_products.html', products=products)
+
+@app.route('/supplier/products/add', methods=['GET', 'POST'])
+def add_product():
+    supplier_id = get_current_supplier_id()
+    if request.method == 'POST':
+        name = request.form['name']
+        category = request.form['category']
+        price = float(request.form['price'])
+
+        new_product = Product(
+            name=name,
+            category=category,
+            price=price,
+            supplier_id=supplier_id,
+            status='pending'
+        )
+        db.session.add(new_product)
+        db.session.commit()
+        flash('Product added successfully and is pending approval.', 'success')
+        return redirect(url_for('supplier_products'))
+
+    return render_template('add_products.html')
+
+@app.route('/supplier/products/<int:product_id>')
+def supplier_product_detail(product_id):
+    supplier_id = get_current_supplier_id()
+    product = Product.query.filter_by(id=product_id, supplier_id=supplier_id).first()
+    if not product:
+        return "Product not found or access denied", 404
+    return render_template('supplier_product_details.html', product=product)
+
+@app.route('/supplier/products/edit/<int:product_id>', methods=['GET', 'POST'])
+def edit_product(product_id):
+    supplier_id = get_current_supplier_id()
+    product = Product.query.filter_by(id=product_id, supplier_id=supplier_id).first_or_404()
+
+    if request.method == 'POST':
+        product.name = request.form['name']
+        product.category = request.form['category']
+        product.price = float(request.form['price'])
+
+        db.session.commit()
+        flash('Product updated successfully', 'success')
+        return redirect(url_for(supplier_products))
+    
+    return render_template('edit_product.html', product=product)
+
+@app.route('/supplier/products/delete/<int:product_id>', methods=['POST'])
+def delete_product(product_id):
+    supplier_id = get_current_supplier_id()
+    product = Product.query.filter_by(id=product_id, supplier_id=supplier_id).first_or_404()
+    db.session.delete(product)
+    db.session.commit()
+    flash('Product deleted successfully', 'success')
+    return redirect(url_for('supplier_products'))
+
+
+
+
+def get_faqs():
+    return [
         {
             "question": "What is Green2B?",
             "answer": "Green2B is a platform that connects businesses with eco-friendly and sustainable products, helping them meet their environmental goals."
@@ -227,10 +296,17 @@ def faq():
             "question": "What is the AI driven sustainability score?",
             "answer": "Our AI-driven sustainability score evaluates products based on various factors such as materials used, production methods, and overall environmental impact. This score helps businesses make informed decisions when sourcing products."
         },
-
     ]
+
+@app.route('/faq')
+def faq():
+    faqs = get_faqs()
     return render_template('faq.html', faqs=faqs)
 
+@app.context_processor
+def inject_faqs():
+    faqs = get_faqs()
+    return dict(faqs=faqs[:3])
 
 @app.route('/terms')
 def terms():

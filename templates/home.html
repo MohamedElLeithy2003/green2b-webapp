@@ -15,6 +15,89 @@
         Browse Products
     </a>
 </section>
+<h2>Search Products</h2>
+<form method="get" action="{{ url_for('products') }}" style="margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center;">
+  <input 
+    type="text" 
+    name="q" 
+    placeholder="Search by name or score" 
+    value="{{ query or '' }}" 
+    style="
+      padding: 0.75rem 1rem; 
+      font-size: 1.1rem; 
+      border: 2px solid #0b3d2e; 
+      border-radius: 6px; 
+      min-width: 300px; 
+      flex: 1 1 300px;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    "
+    onfocus="this.style.borderColor='#095c43'"
+    onblur="this.style.borderColor='#0b3d2e'"
+  >
+
+  <select name="category" style="
+      padding: 0.75rem 1rem; 
+      font-size: 1.1rem; 
+      border: 2px solid #0b3d2e; 
+      border-radius: 6px; 
+      min-width: 200px; 
+      flex: 1 1 200px;
+      box-sizing: border-box;
+      background-color: white;
+      color: #0b3d2e;
+      transition: border-color 0.3s ease;
+    "
+    onfocus="this.style.borderColor='#095c43'"
+    onblur="this.style.borderColor='#0b3d2e'"
+  >
+    <option value="">All Categories</option>
+    <option value="ecofriendly" {% if filter_category == 'ecofriendly' %}selected{% endif %}>Ecofriendly</option>
+    <option value="organic" {% if filter_category == 'organic' %}selected{% endif %}>Organic</option>
+    <option value="recycled" {% if filter_category == 'recycled' %}selected{% endif %}>Recycled</option>
+  </select>
+
+  <select name="impact" style="
+      padding: 0.75rem 1rem; 
+      font-size: 1.1rem; 
+      border: 2px solid #0b3d2e; 
+      border-radius: 6px; 
+      min-width: 220px; 
+      flex: 1 1 220px;
+      box-sizing: border-box;
+      background-color: white;
+      color: #0b3d2e;
+      transition: border-color 0.3s ease;
+    "
+    onfocus="this.style.borderColor='#095c43'"
+    onblur="this.style.borderColor='#0b3d2e'"
+  >
+    <option value="">All Impacts</option>
+    <option value="carbon" {% if filter_impact == 'carbon' %}selected{% endif %}>Low Carbon Footprint</option>
+    <option value="organic" {% if filter_impact == 'organic' %}selected{% endif %}>Organic</option>
+    <option value="recycled" {% if filter_impact == 'recycled' %}selected{% endif %}>Recycled</option>
+    <option value="biodegradable" {% if filter_impact == 'biodegradable' %}selected{% endif %}>Biodegradable</option>
+  </select>
+
+  <button type="submit" style="
+      padding: 0.75rem 2rem; 
+      font-size: 1.15rem; 
+      font-weight: 700;
+      color: white; 
+      background-color: #0b3d2e; 
+      border: none; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      transition: background-color 0.3s ease;
+      flex: 0 0 auto;
+      min-width: 130px;
+    "
+    onmouseover="this.style.backgroundColor='#095c43'"
+    onmouseout="this.style.backgroundColor='#0b3d2e'"
+  >
+    Search
+  </button>
+</form>
 
 <!-- Introduction -->
 <section style="max-width: 900px; margin: 0 auto 3rem; text-align: center;">
@@ -81,7 +164,9 @@
        style="padding: 0.8rem 1.6rem; background-color: #007b5e; color: white; text-decoration: none; font-weight: 600; border-radius: 6px;">
         Apply Now
     </a>
+    
 </section>
+
 {% endblock %}
 
 
