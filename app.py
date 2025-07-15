@@ -2,7 +2,7 @@ import stripe
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
-from models import db, Product
+from models import db, Product, User
 from flask_migrate import Migrate
 
 
@@ -32,6 +32,53 @@ subscribers = []
 @app.route('/')
 def home():
     return render_template('home.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        role = request.form['role']
+        email = request.form['email']
+        password = request.form['password']
+
+        if User.query.filter_by(email=email).first():
+            flash('Email already registered')
+            return redirect(url_for('register'))
+        
+        new_user = User(email=email, role=role)
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Registration successful. You can now login')
+        return redirect(url_for('login'))
+    return render_template('auth/register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        user = User.query.filter_by(email=email).first()
+        if user and user.check_password(password):
+            session['user_id'] = user.id
+            session['user_role'] = user.role
+            
+            if user.role == 'supplier':
+                return redirect(url_for('supplier_products'))
+            else:
+                return redirect(url_for('home'))
+
+        flash('Invalid credentials')
+    return render_template('auth/login.html')
+
+
+@app.route('/logout')
+def logout():
+    session.pop('user_email', None)
+    session.clear()
+    return redirect(url_for('home'))
+
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -212,13 +259,14 @@ def supplier_success():
 
 
 def get_current_supplier_id():
-    return 1
+    return session.get('user_id')
 
 @app.route('/supplier/products')
 def supplier_products():
-   supplier_id = get_current_supplier_id()
-   products = Product.query.filter_by(supplier_id=supplier_id).all()
-   return render_template('supplier_products.html', products=products)
+
+    supplier_id = get_current_supplier_id()
+    products = Product.query.filter_by(supplier_id=supplier_id).all()
+    return render_template('supplier_products.html', products=products)
 
 @app.route('/supplier/products/add', methods=['GET', 'POST'])
 def add_product():

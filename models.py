@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
@@ -7,11 +8,20 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
     email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128))
     role = db.Column(db.Enum('supplier', 'buyer', 'admin', name='user_roles'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     supplier = db.relationship('Supplier', backref='user', uselist=False)
     orders = db.relationship('Order', backref='buyer', lazy=True)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        if not self.password_hash:
+            return False
+        return check_password_hash(self.password_hash, password)
 
 class EmailSubscription(db.Model):
     id = db.Column(db.Integer, primary_key=True)

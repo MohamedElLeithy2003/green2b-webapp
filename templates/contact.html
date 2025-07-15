@@ -29,4 +29,20 @@
         <button type="submit" class="btn" style="width: 100%; padding: 0.75rem; font-size: 1rem;">Send Message</button>
     </form>
 </div>
+{% if request.endpoint != 'faq' %}
+<div style="background-color: #f5f5f5; padding: 1rem 2rem;">
+    <h3 style="text-align: center;">Common Questions</h3>
+    <div style="max-width: 800px; margin: 0 auto;">
+        {% for faq in faqs %}
+        <details style="margin-bottom: 0.5rem;">
+            <summary style="font-weight: bold; cursor: pointer;">{{ faq.question }}</summary>
+            <p style="margin-top: 0.3rem;">{{ faq.answer }}</p>
+        </details>
+        {% endfor %}
+        <p style="text-align: center; margin-top: 1rem;">
+            <a href="{{ url_for('faq') }}" class="btn">View All FAQs</a>
+        </p>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

@@ -2,12 +2,28 @@
 {% block title %}About Us | Green2B{% endblock %}
 
 {% block content %}
-
-<section style="background: linear-gradient(135deg, #0b3d2e, #095c43); color: white; padding: 4rem 2rem; border-radius: 8px; text-align: center;">
-  <h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem;">About Green2B</h1>
-  <p style="font-size: 1.2rem; max-width: 700px; margin: 0 auto;">
-    Your trusted B2B marketplace for sustainable sourcing. We simplify bulk procurement of eco-friendly products by connecting you with certified green suppliers.
-  </p>
+  <section style='
+    background: url("{{ url_for("static", filename="images/about_background.jpg") }}") no-repeat center center;
+    background-size: cover;
+    padding: 6rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  '>
+  <div style='
+    background-color: rgba(11, 61, 46, 0.9);
+    padding: 3rem 2rem;
+    border-radius: 12px;
+    max-width: 800px;
+    width: 100%;
+    color: white;
+  '>
+    <h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem;">About Green2B</h1>
+    <p style="font-size: 1.2rem; max-width: 700px; margin: 0 auto;">
+      Your trusted B2B marketplace for sustainable sourcing. We simplify bulk procurement of eco-friendly products by connecting you with certified green suppliers.
+    </p>
+  </div>
 </section>
 
 <section style="max-width: 1000px; margin: 3rem auto; padding: 0 1.5rem;">
@@ -40,14 +56,14 @@
   <div style="margin-bottom: 2rem;">
     <h3 style="font-size: 1.5rem; color: #0b3d2e;">Businesses / Buyers</h3>
     <p style="font-size: 1.05rem; line-height: 1.6;">
-      Green2B streamlines your path to sustainability by making procurement simple, affordable, and verifiable. Meet ESG goals, earn green certifications like B Corp, and reduce your carbon footprint with confidence.
+      Green2B streamlines your path to sustainability by making procurement simple, affordable, and verifiable.
     </p>
   </div>
 
   <div style="margin-bottom: 2rem;">
     <h3 style="font-size: 1.5rem; color: #0b3d2e;">Suppliers</h3>
     <p style="font-size: 1.05rem; line-height: 1.6;">
-      Get access to stable, long-term B2B demand. Green2B helps scale your reach, reduces your marketing burden, and improves profitability through aggregated orders and logistics support.
+      Green2B helps scale your reach and improves profitability through aggregated orders and logistics support.
     </p>
   </div>
 
