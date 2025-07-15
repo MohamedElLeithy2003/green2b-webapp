@@ -4,8 +4,24 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section style="background: linear-gradient(135deg, #0b3d2e, #095c43); color: white; padding: 6rem 2rem; text-align: center; border-radius: 12px; margin-bottom: 4rem;">
-    <h1 style="font-size: 4rem; font-weight: 700; margin-bottom: 1rem;">Welcome to Green2B</h2>
+  <section style='
+    background: url("{{ url_for("static", filename="images/green2b_home.jpg") }}") no-repeat center center;
+    background-size: cover;
+    padding: 6rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  '>
+  <div style='
+    background-color: rgba(11, 61, 46, 0.9);
+    padding: 3rem 2rem;
+    border-radius: 12px;
+    max-width: 800px;
+    width: 100%;
+    color: white;
+  '>
+    <h1 style="font-size: 4rem; font-weight: 700; margin-bottom: 1rem;">Welcome to Green2B</h1>
     <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">Sourcing Eco-Friendly Products, Simplified</h2>
     <p style="font-size: 1.2rem; max-width: 650px; margin: 0 auto 2.5rem;">
         Connect with verified sustainable suppliers and meet your ESG goals with ease — affordable, transparent, and bulk-friendly.
@@ -13,7 +29,8 @@
     <a href="/products" 
        style="background-color: #fff; color: #0b3d2e; padding: 1rem 2rem; font-size: 1.1rem; font-weight: 600; border-radius: 6px; text-decoration: none; box-shadow: 0 4px 8px rgba(0,0,0,0.15); transition: background-color 0.3s;">
         Browse Products
-    </a>
+  </a>
+  </div>
 </section>
 <h2>Search Products</h2>
 <form method="get" action="{{ url_for('products') }}" style="margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center;">

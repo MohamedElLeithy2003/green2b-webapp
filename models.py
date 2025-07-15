@@ -48,6 +48,17 @@ class Product(db.Model):
 
     order_items = db.relationship('OrderItem', backref='order', lazy=True)
 
+class CartItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    product_id = db.Column(db.Integer)
+    name = db.Column(db.String(100))
+    price = db.Column(db.Float)
+    quantity = db.Column(db.Integer, default=1)
+
+    user = db.relationship('User', backref='cart_items')
+    
+
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     buyer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

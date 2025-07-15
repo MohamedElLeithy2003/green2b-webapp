@@ -1,14 +1,19 @@
 import stripe
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mail import Mail, Message
+from flask_login import current_user, LoginManager
 from flask_sqlalchemy import SQLAlchemy
-from models import db, Product, User
+from models import db, Product, User, CartItem
 from flask_migrate import Migrate
 
 
+
 app = Flask(__name__)
+login_manager = LoginManager()
+login_manager.init_app(app)
 migrate = Migrate(app, db)
 app.secret_key = 'd11c57a2dde5240c1ba0a1bd96be6fdc979173696d613bb44342ea520a3e6379'
+
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -28,6 +33,10 @@ mail = Mail(app)
 stripe.api_key = "sk_test_51O8jQdE43TmUArKlFz7rQnZI4yeZ9iVsoImn0Bs2wI5Bx8PqufupGZ8KZBYB00jy6h8qlI0s8hoiD1z2UOJcUPBy00CHFoTpGp"
 
 subscribers = []
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 @app.route('/')
 def home():
@@ -149,17 +158,33 @@ def add_to_cart(product_id):
         flash("Product not found")
         return redirect(url_for('products'))
 
-    if 'cart' not in session:
-        session['cart'] = []
+    if current_user.is_authenticated:
+        item = CartItem(
+            user_id = current_user.id,
+            product_id = product['id'],
+            product_name = product['name'],
+            price = product['price']
+        )
+        db.session.add(item)
+        db.session.commit()
+    else:
 
-    session['cart'].append(product)
-    session.modified = True
-    flash(f"{product['name']} added to cart.")
+        if 'cart' not in session:
+            session['cart'] = []
+
+        session['cart'].append(product)
+        session.modified = True
+        flash(f"{product['name']} added to cart.")
     return redirect(url_for('products'))
 
 @app.route('/cart')
 def cart():
-    cart_items = session.get('cart', [])
+    if current_user.is_authenticated:
+        items = CartItem.query.filter_by(user_id=current_user.id).all()
+        cart_items = [{'name': i.product_name, 'price': i.price} for i in items]
+    else:
+        cart_items = session.get('cart', [])
+
     total = sum(item['price'] for item in cart_items)
     return render_template('cart.html', cart=cart_items, total=total)
 
