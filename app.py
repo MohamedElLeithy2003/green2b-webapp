@@ -119,7 +119,7 @@ products_data = [
         'category': 'ecofriendly',
         'quantity': 100,
         'price': 1.73,
-        'score': "100/100",
+        'score': "95/100",
         'description': "Made from food-grade rice & tapioca starch, holds strong in cold drinks, resists for 45+ minutes, 100% biodegradable and compostable, odourless, tasteless, and chemical-free"
     },
     {
@@ -130,7 +130,7 @@ products_data = [
         'category': 'ecofriendly',
         'quantity': 100,
         'price': 10.00,
-        'score': "100/100",
+        'score': "80/100",
         'description': "Made from eco-friendly sugarcane bagasse, reheatable and freezer-safe, suitable for all applications"
     },
     {
@@ -141,7 +141,7 @@ products_data = [
         'category': 'organic',
         'quantity': 100,
         'price': 1.20,
-        'score': "100/100",
+        'score': "80/100",
         'description': "Made from birchwood, sturdy even in hot gravy, ideal for parties, picnics, events, and gatherings"
     },
     {
@@ -152,7 +152,7 @@ products_data = [
         'category': 'ecofriendly',
         'quantity': 100,
         'price': 8.00,
-        'score': "100/100",
+        'score': "80/100",
         'description': "Bagasse lid for spill-free dining, perfect for curries and salads, fully compostable and eco-friendly"
     },
     {
@@ -163,7 +163,7 @@ products_data = [
         'category': 'recycled',
         'quantity': 1,
         'price': 4.70,
-        'score': "100/100",
+        'score': "85/100",
         'description': "75 GSM A4-size paper made from 8000 cigarette butts, repurposed waste into usable stationary"
     },
     {
@@ -174,7 +174,7 @@ products_data = [
         'category': 'organic',
         'quantity': 10,
         'price': 130.00,
-        'score': "100/100",
+        'score': "90/100",
         'description': "Includes Cork Diary, Mug, Card Holder, Pen, and Keychain – all sustainably made from cork"
     },
     {
@@ -185,7 +185,7 @@ products_data = [
         'category': 'organic',
         'quantity': 100,
         'price': 9.00,
-        'score': "100/100",
+        'score': "80/100",
         'description': "Made from natural jute, biodegradable and reusable alternative to plastic folders"
     },
     {
@@ -196,7 +196,7 @@ products_data = [
         'category': 'organic',
         'quantity': 10,
         'price': 100.00,
-        'score': "100/100",
+        'score': "85/100",
         'description': "Natural color bottle and mugs crafted from sustainable bamboo"
     }
 ]
