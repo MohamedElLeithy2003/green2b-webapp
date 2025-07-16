@@ -111,10 +111,94 @@ def about():
 
 
 products_data = [
-    {'id': 1, 'name': 'Product 1', 'category': 'ecofriendly', 'price': 24.99, 'score': "85/100", "impact": "Low carbon footprint, recyclable materials"},
-    {'id': 2, 'name': 'Product 2', 'category': 'organic', 'price': 29.99, 'score': "90/100", "impact": "Made from organic materials, biodegradable package"},
-    {'id': 3, 'name': 'Product 3', 'category': 'recycled', 'price': 19.99, 'score': "80/100", "impact": "Made from recycled materials, energy-efficient production"},
-    {'id': 4, 'name': 'Product 4', 'category': 'organic and recycled', 'price': 34.99, 'score': "95/100", "impact": "Made from organic and recycled materials" }
+    {
+        'id': 1,
+        'supplier': 'Smaart Rice Straw',
+        'name': 'Rice Starch Straw',
+        'image': 'images/starch_straw.png',
+        'category': 'ecofriendly',
+        'quantity': 100,
+        'price': 1.73,
+        'score': "100/100",
+        'description': "Made from food-grade rice & tapioca starch, holds strong in cold drinks, resists for 45+ minutes, 100% biodegradable and compostable, odourless, tasteless, and chemical-free"
+    },
+    {
+        'id': 2,
+        'supplier': 'Chuk eat safe',
+        'name': 'Dine-in Bagasse Container',
+        'image': 'images/chuck_eat_safe.png',
+        'category': 'ecofriendly',
+        'quantity': 100,
+        'price': 10.00,
+        'score': "100/100",
+        'description': "Made from eco-friendly sugarcane bagasse, reheatable and freezer-safe, suitable for all applications"
+    },
+    {
+        'id': 3,
+        'supplier': 'Chuk eat safe',
+        'name': 'Disposable Wooden Spoon',
+        'image': 'images/takeaway_spoon (1).png',
+        'category': 'organic',
+        'quantity': 100,
+        'price': 1.20,
+        'score': "100/100",
+        'description': "Made from birchwood, sturdy even in hot gravy, ideal for parties, picnics, events, and gatherings"
+    },
+    {
+        'id': 4,
+        'supplier': 'Chuk eat safe',
+        'name': 'Container Lids',
+        'image': 'images/container_lid.png',
+        'category': 'ecofriendly',
+        'quantity': 100,
+        'price': 8.00,
+        'score': "100/100",
+        'description': "Bagasse lid for spill-free dining, perfect for curries and salads, fully compostable and eco-friendly"
+    },
+    {
+        'id': 5,
+        'supplier': 'GreenR by BioMandi',
+        'name': 'Paper made out of Cigarette Buds',
+        'image': 'images/greenR_paper.png',
+        'category': 'recycled',
+        'quantity': 1,
+        'price': 4.70,
+        'score': "100/100",
+        'description': "75 GSM A4-size paper made from 8000 cigarette butts, repurposed waste into usable stationary"
+    },
+    {
+        'id': 6,
+        'supplier': 'Mesrii Private Limited',
+        'name': 'Business Gift Hamper',
+        'image': 'images/Gift Hamper .jpeg.jpg',
+        'category': 'organic',
+        'quantity': 10,
+        'price': 130.00,
+        'score': "100/100",
+        'description': "Includes Cork Diary, Mug, Card Holder, Pen, and Keychain – all sustainably made from cork"
+    },
+    {
+        'id': 7,
+        'supplier': 'GreenR by BioMandi',
+        'name': 'Jute Folder',
+        'image': 'images/Jute Folder .jpeg.jpg',
+        'category': 'organic',
+        'quantity': 100,
+        'price': 9.00,
+        'score': "100/100",
+        'description': "Made from natural jute, biodegradable and reusable alternative to plastic folders"
+    },
+    {
+        'id': 8,
+        'supplier': 'Mesrii Private Limited',
+        'name': 'Bamboo Bottle and 2 Mugs',
+        'image': 'images/bamboo_bottle_mugs.png',
+        'category': 'organic',
+        'quantity': 10,
+        'price': 100.00,
+        'score': "100/100",
+        'description': "Natural color bottle and mugs crafted from sustainable bamboo"
+    }
 ]
 
 @app.route('/products')
