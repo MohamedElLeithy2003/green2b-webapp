@@ -161,7 +161,7 @@ products_data = [
         'name': 'Paper made out of Cigarette Buds',
         'image': 'images/greenR_paper.png',
         'category': 'recycled',
-        'quantity': 1,
+        'quantity': 500,
         'price': 4.70,
         'score': "85/100",
         'description': "75 GSM A4-size paper made from 8000 cigarette butts, repurposed waste into usable stationary"
