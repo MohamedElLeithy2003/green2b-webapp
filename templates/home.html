@@ -4,18 +4,46 @@
 
 {% block content %}
 <!-- Hero Section -->
-  <section style='
-    background: url("{{ url_for("static", filename="images/green2b_home_new.jpg") }}") no-repeat center center;
-    background-size: cover;
-    padding: 6rem 2rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    height: 350px;
-  '>
+<section style='
+  background: url("{{ url_for("static", filename="images/green2b_home.jpg") }}") no-repeat center center;
+  background-size: 100%;
+  padding: 6rem 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 350px;
+  position: relative;
+'>
+
+
+  <div style="
+    background-color: #0b3d2e;
+    color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  ">
+    <h2 style="font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem;">Welcome to Green2B</h2>
+    <p style="font-size: 1rem;">The B2B Marketplace that makes green procurement accessible for every business</p>
+    <a href="/products" style="
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: white;
+      color: #0b3d2e;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    " onmouseover="this.style.backgroundColor='#e0f2e9'" onmouseout="this.style.backgroundColor='white'">
+      Browse Products
+    </a>
+  </div>
+
 </section>
-<h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem; text-align: center;">Welcome to Green2B</h1>
 <h2>Search Products</h2>
 <form method="get" action="{{ url_for('products') }}" style="margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center;">
   <input 
