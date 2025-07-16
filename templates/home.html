@@ -5,33 +5,17 @@
 {% block content %}
 <!-- Hero Section -->
   <section style='
-    background: url("{{ url_for("static", filename="images/green2b_home.jpg") }}") no-repeat center center;
+    background: url("{{ url_for("static", filename="images/green2b_home_new.jpg") }}") no-repeat center center;
     background-size: cover;
     padding: 6rem 2rem;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
+    height: 500px;
   '>
-  <div style='
-    background-color: rgba(11, 61, 46, 0.9);
-    padding: 3rem 2rem;
-    border-radius: 12px;
-    max-width: 800px;
-    width: 100%;
-    color: white;
-  '>
-    <h1 style="font-size: 4rem; font-weight: 700; margin-bottom: 1rem;">Welcome to Green2B</h1>
-    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">Sourcing Eco-Friendly Products, Simplified</h2>
-    <p style="font-size: 1.2rem; max-width: 650px; margin: 0 auto 2.5rem;">
-        Connect with verified sustainable suppliers and meet your ESG goals with ease — affordable, transparent, and bulk-friendly.
-    </p>
-    <a href="/products" 
-       style="background-color: #fff; color: #0b3d2e; padding: 1rem 2rem; font-size: 1.1rem; font-weight: 600; border-radius: 6px; text-decoration: none; box-shadow: 0 4px 8px rgba(0,0,0,0.15); transition: background-color 0.3s;">
-        Browse Products
-  </a>
-  </div>
 </section>
+<h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem; text-align: center;">Welcome to Green2B</h1>
 <h2>Search Products</h2>
 <form method="get" action="{{ url_for('products') }}" style="margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center;">
   <input 
@@ -120,26 +104,29 @@
 <section style="max-width: 900px; margin: 0 auto 3rem; text-align: center;">
 </section>
 
-    <section class="trust-badges" style="text-align: center; padding: 1.5rem; background: #f7f7f7;">
-        <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 2rem;">
-            <div style="flex: 1 1 200px; max-width: 500px; text-align: center;">
-                <img src="/static/images/ai.png" alt="AI-Driven" style="height: 60px; margin-bottom: 1rem;">
-                <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 2.2rem;">AI-Driven Sustainability Scoring</h4>
-                <p style="font-size: 1.5rem; color: #333;">Leverage advanced AI to rate supplier sustainability and help you make informed choices.</p>
-            </div>
-            <div style="flex: 1 1 200px; max-width: 500px; text-align: center;">
-                <img src="/static/images/bulk_order.png" alt="Bulk Order" style="height: 60px; margin-bottom: 1rem;">
-                <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 2.2rem;">Bulk Order Aggregation</h4>
-                <p style="font-size: 1.5rem; color: #333;">Combine orders to maximize savings and reduce waste across your supply chain.</p>
-            </div>
-            <div style="flex: 1 1 200px; max-width: 500px; text-align: center;">
-                <img src="/static/images/verify.png" alt="Verified Suppliers" style="height: 60px; margin-bottom: 1rem;">
-                <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 2.2rem;">Verified Green Suppliers</h4>
-                <p style="font-size: 1.5rem; color: #333;">Work only with trusted, certified suppliers committed to sustainable practices.</p>
-            </div>
-        </div>
+ <section class="trust-badges" style="text-align: center; padding: 2rem 1rem; background: #f7f7f7;">
+  <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 2rem; max-width: 1200px; margin: 0 auto;">
     
-    </section>
+    <div style="flex: 1 1 280px; max-width: 320px; padding: 1rem; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <img src="/static/images/ai.png" alt="AI-Driven" style="height: 50px; margin-bottom: 1rem;">
+      <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 1.3rem;">AI-Driven Sustainability</h4>
+      <p style="font-size: 0.95rem; color: #333; line-height: 1.5;">Advanced AI rates supplier sustainability to help you make smarter, greener decisions.</p>
+    </div>
+    
+    <div style="flex: 1 1 280px; max-width: 320px; padding: 1rem; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <img src="/static/images/bulk_order.png" alt="Bulk Order" style="height: 50px; margin-bottom: 1rem;">
+      <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 1.3rem;">Bulk Order Aggregation</h4>
+      <p style="font-size: 0.95rem; color: #333; line-height: 1.5;">Combine supplier orders to maximize cost-efficiency and reduce environmental waste.</p>
+    </div>
+    
+    <div style="flex: 1 1 280px; max-width: 320px; padding: 1rem; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <img src="/static/images/verify.png" alt="Verified Suppliers" style="height: 50px; margin-bottom: 1rem;">
+      <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 1.3rem;">Verified Green Suppliers</h4>
+      <p style="font-size: 0.95rem; color: #333; line-height: 1.5;">We only list certified, trustworthy suppliers committed to real sustainability.</p>
+    </div>
+
+  </div>
+</section>
 
 <!-- Newsletter Signup -->
 <form action="{{ url_for('signup') }}" method="POST">

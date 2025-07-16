@@ -3,30 +3,24 @@
 
 {% block content %}
   <section style='
-    background: url("{{ url_for("static", filename="images/about_background.jpg") }}") no-repeat center center;
+    background: url("{{ url_for("static", filename="images/about_header_new.jpg") }}") no-repeat center center;
     background-size: cover;
     padding: 6rem 2rem;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
+    height: 500px;
   '>
-  <div style='
-    background-color: rgba(11, 61, 46, 0.9);
-    padding: 3rem 2rem;
-    border-radius: 12px;
-    max-width: 800px;
-    width: 100%;
-    color: white;
-  '>
-    <h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem;">About Green2B</h1>
+  </section>
+
+<section style="max-width: 1000px; margin: 3rem auto; padding: 0 1.5rem;">
+  <h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem; text-align: center;">About Green2B</h1>
+  <ul style="list-style: disc; padding-left: 1.5rem; font-size: 1.05rem; line-height: 1.6;">
     <p style="font-size: 1.2rem; max-width: 700px; margin: 0 auto;">
       Your trusted B2B marketplace for sustainable sourcing. We simplify bulk procurement of eco-friendly products by connecting you with certified green suppliers.
     </p>
-  </div>
-</section>
-
-<section style="max-width: 1000px; margin: 3rem auto; padding: 0 1.5rem;">
+  </ul>
   <h2 style="font-size: 2rem; margin-bottom: 1.5rem;">Today's Challenges</h2>
   <ul style="list-style: disc; padding-left: 1.5rem; font-size: 1.05rem; line-height: 1.6;">
     <li><strong>Limited Access to Sustainable Suppliers:</strong> Businesses struggle to find verified, eco-conscious suppliers.</li>
@@ -69,13 +63,38 @@
 
   <div>
     <h3 style="font-size: 1.5rem; color: #0b3d2e;">The Environment</h3>
+    <h4 style="font-size: 1.30rem; color: #0b3d2e;">Sustainable Development Goals (SDGs)</h3>
     <ul style="list-style: disc; padding-left: 1.5rem; font-size: 1.05rem; line-height: 1.6;">
-      <li><strong>SDG 12:</strong> Target 20% waste reduction in hospitality & retail.</li>
-      <li><strong>SDG 13:</strong> Estimated 25–40% carbon footprint reduction. We partner with DHL GoGreen Plus to cut delivery emissions by up to 80%.</li>
-      <li><strong>SDG 8 & 17:</strong> Cross-sector collaboration to stabilize green supply chains and promote inclusive economic growth.</li>
+      <section class="sdgs" style="text-align: center; padding: 1.5rem; background: #f7f7f7;">
+        <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 2rem;">
+            <div style="flex: 1 1 200px; max-width: 500px; text-align: center;">
+                <img src="/static/images/IMG_9961.png" alt="SDG12" style="height: 80px; margin-bottom: 1rem;">
+                <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 1.25rem;">SDG 12</h4>
+                <p style="font-size: 1.05rem; color: #333;">Target 20% waste reduction in hospitality & retail.</p>
+            </div>
+            <div style="flex: 1 1 200px; max-width: 500px; text-align: center;">
+                <img src="/static/images/IMG_9962.png" alt="SDG13" style="height: 80px; margin-bottom: 1rem;">
+                <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 1.25rem;">SDG 13</h4>
+                <p style="font-size: 1.05rem; color: #333;">Estimated 25–40% carbon footprint reduction. We partner with DHL GoGreen Plus to cut delivery emissions by up to 80%.</p>
+            </div>
+            <div style="flex: 1 1 200px; max-width: 500px; text-align: center;">
+                <img src="/static/images/IMG_9964.png" alt="SDG17" style="height: 80px; margin-bottom: 1rem;">
+                <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 1.25rem;">SDG 17</h4>
+                <p style="font-size: 1.05rem; color: #333;">Cross-sector collaboration to stabilize green supply chains and promote inclusive economic growth.</p>
+            </div>
+        </div>
+    
+    </section>
     </ul>
   </div>
 </section>
+
+<hr style="border: none; border-top: 1px solid #ccc; margin: 3rem 0;">
+  <p style="font-style: italic; color:#095c43; font-weight: 600; font-size: 24px; text-align: center; max-width: 600px; margin: 0 auto;">
+    At Green2B, our team believes sustainability should not be a luxury, it must become a necessity.  
+    We aim to drive change by helping businesses purchase bulk sustainable products, setting the tone for faster, broader adoption across industries.  
+    This is the vision that fuels everything we do at Green2B.
+  </p>
 
 <section style="margin-top: 4rem; text-align: center;">
   <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: #0b3d2e;"> Meet Our Team </h2>
@@ -95,6 +114,7 @@
   </div>
 
   <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 220px; text-align: left;">
+    <img src="{{ url_for('static', filename='images/IMG_9348.jpeg') }}" alt="Description" style="max-width: 100%; height: auto; border-radius: 8px;">
     <h3 style="margin: 0; color: #095c43;">Siddhi Satav</h3>
     <p style="font-style: italic; color: #121; margin: 0.3rem 0 1rem 0;">Co-Founder, Operations</p>
     <ul style="list-style: disc; padding-left: 1.5rem; font-size: 1.05rem; line-height: 1.6; margin: 0;">
@@ -104,6 +124,7 @@
   </div>
 
   <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 220px; text-align: left;">
+    <img src="{{ url_for('static', filename='images/IMG_2755.jpeg') }}" alt="Description" style="max-width: 100%; height: auto; border-radius: 8px;">
     <h3 style="margin: 0; color: #095c43;">Mohamed El Leithy</h3>
     <p style="font-style: italic; color: #121; margin: 0.3rem 0 1rem 0;">Web Developer, Intern</p>
     <ul style="list-style: disc; padding-left: 1.5rem; font-size: 1.05rem; line-height: 1.6; margin: 0;">
@@ -111,12 +132,7 @@
     </ul>
   </div>
 </div>
-  <hr style="border: none; border-top: 1px solid #ccc; margin: 3rem 0;">
-  <p style="font-style: italic; color:#095c43; font-weight: 600; font-size: 24px; text-align: center; max-width: 600px; margin: 0 auto;">
-    At Green2B, our team believes sustainability should not be a luxury, it must become a necessity.  
-    We aim to drive change by helping businesses purchase bulk sustainable products, setting the tone for faster, broader adoption across industries.  
-    This is the vision that fuels everything we do at Green2B.
-  </p>
+ 
 
 <section style="background-color: #eafaf1; padding: 3rem 1.5rem; text-align: center; border-radius: 8px; margin-top: 3rem;">
   <h2 style="font-size: 2rem; font-weight: bold; margin-bottom: 1rem;">Join the Movement</h2>

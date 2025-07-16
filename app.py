@@ -169,7 +169,7 @@ def add_to_cart(product_id):
         db.session.commit()
     else:
 
-        if 'cart' not in session:
+        if not isinstance(session.get('cart'), list):
             session['cart'] = []
 
         session['cart'].append(product)

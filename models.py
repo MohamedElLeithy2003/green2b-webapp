@@ -1,10 +1,11 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
 db = SQLAlchemy()
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -48,15 +49,19 @@ class Product(db.Model):
 
     order_items = db.relationship('OrderItem', backref='order', lazy=True)
 
+class Cart(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    items = db.relationship('CartItem', backref='cart', cascade="all, delete-orphan")
+
 class CartItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    cart_id = db.Column(db.Integer, db.ForeignKey('cart.id'), nullable=False)
     product_id = db.Column(db.Integer)
     name = db.Column(db.String(100))
     price = db.Column(db.Float)
     quantity = db.Column(db.Integer, default=1)
-
-    user = db.relationship('User', backref='cart_items')
     
 
 class Order(db.Model):
