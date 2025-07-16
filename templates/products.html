@@ -141,7 +141,7 @@
 
     <h3 style="margin: 0.5rem 0;">{{ product.name }}</h3>
     <p><strong>Category:</strong> {{ product.category }}</p>
-    <p><strong>Price:</strong> ${{ product.price }}</p>
+    <p><strong>Price:</strong> £{{ product.price }}</p>
     <p><strong>Score:</strong> {{ product.score }}</p>
 
     <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn" style="
