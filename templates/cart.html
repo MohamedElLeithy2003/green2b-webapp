@@ -1,21 +1,31 @@
 {% extends "base.html" %}
 {% block content %}
-<div style="max-width: 800px; margin: 2rem auto; padding: 2rem; background: #f9f9f9; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0,05);">
-    <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2rem;"> Your Cart </h2>
+<div style="max-width: 800px; margin: 2rem auto; padding: 2rem; background: #f9f9f9; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+    <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2rem;">Your Cart</h2>
+
     {% if cart %}
         <ul style="list-style: none; padding: 0;">
             {% for item in cart %}
-                <li style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #ddd;">{{ item.name }} - {{item.price}}</li>
+                <li style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #ddd;">
+                    <div>
+                        <strong>{{ item.name }}</strong><br>
+                        Price: £{{ item.price }}<br>
+                        Quantity: {{ item.quantity }}<br>
+                        Subtotal: £{{ item.subtotal }}
+                    </div>
+                </li>
             {% endfor %}
         </ul>
-        <p><strong>Total:</strong> {{ total }}</p>
-        <form action="{{ url_for('create_checkout_session') }}" method="POST">
-        <button type="submit" style="padding: 10px 20px; font-size: 16px;">
-            Proceed to Payment (Test Mode)
-        </button>
-    </form>
-{% else %}
-    <p> Your cart is empty </p>
-{% endif %}
+
+        <p style="margin-top: 1.5rem; font-size: 1.2rem;"><strong>Total:</strong> £{{ total }}</p>
+
+        <form action="{{ url_for('create_checkout_session') }}" method="POST" style="margin-top: 1rem;">
+            <button type="submit" style="padding: 10px 20px; font-size: 16px; background-color: #0b3d2e; color: white; border: none; border-radius: 6px;">
+                Proceed to Payment (Test Mode)
+            </button>
+        </form>
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
 </div>
 {% endblock %}

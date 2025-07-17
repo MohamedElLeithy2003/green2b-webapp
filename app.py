@@ -84,8 +84,10 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.pop('user_email', None)
+    session.pop('user_id', None)
+    session.pop('user_role', None)
     session.clear()
+    flash('Logged out successfully')
     return redirect(url_for('home'))
 
 
@@ -235,41 +237,83 @@ def product_detail(product_id):
         return "Product not found", 404
     return render_template('product_details.html', product=product)
 
-@app.route('/add-to-cart/<int:product_id>')
+@app.route('/add-to-cart/<int:product_id>', methods=['GET', 'POST'])
 def add_to_cart(product_id):
     product = next((p for p in products_data if p['id'] == product_id), None)
     if not product:
         flash("Product not found")
         return redirect(url_for('products'))
 
-    if current_user.is_authenticated:
-        item = CartItem(
-            user_id = current_user.id,
-            product_id = product['id'],
-            product_name = product['name'],
-            price = product['price']
-        )
-        db.session.add(item)
-        db.session.commit()
-    else:
+    # Read quantity from form, default 1 if invalid
+    try:
+        quantity = int(request.form.get('quantity', 1))
+        if quantity < 1:
+            quantity = 1
+    except ValueError:
+        quantity = 1
 
+    if current_user.is_authenticated:
+        existing_item = CartItem.query.filter_by(user_id=current_user.id, product_id=product['id']).first()
+        if existing_item:
+            existing_item.quantity += quantity
+        else:
+            item = CartItem(
+                user_id=current_user.id,
+                product_id=product['id'],
+                product_name=product['name'],
+                price=product['price'],
+                quantity=quantity
+            )
+            db.session.add(item)
+        db.session.commit()
+
+    else:
         if not isinstance(session.get('cart'), list):
             session['cart'] = []
 
-        session['cart'].append(product)
+        for item in session['cart']:
+            if item['id'] == product['id']:
+                item['quantity'] += quantity
+                break
+        else:
+            session['cart'].append({
+                'id': product['id'],
+                'name': product['name'],
+                'price': product['price'],
+                'quantity': quantity
+            })
+
         session.modified = True
         flash(f"{product['name']} added to cart.")
+
     return redirect(url_for('products'))
 
 @app.route('/cart')
 def cart():
     if current_user.is_authenticated:
         items = CartItem.query.filter_by(user_id=current_user.id).all()
-        cart_items = [{'name': i.product_name, 'price': i.price} for i in items]
+        cart_items = [
+            {
+                'name': i.product_name,
+                'price': i.price,
+                'quantity': i.quantity,
+                'subtotal': i.price * i.quantity
+            }
+            for i in items
+        ]
     else:
-        cart_items = session.get('cart', [])
+        cart_items = []
+        for item in session.get('cart', []):
+            quantity = item.get('quantity', 1)
+            price = item['price']
+            cart_items.append({
+                'name': item['name'],
+                'price': price,
+                'quantity': quantity,
+                'subtotal': price * quantity
+            })
 
-    total = sum(item['price'] for item in cart_items)
+    total = sum(item['subtotal'] for item in cart_items)
     return render_template('cart.html', cart=cart_items, total=total)
 
 @app.route('/checkout', methods=['GET', 'POST'])
@@ -326,6 +370,9 @@ def checkout():
         flash("Order placed successfully!")
         return redirect(url_for('checkout_success'))
     return render_template('checkout.html', cart=session.get('cart', []), publishable_key="pk_test_51O8jQdE43TmUArKlpffHWwtJ8w8poxqLbjyBFa2Ot2ZvEyqgqFrsPKyHyySRdrgelYHik3uQCmtst66eHHRECu0o008aBTzQVL")
+
+
+
 
 @app.route('/checkout-success')
 def checkout_success():
@@ -473,37 +520,112 @@ def terms():
 def privacy():
     return render_template('privacy.html')
 
+def get_product_by_id(product_id):
+    return Product.query.get(product_id)
+
+
+
+    
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
+    # Get product info from form (if any)
+    product_id = request.form.get('product_id')
+    quantity = int(request.form.get('quantity', 1))
+
+    # Load cart from session or create new list
     cart = session.get('cart', [])
+
+    if product_id:
+        product = get_product_by_id(int(product_id))
+        if not product:
+            flash("Product not found")
+            return redirect(url_for('products'))
+
+        # Add or update product in cart
+        for item in cart:
+            if item['id'] == product.id:
+                item['quantity'] += quantity
+                break
+        else:
+            cart.append({
+                'id': product.id,
+                'name': product.name,
+                'price': float(product.price),
+                'quantity': quantity
+            })
+
     if not cart:
         flash("Cart is empty")
-        return redirect(url_for('cart'))
+        return redirect(url_for('products'))
+
+    session['cart'] = cart
 
     line_items = [
         {
             'price_data': {
                 'currency': 'usd',
                 'product_data': {'name': item['name']},
-                'unit_amount': int(item['price'] * 100),  
+                'unit_amount': int(item['price'] * 100),
             },
-            'quantity': 1,
+            'quantity': item['quantity'],
         }
         for item in cart
     ]
+
     try:
         session_stripe = stripe.checkout.Session.create(
-            payment_method_types = ['card'],
+            payment_method_types=['card'],
             line_items=line_items,
             mode='payment',
-            success_url = url_for('checkout_success', _external=True),
-            cancel_url = url_for('cart', _external=True),
+            success_url=url_for('checkout_success', _external=True),
+            cancel_url=url_for('cart', _external=True),
         )
         return redirect(session_stripe.url, code=303)
     except Exception as e:
         flash("Error creating Stripe session")
         print(f"Stripe Error: {e}")
         return redirect(url_for('cart'))
+
+@app.route('/buy-now', methods=['POST'])
+def buy_now():
+    try:
+        product_id = int(request.form.get('product_id'))
+    except (TypeError, ValueError):
+        flash("Invalid product ID")
+        return redirect(url_for('products'))
+
+    quantity = int(request.form.get('quantity', 1))
+
+    # Replace with your actual product lookup
+    product = next((p for p in products_data if p['id'] == product_id), None)
+    if not product:
+        flash("Product not found")
+        return redirect(url_for('products'))
+
+    try:
+        session_stripe = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'gbp',
+                    'product_data': {'name': product['name']},
+                    'unit_amount': int(product['price'] * 100),
+                },
+                'quantity': quantity,
+            }],
+            mode='payment',
+            success_url=url_for('checkout_success', _external=True),
+            cancel_url=url_for('product_detail', product_id=product_id, _external=True),
+        )
+        return redirect(session_stripe.url, code=303)
+
+    except Exception as e:
+        flash("Error creating Stripe session: " + str(e))
+        print(f"Stripe Error: {e}")
+        return redirect(url_for('products'))
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

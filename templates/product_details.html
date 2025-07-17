@@ -5,46 +5,88 @@
 {% block content %}
 <div style="max-width: 1100px; margin: 2rem auto; display: flex; gap: 3rem; flex-wrap: wrap; align-items: flex-start;">
 
-  <!-- Product Image (Placeholder) -->
+  <!-- Product Image -->
   <div style="flex: 1 1 400px;">
     <div style="background: #f4f4f4; height: 400px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
-        {% if product.image %}
-          <img src="{{ url_for('static', filename=product.image) }}" 
-            alt="{{ product.name }}" 
-            style="max-height: 100%; max-width: 100%; object-fit: contain;">
-        {% else %}
-    <span style="color: #999;">No Image Available</span>
-  {% endif %}
-</div>
+      {% if product.image %}
+        <img src="{{ url_for('static', filename=product.image) }}" 
+             alt="{{ product.name }}" 
+             style="max-height: 100%; max-width: 100%; object-fit: contain;">
+      {% else %}
+        <span style="color: #999;">No Image Available</span>
+      {% endif %}
+    </div>
   </div>
 
-  <!-- Product Info -->
+  <!-- Product Info and Actions -->
   <div style="flex: 1 1 500px;">
     <h1 style="font-size: 2.5rem; margin-bottom: 1rem; font-weight: 700;">{{ product.name }}</h1>
 
-    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;"><strong>Category:</strong> {{ product.category }}</p>
-    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;"><strong>Price/Quantity:</strong> £{{ product.price }}/{{ product.quantity }}</p>
+    <p style="font-size: 1.3rem; margin-bottom: 0.5rem;">
+      <strong>Category:</strong> {{ product.category }}
+    </p>
 
-    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;"><strong>Supplier:</strong>{{ product.supplier }}</p>
-    <p style="font-size: 1.1rem; margin-bottom: 1.5rem; line-height: 1.6;"><strong>Description:</strong> {{ product.description }}</p>
+    <p style="font-size: 1.3rem; margin-bottom: 0.5rem;">
+      <strong>Price/Quantity:</strong> £<span id="unit-price">{{ product.price }}</span>/{{ product.quantity }}
+    </p>
+
+    <p style="font-size: 1.3rem; margin-bottom: 0.5rem;">
+      <label for="quantity"><strong>Quantity:</strong></label>
+      <input type="number" id="quantity" name="quantity" min="1" max="{{ product.quantity }}" value="1" style="width: 70px; margin-left: 0.5rem; font-size: 1.2rem;">
+    </p>
+
+    <p style="font-size: 1.5rem; margin-bottom: 1rem;">
+      <strong>Total: £<span id="total-price">{{ product.price }}</span></strong>
+    </p>
+
+    <p style="font-size: 1.3rem; margin-bottom: 0.5rem;">
+      <strong>Supplier:</strong> {{ product.supplier }}
+    </p>
+
+    <p style="font-size: 1.3rem; margin-bottom: 1.5rem; line-height: 1.6;">
+      <strong>Description:</strong> {{ product.description }}
+    </p>
 
     <!-- Buttons -->
-    <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.5rem;">
-      <a href="{{ url_for('add_to_cart', product_id=product.id) }}" 
-         style="background-color: #0b3d2e; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600;">
-        Add to Cart
-      </a>
+    <div style="display: flex; flex-direction: column; gap: 1rem; max-width: 240px;">
+      <!-- Add to Cart Form -->
+      <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post">
+        <input type="hidden" name="quantity" id="add-to-cart-quantity" value="1">
+        <button type="submit" style="background-color: #198754; width: 100%; color: white; padding: 0.8rem 1rem; border-radius: 6px; font-weight: 600; border: none; cursor: pointer; font-size: 1.1rem;">
+          Add to Cart
+        </button>
+      </form>
 
-      <a href="{{ url_for('checkout', product_id=product.id) }}" 
-         style="background-color: #198754; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600;">
-        Buy Now
-      </a>
+      <!-- Buy Now Form -->
+<form action="{{ url_for('buy_now') }}" method="POST">
+  <input type="hidden" name="product_id" value="{{ product.id }}">
+  <input type="hidden" name="quantity" id="buy-now-quantity" value="1">
+  <button type="submit" style="background-color: #198754; width: 100%; color: white; padding: 0.8rem 1rem; border-radius: 6px; font-weight: 600; border: none; cursor: pointer; font-size: 1.1rem;">
+          Buy Now
+        </button>
+</form>
 
+      <!-- Back Button -->
       <a href="{{ url_for('products') }}" 
-         style="background-color: #6c757d; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px;">
+         style="background-color: #6c757d; width: 100%; text-align: center; color: white; padding: 0.8rem 1rem; text-decoration: none; border-radius: 6px; font-size: 1.1rem;">
         Back to Products
       </a>
     </div>
   </div>
 </div>
+
+<script>
+  const quantityInput = document.getElementById('quantity');
+  const totalPrice = document.getElementById('total-price');
+  const unitPrice = parseFloat(document.getElementById('unit-price').textContent);
+  const addToCartQuantity = document.getElementById('add-to-cart-quantity');
+  const buyNowQuantity = document.getElementById('buy-now-quantity');
+
+  quantityInput.addEventListener('input', () => {
+    const qty = parseInt(quantityInput.value) || 1;
+    totalPrice.textContent = (unitPrice * qty).toFixed(2);
+    addToCartQuantity.value = qty;
+    buyNowQuantity.value = qty;
+  })
+</script>
 {% endblock %}
