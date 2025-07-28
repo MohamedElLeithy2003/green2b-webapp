@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Your Profile{% endblock %}
+
+{% block content %}
+<div class="profile-container" style="max-width:600px; margin: 2rem auto; padding: 1rem; border: 1px solid #ddd; border-radius: 8px;">
+  <h2>Welcome, {{ user.name }}!</h2>
+  
+  <div style="margin-top: 1rem;">
+    <p><strong>Name:</strong> {{ user.name }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Member since:</strong> {{ user.created_at.strftime('%B %d, %Y') }}</p>
+  </div>
+
+  <div style="margin-top: 1.5rem;">
+    <a href="{{ url_for('profile.edit_profile') }}" class="btn btn-primary">Edit Profile</a>
+    <a href="{{ url_for('orders.orders_list') }}" class="btn btn-primary">View My Orders</a>
+    <a href="{{ url_for('home') }}" class="btn btn-secondary">Back to Home</a>
+  </div>
+</div>
+{% endblock %}

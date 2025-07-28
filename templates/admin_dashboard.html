@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Admin Dashboard - Green2B</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e9f5ec;
+            margin: 0;
+            padding: 0;
+        }
+        .dashboard-header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dashboard-header h1 {
+            margin: 0;
+        }
+        .dashboard-header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .dashboard-content {
+            padding: 2rem;
+        }
+        .section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        .section h2 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <h1>Admin Dashboard</h1>
+        <a href="{{ url_for('admin.admin_logout') }}">Logout</a>
+    </div>
+
+    <div class="dashboard-content">
+        <div class="section">
+            <h2>Welcome, Admin</h2>
+            <p>This is your private dashboard to manage suppliers, products, and users.</p>
+        </div>
+
+        <!-- Future management sections -->
+        <div class="section">
+            <h2>Supplier Applications</h2>
+            <a href="{{ url_for('admin.supplier_applications') }}">View Applications</a>
+        </div>
+
+        <div class="section">
+            <h2>Product Listings</h2>
+            <p>Coming soon...</p>
+        </div>
+    </div>
+</body>
+</html>

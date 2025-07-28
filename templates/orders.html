@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div style="max-width: 800px; margin: 2rem auto;">
+    <h2>My Orders</h2>
+    
+    {% if orders %}
+      <ul style="list-style-type: none; padding: 0;">
+        {% for order in orders %}
+          <li style="margin-bottom: 1.5rem; padding: 1rem; border: 1px solid #ddd; border-radius: 8px;">
+            <strong>Order #{{ order.id }}</strong><br>
+            <span>Placed on: {{ order.created_at.strftime('%B %d, %Y') }}</span><br>
+            <span>Status: {{ order.status }}</span><br>
+            <span>Total: £{{ '%.2f'|format(order.total_price) }}</span><br>
+            
+            {% if order.items %}
+              <div style="margin-top: 0.5rem;">
+                <strong>Items:</strong>
+                <ul style="margin: 0.5rem 0 0 1.25rem;">
+                  {% for item in order.items %}
+                    <li>{{ item.name }} (x{{ item.quantity }})</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+
+            <!-- Add the View Details button/link -->
+            <div style="margin-top: 1rem;">
+              <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" 
+                 style="padding: 0.5rem 1rem; background-color: #00704a; color: white; text-decoration: none; border-radius: 4px;">
+                 View Details
+              </a>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>You have not placed any orders yet.</p>
+    {% endif %}
+  </div>
+{% endblock %}

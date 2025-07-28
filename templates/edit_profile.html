@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="edit-profile-container">
+    <h1>Edit Your Profile</h1>
+
+    <form method="POST" action="{{ url_for('profile.edit_profile') }}">
+        {{ form.hidden_tag() }}
+
+          {{ form.username.label }} {{ form.username() }}
+          {{ form.email.label }} {{ form.email() }}
+          {{ form.password.label }} {{ form.password() }}
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('profile.profile') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+<style>
+.edit-profile-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #f1f1f1;
+    border-radius: 8px;
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    text-decoration: none;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border: none;
+    margin-left: 1rem;
+}
+</style>
+{% endblock %}

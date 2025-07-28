@@ -38,6 +38,18 @@ class Supplier(db.Model):
 
     products = db.relationship('Product', backref='supplier', lazy=True)
 
+
+class SupplierApplication(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), nullable=False)
+    company = db.Column(db.String(100), nullable=False)
+    website = db.Column(db.String(200))
+    products = db.Column(db.String(300))
+    message = db.Column(db.Text)
+    status = db.Column(db.String(20), default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     supplier_id = db.Column(db.Integer, db.ForeignKey('supplier.id'), nullable=False)
@@ -58,7 +70,7 @@ class CartItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     cart_id = db.Column(db.Integer, db.ForeignKey('cart.id'), nullable=False)
-    product_id = db.Column(db.Integer)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     name = db.Column(db.String(100))
     price = db.Column(db.Float)
     quantity = db.Column(db.Integer, default=1)
@@ -66,9 +78,10 @@ class CartItem(db.Model):
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    buyer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    buyer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    email = db.Column(db.String(255), nullable=True)
     total_price = db.Column(db.Numeric(10, 2), nullable=False)
-    status = db.Column(db.Enum('pending', 'shipped', 'delivered', name='order_status'), default='pending')
+    status = db.Column(db.Enum('pending', 'shipped', 'delivered', 'Completed', name='order_status'), default='pending')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -83,6 +96,6 @@ class ContactMessage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
     email = db.Column(db.String(120), nullable=False)
-    messaage = db.Column(db.Text, nullable=False)
+    message = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 

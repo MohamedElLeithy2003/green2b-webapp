@@ -1,10 +1,15 @@
 import stripe
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+import openai
+from flask import Flask, Blueprint, render_template, request, redirect, url_for, session, flash, abort, jsonify
 from flask_mail import Mail, Message
 from flask_login import current_user, LoginManager
 from flask_sqlalchemy import SQLAlchemy
-from models import db, Product, User, CartItem
+from models import db, Product, User, CartItem, Order, OrderItem, SupplierApplication
 from flask_migrate import Migrate
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField
+from wtforms.validators import DataRequired, Email, Optional
+from datetime import datetime
 
 
 
@@ -12,6 +17,9 @@ app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 migrate = Migrate(app, db)
+profile_bp = Blueprint('profile', __name__)
+orders_bp = Blueprint('orders', __name__, url_prefix='/orders')
+admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 app.secret_key = 'd11c57a2dde5240c1ba0a1bd96be6fdc979173696d613bb44342ea520a3e6379'
 
 
@@ -34,6 +42,9 @@ stripe.api_key = "sk_test_51O8jQdE43TmUArKlFz7rQnZI4yeZ9iVsoImn0Bs2wI5Bx8PqufupG
 
 subscribers = []
 
+ADMIN_USERNAME = 'adminuser'
+ADMIN_PASSWORD = 'supersecretpassword'
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -41,6 +52,39 @@ def load_user(user_id):
 @app.route('/')
 def home():
     return render_template('home.html')
+
+
+@admin_bp.route('/admin-login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session['admin_logged_in'] = True
+            return redirect(url_for('admin.dashboard'))
+        else:
+            return render_template('admin_login.html', error='Invalid credentials')
+
+    return render_template('admin_login.html')  # GET request
+
+
+@admin_bp.route('/admin-logout')
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    return redirect(url_for('admin.admin_login'))
+
+
+@admin_bp.route('/dashboard')
+def dashboard():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin.admin_login'))
+    return render_template('admin_dashboard.html')
+
+@admin_bp.route('/supplier-applications')
+def supplier_applications():
+    applications = SupplierApplication.query.order_by(SupplierApplication.created_at.desc()).all()
+    return render_template('supplier_applications.html', applications=applications)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -61,6 +105,55 @@ def register():
         flash('Registration successful. You can now login')
         return redirect(url_for('login'))
     return render_template('auth/register.html')
+
+@profile_bp.route('/profile')
+def profile():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    user = User.query.get(session['user_id'])
+
+    if not user or user.role != 'buyer':
+        return redirect(url_for('home'))
+
+    return render_template('profile.html', user=user)
+
+
+class EditProfileForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('New Password', validators=[Optional()])
+
+@profile_bp.route('/profile/edit', methods=['GET', 'POST'])
+def edit_profile():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+    if not user or user.role != 'buyer':
+        return redirect(url_for('home'))
+
+    form = EditProfileForm()
+
+    if form.validate_on_submit():
+        user.name = form.username.data
+        user.email = form.email.data
+        if form.password.data:
+            user.set_password(form.password.data)
+        try:
+            db.session.commit()
+            flash('Profile updated successfully.')
+            return redirect(url_for('profile.profile'))
+        except Exception as e:
+            db.session.rollback()
+            flash('Error updating profile.')
+
+    if request.method == 'GET':
+        form.username.data = user.name
+        form.email.data = user.email
+
+    return render_template('edit_profile.html', form=form, user=user)
+
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -106,6 +199,34 @@ def signup():
     flash("Thank you for subscribing!")
 
     return redirect(url_for('home'))
+
+
+@orders_bp.route('/')
+def orders_list():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+
+    orders = Order.query.filter(
+        (Order.email == user.email) | (Order.buyer_id == user.id)
+    ).order_by(Order.created_at.desc()).all()
+
+    return render_template('orders.html', orders=orders)
+
+@orders_bp.route('/<int:order_id>')
+def order_detail(order_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    order = Order.query.get(order_id)
+    if not order or order.buyer_id != session['user_id']:
+        return redirect(url_for('orders.orders_list'))
+
+    order_items = OrderItem.query.filter_by(order_id=order.id).all()
+
+    return render_template('order_detail.html', order=order, order_items=order_items)
+
+
 
 @app.route('/about')
 def about():
@@ -376,6 +497,27 @@ def checkout():
 
 @app.route('/checkout-success')
 def checkout_success():
+    cart = session.get('cart', [])
+    if not cart:
+        flash("Cart is empty")
+        return redirect(url_for('products'))
+
+    buyer_id = current_user.id if current_user.is_authenticated else None
+    email = current_user.email if current_user.is_authenticated else None
+
+    total = sum(item['price'] * item['quantity'] for item in cart)
+
+    new_order = Order(
+        buyer_id=buyer_id,
+        email=email,
+        total_price=total,
+        status='Completed'
+    )
+    db.session.add(new_order)
+    db.session.commit()
+
+    session.pop('cart', None)  # clear cart
+
     return render_template('checkout_success.html')
 
 
@@ -403,7 +545,19 @@ def supplier_apply():
         website = request.form.get('website')
         products = request.form.get('products')
         message = request.form.get('message')
-
+        
+        new_app = SupplierApplication(
+            name=name,
+            company=company,
+            email=email,
+            website=website,
+            products=products,
+            message=message,
+            status='pending'
+        )
+        db.session.add(new_app)
+        db.session.commit()
+        
         print(f"New supplier application: \nName: {name}\nCompany: {company}\nEmail: {email}\nWebsite: {website}\nProducts: {products}\nMessage: {message}")
         
         return redirect('/supplier-success')
@@ -480,6 +634,33 @@ def delete_product(product_id):
     return redirect(url_for('supplier_products'))
 
 
+#def ai_sustainability_score(product):
+
+ #   prompt = f"""
+  #  Given the product details below, provide a sustainability score from 0 to 100, where higher is more sustainable.
+
+   # Name: {product['name']}
+    #Category: {product['category']}
+    #Description: {product['description']}
+    #Supplier: {product['supplier']}
+
+    #Return only the numeric score.
+    #"""
+
+    #try:
+     #   response = openai.ChatCompletion.create(
+      #      model="gpt-4",
+       #     messages=[
+        #        {"role": "system", "content": "You are a sustainability expert."},
+         #       {"role": "user", "content": prompt}
+          #  ]
+        #)
+        #score = response['choices'][0]['message']['content'].strip()
+        #return score
+    #except Exception as e:
+     #   print(f"AI scoring error: {e}")
+      #  return None
+
 
 
 def get_faqs():
@@ -523,12 +704,41 @@ def privacy():
 def get_product_by_id(product_id):
     return Product.query.get(product_id)
 
+@app.route('/stripe-webhook', methods=['POST'])
+def stripe_webhook():
+    payload = request.data
+    sig_header = request.headers.get('Stripe-Signature')
+    webhook_secret = 'your-webhook-secret'
 
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
+    except ValueError:
+        return 'Invalid payload', 400
+    except stripe.error.SignatureVerificationError:
+        return 'Invalid signature', 400
+
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+
+        customer_email = session.get('customer_details', {}).get('email')
+        metadata = session.get('metadata', {})
+
+        new_order = Order(
+            buyer_email=customer_email,
+            status='paid',
+            total_amount=session['amount_total'] / 100,  # convert pence to GBP
+            currency='gbp',  # optional but good to save currency
+            stripe_session_id=session['id'],
+            created_at=datetime.utcnow()
+        )
+        db.session.add(new_order)
+        db.session.commit()
+
+    return jsonify(success=True)
 
     
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
-    # Get product info from form (if any)
     product_id = request.form.get('product_id')
     quantity = int(request.form.get('quantity', 1))
 
@@ -602,6 +812,12 @@ def buy_now():
         flash("Product not found")
         return redirect(url_for('products'))
 
+    session['cart'] = [{
+        'id': product['id'],
+        'name': product['name'],
+        'price': product['price'],
+        }]
+
     try:
         session_stripe = stripe.checkout.Session.create(
             payment_method_types=['card'],
@@ -625,7 +841,8 @@ def buy_now():
         return redirect(url_for('products'))
 
 
-
-
+app.register_blueprint(profile_bp)
+app.register_blueprint(orders_bp)
+app.register_blueprint(admin_bp)
 if __name__ == '__main__':
     app.run(debug=True)

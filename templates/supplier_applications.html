@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Supplier Applications - Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; background: #f9f9f9; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem; border: 1px solid #ddd; }
+        th { background-color: #4CAF50; color: white; }
+        a { color: #4CAF50; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>Supplier Applications</h1>
+    <p><a href="{{ url_for('admin.dashboard') }}">← Back to Dashboard</a></p>
+
+    {% if applications %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Company</th>
+                <th>Email</th>
+                <th>Website</th>
+                <th>Products</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Applied On</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>{{ app.id }}</td>
+                <td>{{ app.name }}</td>
+                <td>{{ app.company }}</td>
+                <td><a href="mailto:{{ app.email }}">{{ app.email }}</a></td>
+                <td><a href="{{ app.website }}" target="_blank">{{ app.website }}</a></td>
+                <td>{{ app.products }}</td>
+                <td>{{ app.message }}</td>
+                <td>{{ app.status }}</td>
+                <td>{{ app.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No supplier applications found.</p>
+    {% endif %}
+</body>
+</html>
