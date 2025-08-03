@@ -1,31 +1,96 @@
 {% extends "base.html" %}
+
+{% block title %}Your Cart | Green2B{% endblock %}
+
 {% block content %}
 <div style="max-width: 800px; margin: 2rem auto; padding: 2rem; background: #f9f9f9; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
-    <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2rem;">Your Cart</h2>
+  <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2rem;">Your Cart</h2>
 
-    {% if cart %}
-        <ul style="list-style: none; padding: 0;">
-            {% for item in cart %}
-                <li style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #ddd;">
-                    <div>
-                        <strong>{{ item.name }}</strong><br>
-                        Price: £{{ item.price }}<br>
-                        Quantity: {{ item.quantity }}<br>
-                        Subtotal: £{{ item.subtotal }}
-                    </div>
-                </li>
-            {% endfor %}
-        </ul>
+  {% if cart %}
+    <ul style="list-style: none; padding: 0; margin: 0;">
+      {% for item in cart %}
+      <li style="display: flex; gap: 1.5rem; align-items: center; padding: 12px 0; border-bottom: 1px solid #ddd;">
 
-        <p style="margin-top: 1.5rem; font-size: 1.2rem;"><strong>Total:</strong> £{{ total }}</p>
+        <!-- Image container -->
+        <div style="flex-shrink: 0; width: 80px; height: 80px; background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+          {% if item.image_url %}
+            <img src="{{ url_for('static', filename=item.image_url) }}" alt="{{ item.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+          {% else %}
+            <span style="color: #999; font-size: 0.9rem;">No Image</span>
+          {% endif %}
+        </div>
 
-        <form action="{{ url_for('create_checkout_session') }}" method="POST" style="margin-top: 1rem;">
-            <button type="submit" style="padding: 10px 20px; font-size: 16px; background-color: #0b3d2e; color: white; border: none; border-radius: 6px;">
-                Proceed to Payment (Test Mode)
-            </button>
+        <!-- Product info and quantity update form -->
+        <form action="{{ url_for('update_cart_quantity', product_id=item.id) }}" method="POST" class="update-quantity-form" style="flex-grow: 1; display: flex; align-items: center; gap: 1rem;">
+          <div style="flex-grow: 1;">
+            <strong style="font-size: 1.1rem;">{{ item.name }}</strong><br>
+            <span>Price: £<span class="unit-price">{{ item.price }}</span></span><br>
+            
+            <label for="quantity-{{ item.id }}">Quantity:</label>
+            <input type="number" id="quantity-{{ item.id }}" name="quantity" min="1" value="{{ item.quantity }}" style="width: 60px; margin-left: 0.5rem; font-size: 1rem;">
+            
+            <br>
+            <span>Subtotal: £<span class="subtotal">{{ item.subtotal }}</span></span>
+          </div>
+
+          <button type="submit" style="background: #198754; border: none; color: white; padding: 0.4rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; height: 40px;">
+            Update
+          </button>
         </form>
-    {% else %}
-        <p>Your cart is empty.</p>
-    {% endif %}
+
+        <!-- Remove button -->
+        <form action="{{ url_for('remove_from_cart', product_id=item.id) }}" method="POST" style="margin-left: auto;">
+          <button type="submit" 
+                  style="background: #dc3545; border: none; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; font-weight: 600; cursor: pointer;">
+            Remove
+          </button>
+        </form>
+
+      </li>
+      {% endfor %}
+    </ul>
+
+    <p style="margin-top: 2rem; font-size: 1.3rem; font-weight: 700; text-align: right;">
+      Total: £<span id="cart-total">{{ total }}</span>
+    </p>
+
+    <form action="{{ url_for('create_checkout_session') }}" method="POST" style="margin-top: 1.5rem; text-align: right;">
+      <button type="submit" style="background-color: #198754; color: white; border: none; border-radius: 6px; padding: 0.8rem 1.5rem; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
+        Proceed to Payment (Test Mode)
+      </button>
+    </form>
+
+  {% else %}
+    <p style="text-align: center; font-size: 1.2rem; color: #666;">Your cart is empty.</p>
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href="{{ url_for('products') }}" style="background-color: #198754; color: white; padding: 0.8rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 1.1rem;">
+        Back to Products
+      </a>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}
+
+<script>
+document.querySelectorAll('.cart-item').forEach(itemRow => {
+  const quantityInput = itemRow.querySelector('input[name="quantity"]');
+  const unitPrice = parseFloat(itemRow.querySelector('.unit-price').textContent.replace('£', ''));
+  const subtotalElem = itemRow.querySelector('.subtotal');
+
+  quantityInput.addEventListener('input', () => {
+    let qty = parseInt(quantityInput.value);
+    if (isNaN(qty) || qty < 1) {
+      qty = 1;
+      quantityInput.value = qty;
+    }
+    subtotalElem.textContent = '£' + (unitPrice * qty).toFixed(2);
+
+    // Update total price for the whole cart
+    let total = 0;
+    document.querySelectorAll('.subtotal').forEach(subElem => {
+      total += parseFloat(subElem.textContent.replace('£', ''));
+    });
+    document.getElementById('cart-total').textContent = '£' + total.toFixed(2);
+  });
+});
+</script>

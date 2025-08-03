@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %} Meet Our Team | Green2B{% endblock %}
+
+{% block content %}
+<section style="margin-top: 4rem; text-align: center;">
+  <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: #0b3d2e;"> Meet Our Team </h2>
+  <p style="max-width: 600px; margin: 0 auto 3rem auto; color: #333">
+    A passionate group dedicated to bringing sustainable solutions to businesses worldwide
+  </p>
+
+<div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
+  <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 220px; text-align: left;">
+    <img src="{{ url_for('static', filename='images/IMG_1436.jpg') }}" alt="Description" style="max-width: 100%; height: auto; border-radius: 8px;">
+    <h3 style="margin: 0; color: #095c43;">Harsh Sancheti</h3>
+    <p style="font-style: italic; color: #121; margin: 0.3rem 0 1rem 0;">Co-Founder, Finance</p>
+    <ul style="list-style: disc; padding-left: 1.5rem; font-size: 1.05rem; line-height: 1.6; margin: 0;">
+      <p> Hi, I’m Harsh Sancheti, Co-Founder at Green2B and a Honors Graduate in Banking and Digital Finance from the University of Sussex. I bring hands-on experience in finance and investment to help drive Green2B’s strategic and sustainable growth.</p>
+    </ul>
+  </div>
+
+  <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 220px; text-align: left;">
+    <img src="{{ url_for('static', filename='images/IMG_9348.jpeg') }}" alt="Description" style="max-width: 100%; height: auto; border-radius: 8px;">
+    <h3 style="margin: 0; color: #095c43;">Siddhi Satav</h3>
+    <p style="font-style: italic; color: #121; margin: 0.3rem 0 1rem 0;">Co-Founder, Operations</p>
+    <ul style="list-style: disc; padding-left: 1.5rem; font-size: 1.05rem; line-height: 1.6; margin: 0;">
+      <p> Hi, I’m Siddhi Satav, Co-Founder at Green2B and a BSc graduate in Economics and Finance.
+    I have a strong background in finance and climate change projects, focusing on operational strategies and sustainability practices to help Green2B thrive.</p>
+    </ul>
+  </div>
+
+  <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 220px; text-align: left;">
+    <img src="{{ url_for('static', filename='images/IMG_2755.jpeg') }}" alt="Description" style="max-width: 100%; height: auto; border-radius: 8px;">
+    <h3 style="margin: 0; color: #095c43;">Mohamed El Leithy</h3>
+    <p style="font-style: italic; color: #121; margin: 0.3rem 0 1rem 0;">Web Developer, Intern</p>
+    <ul style="list-style: disc; padding-left: 1.5rem; font-size: 1.05rem; line-height: 1.6; margin: 0;">
+      <p>Hi, I’m Mohamed El Leithy, Web Developer Intern at Green2B and a BSc graduate in Computer Science and Artificial Intelligence. I specialize in Software Development and AI/Machine Learning Engineering, willing to bring in hands-on experience in Web development and applying the latest web technologies to support Green2B’s mission.</p>
+    </ul>
+  </div>
+</div>
+</section>
+
+
+{% endblock %}

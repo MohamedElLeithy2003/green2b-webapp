@@ -11,6 +11,7 @@
 
 <!-- Filter/Search Form -->
 <form method="get" action="{{ url_for('products') }}" style="margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center;">
+
   <input 
     type="text" 
     name="q" 
@@ -73,6 +74,48 @@
     <option value="biodegradable" {% if filter_impact == 'biodegradable' %}selected{% endif %}>Biodegradable</option>
   </select>
 
+  <input
+    type="number"
+    name="min_price"
+    placeholder="Min Price (£)"
+    value="{{ min_price or '' }}"
+    min="0"
+    step="0.01"
+    style="
+      padding: 0.75rem 1rem; 
+      font-size: 1.1rem; 
+      border: 2px solid #0b3d2e; 
+      border-radius: 6px; 
+      min-width: 140px; 
+      flex: 1 1 140px;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    "
+    onfocus="this.style.borderColor='#095c43'"
+    onblur="this.style.borderColor='#0b3d2e'"
+  >
+
+  <input
+    type="number"
+    name="max_price"
+    placeholder="Max Price (£)"
+    value="{{ max_price or '' }}"
+    min="0"
+    step="0.01"
+    style="
+      padding: 0.75rem 1rem; 
+      font-size: 1.1rem; 
+      border: 2px solid #0b3d2e; 
+      border-radius: 6px; 
+      min-width: 140px; 
+      flex: 1 1 140px;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    "
+    onfocus="this.style.borderColor='#095c43'"
+    onblur="this.style.borderColor='#0b3d2e'"
+  >
+
   <button type="submit" style="
       padding: 0.75rem 2rem; 
       font-size: 1.15rem; 
@@ -88,12 +131,10 @@
     "
     onmouseover="this.style.backgroundColor='#095c43'"
     onmouseout="this.style.backgroundColor='#0b3d2e'"
-  >
-    Search
-  </button>
+  >Search</button>
 </form>
 <!-- Product List -->
-<<h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 2rem; text-align: center;">Products</h1>
+<h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 2rem; text-align: center;">Products</h1>
 
 <div style="
   display: flex;

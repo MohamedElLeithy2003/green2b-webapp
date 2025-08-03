@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %} Overview | Green2B{% endblock %}
+
+{% block content %}
+ <section style='
+    background: url("{{ url_for("static", filename="images/about_header_new.jpg") }}") no-repeat center center;
+    background-size: cover;
+    padding: 6rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 350px;
+  '>
+  </section>
+
+<section style="max-width: 1000px; margin: 3rem auto; padding: 0 1.5rem;">
+  <h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem; text-align: center;">About Green2B</h1>
+  <div style="font-size: 1.2rem; max-width: 700px; margin: 0 auto 2rem auto;">
+    <p style="font-size: 1.2rem; max-width: 700px; margin: 0 auto;">
+      Your trusted B2B marketplace for sustainable sourcing. We simplify bulk procurement of eco-friendly products by connecting you with certified green suppliers.
+    </p>
+  </div>
+
+<section style="background-color: #eafaf1; padding: 3rem 1.5rem; text-align: center; border-radius: 8px; margin-top: 3rem;">
+  <h2 style="font-size: 2rem; font-weight: bold; margin-bottom: 1rem;">Join the Movement</h2>
+  <p style="font-size: 1.15rem; max-width: 700px; margin: 0 auto;">
+    Whether you're a fast-scaling startup or an enterprise-level buyer, Green2B makes sustainable sourcing efficient and impactful.
+  </p>
+  <div style="margin-top: 1.5rem;">
+    <a href="{{ url_for('products') }}" class="btn btn-primary">Browse Products</a>
+    <a href="{{ url_for('supplier_apply') }}" class="btn btn-success" style="margin-left: 1rem;">Become a Supplier</a>
+  </div>
+</section>
+  {% endblock %}

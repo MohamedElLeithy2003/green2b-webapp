@@ -38,7 +38,7 @@
         }
 
         header .logo img {
-            height: 50px;
+            height: 80px;
             width: auto;
         }
 
@@ -51,7 +51,7 @@
         nav#nav-menu a {
             color: white;
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 200;
             padding: 6px 12px;
             border-radius: 6px;
             transition: background-color 0.25s ease;
@@ -150,6 +150,51 @@
             color: #fff;
         }
 
+        /* Dropdown container */
+        .nav-dropdown {
+            position: relative;
+        }
+
+        /* The dropdown menu */
+        .nav-dropdown .dropdown-menu {
+            position: absolute;
+            right: 0;
+            background-color: #4CAF50;
+            border-radius: 6px;
+            margin-top: 8px;
+            min-width: 120px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: none; /* hide by default */
+            flex-direction: column;
+            z-index: 1002;
+        }
+
+        .nav-dropdown .dropdown-menu.show {
+            display: flex; /* show when toggled */
+        }
+
+        .nav-dropdown .dropdown-menu a {
+            color: white;
+            padding: 8px 12px;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 6px;
+            display: block; /* make links visible */
+        }
+
+        .nav-dropdown .dropdown-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* Style for the dropdown trigger link */
+        .nav-dropdown > a {
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
         @media (max-width: 768px) {
             nav#nav-menu {
                 display: none;
@@ -190,8 +235,17 @@
 
         <nav id="nav-menu" role="navigation" aria-label="Primary navigation">
             <a href="{{ url_for('home') }}" aria-current="{{ 'page' if request.endpoint == 'home' else 'false' }}">Home</a>
-            <a href="{{ url_for('about') }}">About</a>
+            <div class="nav-dropdown">
+                <a href="#" id="about-link" aria-haspopup="true" aria-expanded="false">About &#x25BE;</a>
+                <div class="dropdown-menu" aria-labelledby="about-link">
+                    <a href="{{ url_for('about_overview') }}">Overview</a>
+                    <a href="{{ url_for('about_team') }}">Meet the Team</a>
+                    <a href="{{ url_for('about_challenges_and_solutions') }}">Challenges and Solutions</a>
+                    <a href="{{ url_for('about_stakeholders') }}">Stakeholders</a>
+                </div>
+            </div>
             <a href="{{ url_for('products') }}">Products</a>
+            <a href="{{ url_for('collections') }}"> Collections</a>
             <a href="{{ url_for('contact') }}">Contact Us</a>
             <a href="{{ url_for('faq') }}">FAQ</a>
             <a href="{{ url_for('cart') }}">
@@ -204,8 +258,13 @@
                 </a>
                 <a href="{{ url_for('logout') }}">Logout</a>
             {% else %}
-                <a href="{{ url_for('login') }}">Login</a>
-                <a href="{{ url_for('register') }}">Register</a>
+                <div class="nav-dropdown">
+                    <a href="#" id="account-link" aria-haspopup="true" aria-expanded="false">Account &#x25BE;</a>
+                    <div class="dropdown-menu" aria-labelledby="account-link">
+                        <a href="{{ url_for('login') }}">Login</a>
+                        <a href="{{ url_for('register') }}">Register</a>
+                    </div>
+                </div>
             {% endif %}
         </nav>
     </header>
@@ -231,13 +290,56 @@
     </footer>
 
     <script>
-        const navToggle = document.getElementById('nav-toggle');
-        const navMenu = document.getElementById('nav-menu');
+    const navToggle = document.getElementById('nav-toggle');
+    const navMenu = document.getElementById('nav-menu');
 
-        navToggle.addEventListener('click', () => {
-            const isActive = navMenu.classList.toggle('active');
-            navToggle.setAttribute('aria-expanded', isActive);
-        });
-    </script>
+    navToggle.addEventListener('click', () => {
+        const isActive = navMenu.classList.toggle('active');
+        navToggle.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+    });
+
+
+    const aboutLink = document.getElementById('about-link');
+    const aboutDropdownMenu = aboutLink ? aboutLink.nextElementSibling : null;
+
+    aboutLink?.addEventListener('click', e => {
+        e.preventDefault();
+        aboutDropdownMenu.classList.toggle('show');
+        const expanded = aboutDropdownMenu.classList.contains('show');
+        aboutLink.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    });
+
+    const accountLink = document.getElementById('account-link');
+    const accountDropdownMenu = accountLink ? accountLink.nextElementSibling : null;
+
+    accountLink?.addEventListener('click', e => {
+        e.preventDefault();
+        accountDropdownMenu.classList.toggle('show');
+        const expanded = accountDropdownMenu.classList.contains('show');
+        accountLink.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (
+            aboutLink && aboutDropdownMenu &&
+            !aboutLink.contains(e.target) &&
+            !aboutDropdownMenu.contains(e.target)
+        ) {
+            aboutDropdownMenu.classList.remove('show');
+            aboutLink.setAttribute('aria-expanded', 'false');
+        }
+
+        if (
+            accountLink && accountDropdownMenu &&
+            !accountLink.contains(e.target) &&
+            !accountDropdownMenu.contains(e.target)
+        ) {
+            accountDropdownMenu.classList.remove('show');
+            accountLink.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+</script>
+
 </body>
 </html>

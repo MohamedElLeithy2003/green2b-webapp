@@ -6,10 +6,34 @@
     <style>
         body { font-family: Arial, sans-serif; margin: 2rem; background: #f9f9f9; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 0.75rem; border: 1px solid #ddd; }
+        th, td { padding: 0.75rem; border: 1px solid #ddd; vertical-align: middle; }
         th { background-color: #4CAF50; color: white; }
         a { color: #4CAF50; text-decoration: none; }
         a:hover { text-decoration: underline; }
+        form { display: inline; }
+        button.approve {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+        button.deny {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        button.approve:hover {
+            background-color: #45a049;
+        }
+        button.deny:hover {
+            background-color: #da190b;
+        }
     </style>
 </head>
 <body>
@@ -29,6 +53,7 @@
                 <th>Message</th>
                 <th>Status</th>
                 <th>Applied On</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -43,6 +68,14 @@
                 <td>{{ app.message }}</td>
                 <td>{{ app.status }}</td>
                 <td>{{ app.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin.supplier_approve', app_id=app.id) }}">
+                        <button type="submit" class="approve">Approve</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin.supplier_reject', app_id=app.id) }}">
+                        <button type="submit" class="deny">Deny</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

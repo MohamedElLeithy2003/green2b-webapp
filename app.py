@@ -86,6 +86,22 @@ def supplier_applications():
     applications = SupplierApplication.query.order_by(SupplierApplication.created_at.desc()).all()
     return render_template('supplier_applications.html', applications=applications)
 
+@admin_bp.route('/supplier-approve/<int:app_id>', methods=['POST'])
+def supplier_approve(app_id):
+    application = SupplierApplication.query.get_or_404(app_id)
+    application.status = 'Approved'
+    db.session.commit()
+    flash(f'Supplier application #{application.id} approved successfully.', 'success')
+    return redirect(url_for('admin.supplier_applications'))
+
+@admin_bp.route('/supplier-reject/<int:app_id>', methods=['POST'])
+def supplier_reject(app_id):
+    application = SupplierApplication.query.get_or_404(app_id)
+    application.status = 'Rejected'
+    db.session.commit()
+    flash(f'Supplier application #{application.id} rejected successfully.', 'warning')
+    return redirect(url_for('admin.supplier_applications'))
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -233,6 +249,26 @@ def about():
     return render_template('about.html')
 
 
+@app.route('/about/overview')
+def about_overview():
+    return render_template('about_overview.html')
+
+
+
+@app.route('/about/challenges-and-solutions')
+def about_challenges_and_solutions():
+    return render_template('about_challenges_and_solutions.html')
+
+@app.route('/about/stakeholders')
+def about_stakeholders():
+    return render_template('about_stakeholders.html')
+
+@app.route('/about/team')
+def about_team():
+    return render_template('about_team.html')
+
+
+
 products_data = [
     {
         'id': 1,
@@ -252,7 +288,7 @@ products_data = [
         'image': 'images/chuck_eat_safe.png',
         'category': 'ecofriendly',
         'quantity': 100,
-        'price': 10.00,
+        'price': 0.10,
         'score': "80/100",
         'description': "Made from eco-friendly sugarcane bagasse, reheatable and freezer-safe, suitable for all applications"
     },
@@ -330,6 +366,19 @@ def products():
     filter_category = request.args.get('category', '').lower()
     filter_impact = request.args.get('impact', '').lower()
 
+    min_price = request.args.get('min_price')
+    max_price = request.args.get('max_price')
+
+    try:
+        min_price = float(min_price) if min_price else None
+    except(ValueError):
+        min_price = None
+    
+    try:
+        max_price = float(max_price) if max_price else None
+    except(ValueError):
+        max_price = None
+
     filtered_products = products_data
 
     if query:
@@ -349,7 +398,20 @@ def products():
             p for p in filtered_products
             if filter_impact in p['impact'].lower()
         ]
-    return render_template('products.html', products=filtered_products, query=query, filter_category=filter_category, filter_impact=filter_impact)
+
+    if min_price is not None:
+        filtered_products = [
+            p for p in filtered_products
+            if p.get('price') is not None and p['price'] >= min_price
+        ]
+
+    if max_price is not None:
+        filtered_products = [
+            p for p in filtered_products
+            if p.get('price') is not None and p['price'] <= max_price
+        ]
+
+    return render_template('products.html', products=filtered_products, query=query, filter_category=filter_category, filter_impact=filter_impact, min_price=min_price, max_price=max_price)
 
 @app.route('/products/<int:product_id>')
 def product_detail(product_id):
@@ -357,6 +419,18 @@ def product_detail(product_id):
     if not product:
         return "Product not found", 404
     return render_template('product_details.html', product=product)
+
+@app.route('/collections')
+def collections():
+    collections = {}
+
+    for product in products_data:
+        category = product['category']
+        if category not in collections:
+            collections[category] = []
+        collections[category].append(product)
+    return render_template('collections.html', collections=collections)
+
 
 @app.route('/add-to-cart/<int:product_id>', methods=['GET', 'POST'])
 def add_to_cart(product_id):
@@ -394,31 +468,37 @@ def add_to_cart(product_id):
 
         for item in session['cart']:
             if item['id'] == product['id']:
+                # Ensure quantity key exists and is an int
+                if 'quantity' not in item or not isinstance(item['quantity'], int):
+                    item['quantity'] = 0
                 item['quantity'] += quantity
                 break
         else:
+            # This else belongs to the for loop: runs if break never happens
             session['cart'].append({
                 'id': product['id'],
                 'name': product['name'],
                 'price': product['price'],
-                'quantity': quantity
+                'quantity': quantity,
+                'image_url': product.get('image_url', '/static/images/default.jpg')
             })
 
         session.modified = True
         flash(f"{product['name']} added to cart.")
 
     return redirect(url_for('products'))
-
 @app.route('/cart')
 def cart():
     if current_user.is_authenticated:
         items = CartItem.query.filter_by(user_id=current_user.id).all()
         cart_items = [
             {
+                'id': i.product_id,
                 'name': i.product_name,
                 'price': i.price,
                 'quantity': i.quantity,
-                'subtotal': i.price * i.quantity
+                'subtotal': i.price * i.quantity,
+                'image_url': i.image_url if hasattr(i, 'image_url') and i.image_url else '/static/images/default.jpg'
             }
             for i in items
         ]
@@ -428,69 +508,78 @@ def cart():
             quantity = item.get('quantity', 1)
             price = item['price']
             cart_items.append({
+                'id': item['id'],
                 'name': item['name'],
                 'price': price,
                 'quantity': quantity,
-                'subtotal': price * quantity
+                'subtotal': price * quantity,
+                'image_url': item.get('image_url', '/static/images/default.jpg')
             })
 
     total = sum(item['subtotal'] for item in cart_items)
     return render_template('cart.html', cart=cart_items, total=total)
 
+@app.route('/update-cart-quantity/<int:product_id>', methods=['POST'])
+def update_cart_quantity(product_id):
+    new_quantity = request.form.get('quantity', '1')  
+    try:
+        new_quantity = int(new_quantity)
+    except ValueError:
+        new_quantity = 1  
+
+    if new_quantity < 1:
+        new_quantity = 1
+    cart = session.get('cart', [])
+    for item in cart:
+        if item['id'] == product_id:
+            item['quantity'] = new_quantity
+            item['subtotal'] = item['price'] * new_quantity
+            break
+
+    session['cart'] = cart
+    return redirect(url_for('cart'))
+
+
+
+
+
+@app.route('/remove-from-cart/<int:product_id>', methods=['POST'])
+def remove_from_cart(product_id):
+    if current_user.is_authenticated:
+        item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+        if item:
+            db.session.delete(item)
+            db.session.commit()
+            flash("Item removed from cart")
+        else:
+            flash("Item not found in cart")
+    else:
+        cart = session.get('cart', [])
+        session['cart'] = [item for item in cart if item['id'] != product_id]
+        session.modified = True
+        flash("Item removed from cart")
+
+        return redirect(url_for('cart'))
+
+
+
+
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
-        phone = request.form.get('phone')
-        address = request.form.get('address')
-        city = request.form.get('city')
-        postcode = request.form.get('postcode')
-        country = request.form.get('country')
-
-        cart = session.get('cart', [])
-
-        order_details = "Order details:\n"
-        for item in cart:
-            order_details += f"- {item['name']} (${item['price']})\n"
-        
-        order_summary = f"""
-        Order received from: {name}, ({email})
-        Shipping to: {address}, {city}, {postcode}, {country}
-        Phone: {phone}
-        
-        {order_details}
-        
-        """
-        msg = Message(subject=f"New order from {name}",
-                      recipients = ['your-business-email@example.com'],
-                      body=order_summary)
-        #mail.send(msg)
-
-        confirm_msg = Message(subject="Your Green2B Order Confirmation",
-                      recipients = [email],
-                      body=f"Hi {name},\n\n Thank you for placing and order with Green2B. \n\n{order_details}\n\nWe will process your order shortly")
-        #mail.send(confirm_msg)
-
-        session['last_order'] = {
-            'name': name,
-            'email': email,
-            'phone': phone,
-            'address': address,
-            'city': city,
-            'postcode': postcode,
-            'country': country,
-            'items': session.get('cart', [])
+        # Save buyer info in session
+        session['buyer_info'] = {
+            'name': request.form.get('name'),
+            'email': request.form.get('email'),
+            'phone': request.form.get('phone'),
+            'address': request.form.get('address'),
+            'city': request.form.get('city'),
+            'postcode': request.form.get('postcode'),
+            'country': request.form.get('country'),
         }
+        return redirect(url_for('create_checkout_session'))
 
-        print(f"Order received from: {name} ({email})")
-        print(f"Shipping to: {address}, {city}, {postcode}, {country}")
-        print(f"Phone: {phone}")
-        
-        session.pop('cart', None)
-        flash("Order placed successfully!")
-        return redirect(url_for('checkout_success'))
-    return render_template('checkout.html', cart=session.get('cart', []), publishable_key="pk_test_51O8jQdE43TmUArKlpffHWwtJ8w8poxqLbjyBFa2Ot2ZvEyqgqFrsPKyHyySRdrgelYHik3uQCmtst66eHHRECu0o008aBTzQVL")
+    return render_template('checkout.html', cart=session.get('cart', []))
 
 
 
@@ -498,27 +587,37 @@ def checkout():
 @app.route('/checkout-success')
 def checkout_success():
     cart = session.get('cart', [])
+    buyer_info = session.get('buyer_info', {})
+
     if not cart:
         flash("Cart is empty")
         return redirect(url_for('products'))
 
-    buyer_id = current_user.id if current_user.is_authenticated else None
-    email = current_user.email if current_user.is_authenticated else None
-
-    total = sum(item['price'] * item['quantity'] for item in cart)
+    total = sum(item['price'] * item.get('quantity', 1) for item in cart)
 
     new_order = Order(
-        buyer_id=buyer_id,
-        email=email,
+        buyer_id=current_user.id if current_user.is_authenticated else None,
+        email=buyer_info.get('email'),
         total_price=total,
-        status='Completed'
+        status='Completed',
+        # add any other fields you need
     )
     db.session.add(new_order)
     db.session.commit()
 
-    session.pop('cart', None)  # clear cart
+    session['last_order'] = {
+        'order_id': new_order.id,
+        'total_price': total,
+        'items': cart,
+        **buyer_info
+    }
+
+    # Clear cart and buyer info after order created
+    session.pop('cart', None)
+    session.pop('buyer_info', None)
 
     return render_template('checkout_success.html')
+
 
 
 
@@ -742,8 +841,8 @@ def create_checkout_session():
     product_id = request.form.get('product_id')
     quantity = int(request.form.get('quantity', 1))
 
-    # Load cart from session or create new list
     cart = session.get('cart', [])
+    buyer_info = session.get('buyer_info', {})
 
     if product_id:
         product = get_product_by_id(int(product_id))
@@ -751,7 +850,7 @@ def create_checkout_session():
             flash("Product not found")
             return redirect(url_for('products'))
 
-        # Add or update product in cart
+        # Add or update item in cart
         for item in cart:
             if item['id'] == product.id:
                 item['quantity'] += quantity
@@ -773,7 +872,7 @@ def create_checkout_session():
     line_items = [
         {
             'price_data': {
-                'currency': 'usd',
+                'currency': 'gbp',
                 'product_data': {'name': item['name']},
                 'unit_amount': int(item['price'] * 100),
             },
@@ -783,18 +882,21 @@ def create_checkout_session():
     ]
 
     try:
-        session_stripe = stripe.checkout.Session.create(
+        stripe_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=line_items,
             mode='payment',
-            success_url=url_for('checkout_success', _external=True),
+            customer_email=buyer_info.get('email') if current_user.is_authenticated else None,
+            success_url=url_for('checkout_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=url_for('cart', _external=True),
         )
-        return redirect(session_stripe.url, code=303)
+        return redirect(stripe_session.url, code=303)
+
     except Exception as e:
         flash("Error creating Stripe session")
         print(f"Stripe Error: {e}")
         return redirect(url_for('cart'))
+
 
 @app.route('/buy-now', methods=['POST'])
 def buy_now():

@@ -2,28 +2,28 @@
 {% block title %} Become a Supplier | Green 2B{% endblock %}
 
 {% block content %}
-<h2> Apply to Become a Supplier </h2>
-<p> Join our network of verified sustainable suppliers and connect with businesses looking for eco-friendly products <p>
+<h2 style="text-align: center;"> Apply to Become a Supplier </h2>
+<p style="text-align: center;"> Join our network of verified sustainable suppliers and connect with businesses looking for eco-friendly products <p>
 
-<form method="POST" action="/supplier-apply" style="max-width: 600px;">
-    <label> Name: </label>
-    <input type="text", name="name" required><br><br>
+<form method="POST" action="/supplier-apply" style="max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
+    <label>Name:</label>
+    <input type="text" name="name" required style="width: 80%; max-width: 400px;"><br><br>
 
-    <label> Company Name: </label>
-    <input type=""text" name="company" required><br><br>
+    <label>Company Name:</label>
+    <input type="text" name="company" required style="width: 80%; max-width: 400px;"><br><br>
 
     <label>Email:</label>
-    <input type="email" name="email" required><br><br>
+    <input type="email" name="email" required style="width: 80%; max-width: 400px;"><br><br>
 
     <label>Company Website:</label>
-    <input type="url" name="website"><br><br>
+    <input type="url" name="website" style="width: 80%; max-width: 400px;"><br><br>
 
     <label>Product Categories:</label>
-    <input type="text" name="products" placeholder="e.g. Recycled materials, Organic textiles"><br><br>
+    <input type="text" name="products" placeholder="e.g. Recycled materials, Organic textiles" style="width: 80%; max-width: 400px;"><br><br>
 
     <label>Message:</label><br>
-    <textarea name="message" rows="4" placeholder="Tell us about your sustainability practices..." required></textarea><br><br>
+    <textarea name="message" rows="4" placeholder="Tell us about your sustainability practices..." required style="width: 80%; max-width: 400px;"></textarea><br><br>
 
-    <button type="submit">Submit Application</button>
+    <button type="submit" style="padding: 0.6rem 1.2rem; font-size: 1rem; cursor: pointer; color: #095c43;">Submit Application</button>
 </form>
 {% endblock %}

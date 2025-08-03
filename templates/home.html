@@ -27,7 +27,7 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   ">
     <h2 style="font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem;">Welcome to Green2B</h2>
-    <p style="font-size: 1rem;">The B2B Marketplace that makes green procurement accessible for every business</p>
+    <p style="font-size: 1.25rem;">The B2B Marketplace that makes green procurement accessible for every business</p>
     <a href="/products" style="
       display: inline-block;
       margin-top: 1rem;
@@ -44,89 +44,6 @@
   </div>
 
 </section>
-<h2>Search Products</h2>
-<form method="get" action="{{ url_for('products') }}" style="margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center;">
-  <input 
-    type="text" 
-    name="q" 
-    placeholder="Search by name or score" 
-    value="{{ query or '' }}" 
-    style="
-      padding: 0.75rem 1rem; 
-      font-size: 1.1rem; 
-      border: 2px solid #0b3d2e; 
-      border-radius: 6px; 
-      min-width: 300px; 
-      flex: 1 1 300px;
-      box-sizing: border-box;
-      transition: border-color 0.3s ease;
-    "
-    onfocus="this.style.borderColor='#095c43'"
-    onblur="this.style.borderColor='#0b3d2e'"
-  >
-
-  <select name="category" style="
-      padding: 0.75rem 1rem; 
-      font-size: 1.1rem; 
-      border: 2px solid #0b3d2e; 
-      border-radius: 6px; 
-      min-width: 200px; 
-      flex: 1 1 200px;
-      box-sizing: border-box;
-      background-color: white;
-      color: #0b3d2e;
-      transition: border-color 0.3s ease;
-    "
-    onfocus="this.style.borderColor='#095c43'"
-    onblur="this.style.borderColor='#0b3d2e'"
-  >
-    <option value="">All Categories</option>
-    <option value="ecofriendly" {% if filter_category == 'ecofriendly' %}selected{% endif %}>Ecofriendly</option>
-    <option value="organic" {% if filter_category == 'organic' %}selected{% endif %}>Organic</option>
-    <option value="recycled" {% if filter_category == 'recycled' %}selected{% endif %}>Recycled</option>
-  </select>
-
-  <select name="impact" style="
-      padding: 0.75rem 1rem; 
-      font-size: 1.1rem; 
-      border: 2px solid #0b3d2e; 
-      border-radius: 6px; 
-      min-width: 220px; 
-      flex: 1 1 220px;
-      box-sizing: border-box;
-      background-color: white;
-      color: #0b3d2e;
-      transition: border-color 0.3s ease;
-    "
-    onfocus="this.style.borderColor='#095c43'"
-    onblur="this.style.borderColor='#0b3d2e'"
-  >
-    <option value="">All Impacts</option>
-    <option value="carbon" {% if filter_impact == 'carbon' %}selected{% endif %}>Low Carbon Footprint</option>
-    <option value="organic" {% if filter_impact == 'organic' %}selected{% endif %}>Organic</option>
-    <option value="recycled" {% if filter_impact == 'recycled' %}selected{% endif %}>Recycled</option>
-    <option value="biodegradable" {% if filter_impact == 'biodegradable' %}selected{% endif %}>Biodegradable</option>
-  </select>
-
-  <button type="submit" style="
-      padding: 0.75rem 2rem; 
-      font-size: 1.15rem; 
-      font-weight: 700;
-      color: white; 
-      background-color: #0b3d2e; 
-      border: none; 
-      border-radius: 6px; 
-      cursor: pointer; 
-      transition: background-color 0.3s ease;
-      flex: 0 0 auto;
-      min-width: 130px;
-    "
-    onmouseover="this.style.backgroundColor='#095c43'"
-    onmouseout="this.style.backgroundColor='#0b3d2e'"
-  >
-    Search
-  </button>
-</form>
 
 <!-- Introduction -->
 <section style="max-width: 900px; margin: 0 auto 3rem; text-align: center;">
@@ -136,19 +53,19 @@
   <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 2rem; max-width: 1200px; margin: 0 auto;">
     
     <div style="flex: 1 1 280px; max-width: 320px; padding: 1rem; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-      <img src="/static/images/ai.png" alt="AI-Driven" style="height: 50px; margin-bottom: 1rem;">
+      <img src="/static/images/ai.png" alt="AI-Driven" style="height: 80px; margin-bottom: 1rem;">
       <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 1.3rem;">AI-Driven Sustainability</h4>
       <p style="font-size: 0.95rem; color: #333; line-height: 1.5;">Advanced AI rates supplier sustainability to help you make smarter, greener decisions.</p>
     </div>
     
     <div style="flex: 1 1 280px; max-width: 320px; padding: 1rem; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-      <img src="/static/images/bulk_order.png" alt="Bulk Order" style="height: 50px; margin-bottom: 1rem;">
+      <img src="/static/images/bulk_order.png" alt="Bulk Order" style="height: 80px; margin-bottom: 1rem;">
       <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 1.3rem;">Bulk Order Aggregation</h4>
       <p style="font-size: 0.95rem; color: #333; line-height: 1.5;">Combine supplier orders to maximize cost-efficiency and reduce environmental waste.</p>
     </div>
     
     <div style="flex: 1 1 280px; max-width: 320px; padding: 1rem; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-      <img src="/static/images/verify.png" alt="Verified Suppliers" style="height: 50px; margin-bottom: 1rem;">
+      <img src="/static/images/verify.png" alt="Verified Suppliers" style="height: 80px; margin-bottom: 1rem;">
       <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 1.3rem;">Verified Green Suppliers</h4>
       <p style="font-size: 0.95rem; color: #333; line-height: 1.5;">We only list certified, trustworthy suppliers committed to real sustainability.</p>
     </div>
