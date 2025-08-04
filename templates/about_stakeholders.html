@@ -2,8 +2,38 @@
 {% block title %} Stakeholders | Green2B{% endblock %}
 
 {% block content %}
-<section style="max-width: 1000px; margin: 3rem auto; padding: 0 1.5rem;">
-  <h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem; text-align: center;">Stakeholders</h1>
+
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+  }
+</style>
+<section style='
+    background: url("{{ url_for("static", filename="images/green2b_home.jpg") }}");
+    background-size: cover;
+    padding: 6rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 350px;
+    width: 100%;
+  '>
+
+  <div style="
+    background-color: #0b3d2e;
+    color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  ">
+  <h1 style="font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem;">Stakeholders</h1>
+    <p style="font-size: 1.25rem;">Discover how Green2B connects businesses, suppliers, and the environment for a sustainable future.</p>
+</div>
+ </section>
 
   <div style="margin-bottom: 2rem;">
     <h3 style="font-size: 1.5rem; color: #0b3d2e;">Businesses / Buyers</h3>

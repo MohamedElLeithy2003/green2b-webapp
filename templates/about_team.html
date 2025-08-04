@@ -2,11 +2,32 @@
 {% block title %} Meet Our Team | Green2B{% endblock %}
 
 {% block content %}
-<section style="margin-top: 4rem; text-align: center;">
-  <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: #0b3d2e;"> Meet Our Team </h2>
-  <p style="max-width: 600px; margin: 0 auto 3rem auto; color: #333">
-    A passionate group dedicated to bringing sustainable solutions to businesses worldwide
-  </p>
+<section style='
+    background: url("{{ url_for("static", filename="images/green2b_home.jpg") }}");
+    background-size: 100%;
+    padding: 6rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 350px;
+    width: 100%;
+  '>
+
+  <div style="
+    background-color: #0b3d2e;
+    color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  ">
+  <h2 style="font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem;">Meet Our Team</h2>
+    <p style="font-size: 1.25rem;"> A passionate group dedicated to bringing sustainable solutions to businesses worldwide</p>
+</div>
+ </section>
+
 
 <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
   <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 220px; text-align: left;">

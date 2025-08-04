@@ -3,25 +3,80 @@
 
 {% block content %}
  <section style='
-    background: url("{{ url_for("static", filename="images/about_header_new.jpg") }}") no-repeat center center;
-    background-size: cover;
+    background: url("{{ url_for("static", filename="images/green2b_home.jpg") }}");
+    background-size: 100%;
     padding: 6rem 2rem;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
     height: 350px;
+    width: 100%;
   '>
-  </section>
 
-<section style="max-width: 1000px; margin: 3rem auto; padding: 0 1.5rem;">
-  <h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem; text-align: center;">About Green2B</h1>
-  <div style="font-size: 1.2rem; max-width: 700px; margin: 0 auto 2rem auto;">
-    <p style="font-size: 1.2rem; max-width: 700px; margin: 0 auto;">
-      Your trusted B2B marketplace for sustainable sourcing. We simplify bulk procurement of eco-friendly products by connecting you with certified green suppliers.
+  <div style="
+    background-color: #0b3d2e;
+    color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  ">
+  <h2 style="font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem;">About Green2B</h2>
+    <p style="font-size: 1.25rem;"> Your trusted B2B marketplace for sustainable sourcing. We simplify bulk procurement of eco-friendly products by connecting you with certified green suppliers.</p>
+</div>
+ </section>
+
+<section style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; padding: 4rem 2rem; background-color: #ffffff; margin-top: 3rem;">
+  <div style="flex: 1; min-width: 300px; max-width: 500px; padding: 1rem;">
+    <img src="{{ url_for('static', filename='images/sustainability.png') }}" alt="About Green2B" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+  </div>
+  <div style="flex: 1; min-width: 300px; max-width: 500px; padding: 1rem;">
+    <h3 style="font-size: 1.75rem; font-weight: bold; color: #0b3d2e; margin-bottom: 1rem;"> Simplifying Sustainable Procurement</h3>
+    <p style="font-size: 1.05rem; line-height: 1.6; color: #333;">
+      Green2B connects businesses with verified suppliers of eco-friendly products, making it easier to source sustainably without compromising on quality or cost.
     </p>
   </div>
+</section>
 
+<section style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; padding: 4rem 2rem; background-color: #ffffff; margin-top: 3rem;">
+  <div style="flex: 1; min-width: 300px; max-width: 500px; padding: 1rem;">
+    <h3 style="font-size: 1.75rem; font-weight: bold; color: #0b3d2e; margin-bottom: 1rem;"> Our Mission</h3>
+    <img src="{{ url_for('static', filename='images/sustainability_mission.png') }}" alt="Our Mission" style="width: 100%; height: 250px; object-fit: cover; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+
+    <p style="font-size: 1.05rem; line-height: 1.6; color: #333;">
+      To empower businesses to make sustainable choices by providing a transparent, efficient, and cost-effective platform for sourcing eco-friendly products.
+    </p>
+  </div>
+    <div style="flex: 1; min-width: 300px; max-width: 500px; padding: 1rem;">
+      <h3 style="font-size: 1.75rem; font-weight: bold; color: #0b3d2e; margin-bottom: 1rem;"> Our Vision</h3>
+      <img src="{{ url_for('static', filename='images/sustainability_vision.png') }}" alt="Our Vision" style="width: 100%; height: 250px; object-fit: cover; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+      <p style="font-size: 1.05rem; line-height: 1.6; color: #333;">
+        To be the leading B2B marketplace for sustainable sourcing, driving positive environmental impact through responsible procurement practices.
+      </p>
+    </div>
+    </section>
+
+    <section style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; padding: 4rem 2rem; background-color: #ffffff; margin-top: 3rem;">
+      <div style="flex: 1; min-width: 300px; max-width: 500px; padding: 1rem;">
+        <h3 style="font-size: 1.75rem; font-weight: bold; color: #0b3d2e; margin-bottom: 1rem;"> Why Choose Green2B?</h3>
+        <p style="font-size: 1.1rem; color: #333; margin-bottom: 1rem;">
+          Green2B is your partner in sustainable sourcing, offering:
+        </p>
+        <ul style="list-style: disc; padding-left: 1.5rem;
+          font-size: 1.05rem; line-height: 1.6; color: #333;">
+          <li>Access to a wide range of verified green suppliers</li>
+          <li>Competitive pricing through bulk aggregation</li>
+          <li>Logistics support for hassle-free delivery</li>
+          <li>Impact tracking to measure your sustainability efforts</li>
+          <li>Commitment to reducing waste and promoting eco-friendly practices</li>
+        </ul>
+      </div>
+      <div style="flex: 1; min-width: 300px; max-width: 500px; padding: 1rem;">
+        <img src="{{ url_for('static', filename='images/whygreen2b.jpg') }}" alt="Why Green2B" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+      </div>
+    </section>
 <section style="background-color: #eafaf1; padding: 3rem 1.5rem; text-align: center; border-radius: 8px; margin-top: 3rem;">
   <h2 style="font-size: 2rem; font-weight: bold; margin-bottom: 1rem;">Join the Movement</h2>
   <p style="font-size: 1.15rem; max-width: 700px; margin: 0 auto;">
@@ -32,4 +87,4 @@
     <a href="{{ url_for('supplier_apply') }}" class="btn btn-success" style="margin-left: 1rem;">Become a Supplier</a>
   </div>
 </section>
-  {% endblock %}
+{% endblock %}

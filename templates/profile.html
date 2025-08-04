@@ -4,13 +4,12 @@
 
 {% block content %}
 <div class="profile-container" style="max-width:600px; margin: 2rem auto; padding: 1rem; border: 1px solid #ddd; border-radius: 8px;">
-  <h2>Welcome, {{ user.name }}!</h2>
-  
-  <div style="margin-top: 1rem;">
-    <p><strong>Name:</strong> {{ user.name }}</p>
+  <h2 style="text-align: center;">Welcome, {{ user.name }}!</h2>
+
+  <div style="margin-top: 2rem;">
     <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>Member since:</strong> {{ user.created_at.strftime('%B %d, %Y') }}</p>
-  </div>
+    <p><strong>Role:</strong> {{ user.role|capitalize }}</p>
+    <p><strong>Account Created:</strong> {{ user.created_at.strftime('%B %d, %Y') }}</p>
 
   <div style="margin-top: 1.5rem;">
     <a href="{{ url_for('profile.edit_profile') }}" class="btn btn-primary">Edit Profile</a>

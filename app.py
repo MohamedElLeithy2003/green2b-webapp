@@ -26,18 +26,18 @@ app.secret_key = 'd11c57a2dde5240c1ba0a1bd96be6fdc979173696d613bb44342ea520a3e63
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your-email@gmail.com'
-app.config['MAIL_PASSWORD'] = 'your-email-password'
-app.config['MAIL_DEFAULT_SENDER'] = ('Green2B', 'your-email@gmail.com')
+app.config['MAIL_USERNAME'] = 'green2bteam@gmail.com'
+app.config['MAIL_PASSWORD'] = 'ejtt rttq poqc krge'
+app.config['MAIL_DEFAULT_SENDER'] = ('Green2B', 'green2bteam@gmail.com')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///green2b.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+mail = Mail(app)
 
 db.init_app(app)
 with app.app_context():
     db.create_all()
-
-mail = Mail(app)
-
+    
 stripe.api_key = "sk_test_51O8jQdE43TmUArKlFz7rQnZI4yeZ9iVsoImn0Bs2wI5Bx8PqufupGZ8KZBYB00jy6h8qlI0s8hoiD1z2UOJcUPBy00CHFoTpGp"
 
 subscribers = []
@@ -105,6 +105,7 @@ def supplier_reject(app_id):
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+        name = request.form['name']
         role = request.form['role']
         email = request.form['email']
         password = request.form['password']
@@ -224,9 +225,7 @@ def orders_list():
 
     user = User.query.get(session['user_id'])
 
-    orders = Order.query.filter(
-        (Order.email == user.email) | (Order.buyer_id == user.id)
-    ).order_by(Order.created_at.desc()).all()
+    orders = Order.query.filter(Order.buyer_id == user.id).order_by(Order.created_at.desc()).all()
 
     return render_template('orders.html', orders=orders)
 
@@ -235,7 +234,7 @@ def order_detail(order_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
     order = Order.query.get(order_id)
-    if not order or order.buyer_id != session['user_id']:
+    if not order or (order.buyer_id != session.get('user_id') and order.email != session.get('user_email')):
         return redirect(url_for('orders.orders_list'))
 
     order_items = OrderItem.query.filter_by(order_id=order.id).all()
@@ -420,6 +419,30 @@ def product_detail(product_id):
         return "Product not found", 404
     return render_template('product_details.html', product=product)
 
+collections_list = [
+    {
+        'name': 'Eco-Friendly',
+        'slug': 'ecofriendly',
+        'products': [p for p in products_data if p['category'] == 'ecofriendly'],
+        'cover_image': 'images/eco-friendly.jpg',
+        'product_count': sum(1 for p in products_data if p['category'] == 'ecofriendly')
+    },
+    {
+        'name': 'Organic',
+        'slug': 'organic',
+        'products': [p for p in products_data if p['category'] == 'organic'],
+        'cover_image': 'images/organic.jpg',
+        'product_count': sum(1 for p in products_data if p['category'] == 'organic')
+    }
+    ,
+    {
+        'name': 'Recycled',
+        'slug': 'recycled',
+        'products': [p for p in products_data if p['category'] == 'recycled'],
+        'cover_image': 'images/recycled.jpg',
+        'product_count': sum(1 for p in products_data if p['category'] == 'recycled')
+    }
+]
 @app.route('/collections')
 def collections():
     collections = {}
@@ -429,7 +452,45 @@ def collections():
         if category not in collections:
             collections[category] = []
         collections[category].append(product)
-    return render_template('collections.html', collections=collections)
+
+    collection_covers = {
+        'ecofriendly': 'images/eco-friendly.jpg',
+        'organic': 'images/organic.jpg',
+        'recycled': 'images/recycled.jpg'
+    }
+
+    collections_list = []
+    for cat, prods in collections.items():
+        collections_list.append({
+            'name': cat.capitalize(),
+            'slug': cat,
+            'products': prods,
+            'cover_image': collection_covers.get(cat, 'images/default_collection.jpg'),
+            'product_count': len(prods)
+        })
+
+    return render_template('collections.html', collections=collections_list)
+
+@app.route('/collections/<category_name>')
+def collection_page(category_name):
+    category = category_name.lower()
+    filtered_products = [
+        p for p in products_data
+        if p['category'].lower() == category
+    ]
+
+    collection_covers = {
+        'ecofriendly': 'images/eco-friendly.jpg',
+        'organic': 'images/organic.jpg',
+        'recycled': 'images/recycled.jpg'
+    }
+
+    cover_image = collection_covers.get(category, 'images/default_collection.jpg')
+
+    if not filtered_products:
+        return "Collection not found", 404
+    
+    return render_template('collection_page.html', products=filtered_products, category=category, cover_image=cover_image)
 
 
 @app.route('/add-to-cart/<int:product_id>', methods=['GET', 'POST'])
@@ -596,7 +657,7 @@ def checkout_success():
     total = sum(item['price'] * item.get('quantity', 1) for item in cart)
 
     new_order = Order(
-        buyer_id=current_user.id if current_user.is_authenticated else None,
+        buyer_id=session.get('user_id') if 'user_id' in session else None,
         email=buyer_info.get('email'),
         total_price=total,
         status='Completed',

@@ -21,7 +21,6 @@
             top: 0;
             background-color: #4CAF50;
             color: white;
-            padding: 0.75rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -240,7 +239,7 @@
                 <div class="dropdown-menu" aria-labelledby="about-link">
                     <a href="{{ url_for('about_overview') }}">Overview</a>
                     <a href="{{ url_for('about_team') }}">Meet the Team</a>
-                    <a href="{{ url_for('about_challenges_and_solutions') }}">Challenges and Solutions</a>
+                    <a href="{{ url_for('about_challenges_and_solutions') }}">Challenges/Solutions</a>
                     <a href="{{ url_for('about_stakeholders') }}">Stakeholders</a>
                 </div>
             </div>
@@ -268,6 +267,8 @@
             {% endif %}
         </nav>
     </header>
+
+  {% block fullwidth %}{% endblock %}
 
     <main class="container">
         {% block content %}{% endblock %}

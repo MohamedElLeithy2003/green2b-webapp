@@ -2,11 +2,31 @@
 {% block title %}Products | Green2B{% endblock %}
 
 {% block content %}
-<section style="background: linear-gradient(135deg, #0b3d2e, #095c43); color: white; padding: 4rem 2rem; border-radius: 8px; text-align: center;">
-  <h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem;">Our Sustainable Products</h1>
-  <p style="font-size: 1.2rem; max-width: 700px; margin: 0 auto;">
-     Browse our curated selection of verified eco-friendly products designed to meet your business’s sustainability goals, showcasing quality, transparency, and bulk-friendly options all in one place.
-  </p>
+<section style='
+  background: url("{{ url_for("static", filename="images/green2b_home.jpg") }}") no-repeat center center;
+  background-size: 100%;
+  padding: 6rem 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 350px;
+
+'>
+
+
+  <div style="
+    background-color: #0b3d2e;
+    color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  ">
+  <h2 style="font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem;">Our Sustainable Products</h2>
+    <p style="font-size: 1.25rem;">Browse our curated selection of verified eco-friendly products designed to meet your business’s sustainability goals, showcasing quality, transparency, and bulk-friendly options all in one place.</p>
+  </div>
 </section>
 
 <!-- Filter/Search Form -->
