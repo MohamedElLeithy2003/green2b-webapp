@@ -3,10 +3,9 @@
 
 {% block content %}
 <h2 style="text-align: center; margin: 2rem 0; font-size: 2.5rem; font-weight: bold;">Frequently Asked Questions</h2>
-<h4 style="text-align: center; margin: 2rem 0; font-size: 1.5rem;">Click on questions for answers</h4>
 <div style="max-width: 800px; margin: 0 auto;">
     {% for faq in faqs %}
-    <div class="faq-item" style="margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 8px; overflow: hidden;">
+    <div class="faq-item" style="margin-bottom: 1rem; border: 1px solid #e8f5e9; border-radius: 8px; overflow: hidden;">
         <button class="faq-question" style="
             width: 100%;
             background-color: #f5f5f5;
@@ -24,7 +23,7 @@
         <div class="faq-answer" style="
             display: none;
             padding: 1rem;
-            background-color: white;
+            background-color: #e8f5e9;
             font-size: 1rem;
             line-height: 1.5;
         ">
@@ -51,5 +50,5 @@
 
     });
 </script>
-<h4 style="text-align: center; margin: 2rem 0; font-size: 1.5rem;">Want to ask more questions? Contact us here or a green2bteam@gmail.com: <a href="/contact" class="btn">Contact</a></h4>
+<h4 style="text-align: center; margin: 2rem 0; font-size: 1.5rem;">More questions? Contact us here or a green2bteam@gmail.com: <a href="/contact" class="btn">Contact</a></h4>
 {% endblock %}

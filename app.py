@@ -1,15 +1,17 @@
 import stripe
 import openai
-from flask import Flask, Blueprint, render_template, request, redirect, url_for, session, flash, abort, jsonify
+import secrets
+from flask import Flask, Blueprint, render_template, request, redirect, url_for, session, flash, abort, jsonify, current_app
 from flask_mail import Mail, Message
-from flask_login import current_user, LoginManager
+from flask_login import current_user, LoginManager, login_user
 from flask_sqlalchemy import SQLAlchemy
-from models import db, Product, User, CartItem, Order, OrderItem, SupplierApplication
+from models import db, Product, User, CartItem, Order, OrderItem, SupplierApplication, Supplier
 from flask_migrate import Migrate
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired, Email, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
+from threading import Thread
 
 
 
@@ -44,6 +46,19 @@ subscribers = []
 
 ADMIN_USERNAME = 'adminuser'
 ADMIN_PASSWORD = 'supersecretpassword'
+
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+def send_email(subject, recipients, body, html=None):
+    msg = Message(subject, recipients=recipients)
+    msg.body = body
+    if html:
+        msg.html = body
+    mail.send(msg)
+
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -89,7 +104,22 @@ def supplier_applications():
 @admin_bp.route('/supplier-approve/<int:app_id>', methods=['POST'])
 def supplier_approve(app_id):
     application = SupplierApplication.query.get_or_404(app_id)
+    if not application.user:
+        flash(f'Error: No user found for this application #{application.id}', 'danger')
+        return redirect(url_for('admin.supplier_applications'))
+
     application.status = 'Approved'
+
+    user = application.user
+    user.role = 'supplier'
+
+    supplier = Supplier.query.filter_by(user_id=user.id).first()
+    if not supplier:
+        supplier = Supplier(user_id=user.id, company_name=application.company, verified=True, sustainability_score=0.0)
+        db.session.add(supplier)
+    else:
+        supplier.verified = True
+
     db.session.commit()
     flash(f'Supplier application #{application.id} approved successfully.', 'success')
     return redirect(url_for('admin.supplier_applications'))
@@ -118,6 +148,10 @@ def register():
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
+
+        subject = "Welcome to Green2B"
+        body = f"Hello {name},\n\nThank you for registering on Green2B. Your account has been created successfully.\n\nBest regards,\nGreen2B Team"
+        send_email(subject, [email], body)
 
         flash('Registration successful. You can now login')
         return redirect(url_for('login'))
@@ -192,6 +226,48 @@ def login():
     return render_template('auth/login.html')
 
 
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        user = User.query.filter_by(email=email).first()
+        if user:
+            token = secrets.token_urlsafe(16)
+            user.reset_token = token
+            user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
+            db.session.commit()
+
+            reset_link = url_for('reset_password', token=token, _external=True)
+            subject = "Password Reset Request"
+            body = f"Click the link below to reset your password:\n{reset_link}\n\nIf you did not request this, please ignore this email."
+            send_email(subject, [email], body)
+
+            flash('Password reset link sent to your email.')
+            return redirect(url_for('login'))
+        else:
+            flash('Email not found')
+            return redirect(url_for('forgot_password'))
+    return render_template('auth/forgot_password.html')
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    user = User.query.filter_by(reset_token=token).first()
+    if not user or user.reset_token_expiry < datetime.utcnow():
+        flash('Invalid or expired token')
+        return redirect(url_for('forgot_password'))
+
+    if request.method == 'POST':
+        new_password = request.form['new_password']
+        user.set_password(new_password)
+        user.reset_token = None
+        user.reset_token_expiry = None
+        db.session.commit()
+        flash('Password reset successfully. You can now login.')
+        return redirect(url_for('login'))
+
+    return render_template('auth/reset_password.html', token=token)
+
+
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
@@ -214,6 +290,9 @@ def signup():
     
     subscribers.append(email)
     flash("Thank you for subscribing!")
+    subject = "Thank you for subscribing to Green2B"
+    body = "Thank you for subscribing to Green2B! We will keep you updated with our latest products and sustainability initiatives."
+    send_email(subject, [email], body)
 
     return redirect(url_for('home'))
 
@@ -666,6 +745,7 @@ def checkout_success():
     db.session.add(new_order)
     db.session.commit()
 
+
     session['last_order'] = {
         'order_id': new_order.id,
         'total_price': total,
@@ -730,6 +810,55 @@ def supplier_success():
 
 def get_current_supplier_id():
     return session.get('user_id')
+
+
+
+@app.route('/supplier/register', methods=['GET', 'POST'])
+def supplier_register():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        password = request.form['password']
+        company = request.form['company']
+
+        if User.query.filter_by(email=email, role='supplier').first():
+            flash('Email already registered as a supplier', 'danger')
+            return redirect(url_for('supplier_register'))
+
+        user = User(name=name, email=email, role='supplier')
+        user.set_password(password)
+        db.session.add(user)
+        db.session.flush()
+        supplier = Supplier(user_id=user.id, company_name=company, verified=False)
+        db.session.add(supplier)
+        db.session.commit()
+        flash('Supplier registration successful. Please wait for approval.', 'success')
+        return redirect(url_for('supplier_login'))
+    
+    return render_template('supplier_register.html')
+
+
+@app.route('/supplier_login', methods=['GET', 'POST'])
+def supplier_login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        user = User.query.filter_by(email=email, role='supplier').first()
+        if user and user.check_password(password):
+            supplier = Supplier.query.filter_by(user_id=user.id).first()
+            if supplier:
+                if supplier.verified:
+                    login_user(user)
+                    return redirect(url_for('supplier_products'))
+                else:
+                    flash('Your supplier account is not verified yet. Please wait for approval.', 'warning')
+                    login_user(user)
+                    return redirect(url_for('supplier_apply'))
+        
+        flash('Invalid email or password', 'danger')
+    return render_template('supplier_login.html')
+            
 
 @app.route('/supplier/products')
 def supplier_products():
