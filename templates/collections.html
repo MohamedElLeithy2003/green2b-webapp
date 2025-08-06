@@ -34,7 +34,7 @@
       <section class="collection-banner-section">
         <h2 class="collection-title">{{ collection.name }}</h2>
         <div class="banner-image-wrapper">
-            <img src="{{ url_for('static', filename=collection.cover_image) }}" alt="{{ collection.name }} banner" class="collection-banner-image" style="width: 200px; height: auto;" />
+            <img src="{{ url_for('static', filename=collection.cover_image) }}"  class="collection-banner-image" style="width: 200px; height: auto;" />
         </div>
         <a href="{{ url_for('collection_page', category_name=collection.slug) }}" class="view-collection-button">View Collection</a>
       </section>

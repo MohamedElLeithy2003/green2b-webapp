@@ -248,10 +248,18 @@
             </a>
 
             {% if session.get('user_id') %}
-                <a href="{{ url_for('profile.profile') }}">
-                    <img src="{{ url_for('static', filename='images/usernew.png') }}" alt="Profile" width="26" height="26" />
-                </a>
-                <a href="{{ url_for('logout') }}">Logout</a>
+                {% if session.get('user_role') == 'supplier' %}
+                    <!-- Show Supplier Dashboard link -->
+                    <a href="{{ url_for('supplier_products') }}">Supplier Dashboard</a>
+                {% endif %}
+            <!-- Common links for any logged in user -->
+            <a href="{{ url_for('profile.profile') }}">
+                <img src="{{ url_for('static', filename='images/usernew.png') }}" alt="Profile" width="26" height="26" />
+            </a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+            {% elif session.get('user_role') == 'admin' %}
+                <a href="{{ url_for('admin.admin_dashboard') }}">Admin Dashboard</a>
+                <a href="{{ url_for('admin.admin_logout') }}">Logout</a>
             {% else %}
                 <div class="nav-dropdown">
                     <a href="#" id="account-link" aria-haspopup="true" aria-expanded="false">Account &#x25BE;</a>

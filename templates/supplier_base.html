@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Supplier | Green2B{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #4CAF50; color: white;">
+        <div class="nav-left">
+            <a href="{{ url_for('home') }}" class="logo">
+            <img src="{{ url_for('static', filename='images/icon.png') }}" alt="Green2B Logo" width="100" height="100"/>
+        </a>
+        </div>
+        <div class="nav-center" style="font-weight: bold;"><a href="{{ url_for('supplier_products') }}" style="color: white; text-decoration: none; font-weight: bold;">
+            </a>Supplier Hub</div>
+        <div class="nav-right">
+            <a href="{{ url_for('logout') }}" style="color: white; text-decoration: none;">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="min-height: 80vh;">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer (same as users) -->
+    <footer>
+        <nav aria-label="Footer navigation" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+            <div class="footer-left" style="max-width: 50%;">
+                <div>
+                    <h2><i class="fas fa-envelope" style="margin-right: 8px;"></i>Get In Touch</h2>
+                    <strong>green2bteam@gmail.com</strong><br />
+                </div>
+                <div class="address" style="margin-top: 10px;">
+                    <h2><i class="fas fa-map-marker-alt" style="margin-right: 8px;"></i> Reach Us</h2>
+                    <strong>Sussex Innovation Centre</strong><br />
+                    <strong>University of Sussex, Brighton</strong><br />
+                    <strong>Science Park Square, Brighton BN1 9SB</strong><br />
+                </div>
+            </div>
+
+            <div class="footer-right" style="flex: 1 1 300px; text-align: right;">
+                <p>&copy; 2025 Green2B. All rights reserved.</p>
+                <div class="links">
+                    <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+                    <a href="{{ url_for('terms') }}">Terms of Service</a>
+                </div>
+            </div>
+        </nav>
+    </footer>
+
+</body>
+
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            margin: 0;
+            padding: 0;
+            background-color: #e8f5e9;
+            color: #222;
+            line-height: 1.5;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            background-color: #4CAF50;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1001;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        header .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+            gap: 0.5rem;
+        }
+
+        header .logo img {
+            height: 80px;
+            width: auto;
+        }
+
+        nav#nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+
+        nav#nav-menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: 200;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: background-color 0.25s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        nav#nav-menu a:hover,
+        nav#nav-menu a[aria-current="page"] {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        nav#nav-menu img {
+            margin-left: 6px;
+        }
+
+        #nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+        }
+
+        #nav-toggle:focus-visible {
+            outline: 3px solid #fff;
+            outline-offset: 2px;
+        }
+
+
+        .btn {
+            background-color: #00704A;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            background-color: #005c3d;
+        }
+
+        footer {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 15px;
+            padding: 15px 2rem;
+        }
+
+        footer nav {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        footer nav .address {
+            line-height: 1.4;
+            flex: 1 1 300px;
+            text-align: left;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        footer nav p {
+            margin: 0 10px 0 0;
+        }
+
+        footer nav .links {
+            flex: 1 1 300px;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        footer nav .links a {
+            color: #a8d5ba;
+            text-decoration: none;
+            margin-left: 10px;
+            font-weight: 600;
+        }
+
+        footer nav .links a:hover {
+            text-decoration: underline;
+            color: #fff;
+        }
+</style>
+</html>

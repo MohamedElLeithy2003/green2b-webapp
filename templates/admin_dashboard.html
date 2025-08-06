@@ -56,12 +56,34 @@
         <!-- Future management sections -->
         <div class="section">
             <h2>Supplier Applications</h2>
-            <a href="{{ url_for('admin.supplier_applications') }}">View Applications</a>
+            <a href="{{ url_for('admin.supplier_applications') }}" class="btn" style="
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #095c43;
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;">View Applications</a>
         </div>
 
         <div class="section">
             <h2>Product Listings</h2>
-            <p>Coming soon...</p>
+            <a href="{{ url_for('admin.admin_products') }}" class="btn" style="
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #095c43;
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;">Manage Products</a>
+            <a href="{{ url_for('admin.pending_products') }}" class="btn" style="
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #095c43;
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;">View Pending Products</a>
         </div>
     </div>
 </body>

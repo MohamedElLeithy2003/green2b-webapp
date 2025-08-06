@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "supplier_base.html" %}
 {% block title %}Supplier Dashboard | Green2B{% endblock %}
 
 {% block content %}
@@ -35,6 +35,9 @@
             {% endfor %}
         </tbody>
     </table>
+    <div style="margin-top: 2rem;">
+        <a href="{{ url_for('supplier_logout') }}" class="btn btn-danger" style="background-color: #f44336; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer;">Logout</a>
+        
 </div>
 {% endblock %}
 

@@ -22,9 +22,34 @@
         <label for="impact">Sustainability Impact</label>
         <textarea id="impact" name="impact" placeholder="Describe the sustainability impact" rows="3"></textarea>
 
+        <label for="image">Product Image</label>
+        <input type="file" id="image" name="image" accept="image/*" style="margin-bottom: 1rem;" required/>
+
+        <img id="image-preview" src="#" alt="Image Preview" style="display: none; max-width: 100%; margin-top: 10px; border-radius: 5px;"/>
+
         <button type="submit" style="margin-top: 1.5rem; background-color: #095c43; color: white; padding: 0.7rem 1.2rem; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem;">
             Add Product
         </button>
     </form>
+
+    <script>
+        const imageInput = document.getElementById('image');
+        const imagePreview = document.getElementById('image-preview');
+
+        imageInput.addEventListener('change', function() {
+            const file = this.files[0]
+            if (file){
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    imagePreview.setAttribute('src', e.target.result);
+                    imagePreview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.style.display = 'none';
+                imagePreview.setAttribute('src', '');
+            }
+        });
+    </script>
 </div>
 {% endblock %}

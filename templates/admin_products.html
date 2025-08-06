@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <h1>Manage Products</h1>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th><th>Name</th><th>Supplier</th><th>Category</th><th>Price</th><th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for product in products %}
+        <tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.supplier }}</td>
+            <td>{{ product.category }}</td>
+            <td>${{ product.price }}</td>
+            <td>
+                <a href="{{ url_for('admin.admin_product_detail', product_id='d' ~ product.id) }}">View</a>
+                <!-- You can add Edit and Delete actions here -->
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e9f5ec;
+            margin: 0;
+            padding: 0;
+        }
+        .dashboard-header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dashboard-header h1 {
+            margin: 0;
+        }
+        .dashboard-header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .dashboard-content {
+            padding: 2rem;
+        }
+        .section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        .section h2 {
+            margin-top: 0;
+        }
+        nav {
+            margin-bottom: 1rem;
+            color: #4CAF50;
+        }
+    </style>
+</html>

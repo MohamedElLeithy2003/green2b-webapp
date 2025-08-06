@@ -72,6 +72,7 @@ class Product(db.Model):
     category = db.Column(db.String(80))
     description = db.Column(db.Text)
     status = db.Column(db.String(50))
+    image_url = db.Column(db.String(255))
 
     order_items = db.relationship('OrderItem', backref='order', lazy=True)
 

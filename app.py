@@ -1,13 +1,15 @@
 import stripe
 import openai
+import os
 import secrets
 from flask import Flask, Blueprint, render_template, request, redirect, url_for, session, flash, abort, jsonify, current_app
 from flask_mail import Mail, Message
-from flask_login import current_user, LoginManager, login_user
+from flask_login import current_user, LoginManager, login_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from models import db, Product, User, CartItem, Order, OrderItem, SupplierApplication, Supplier
 from flask_migrate import Migrate
 from flask_wtf import FlaskForm
+from werkzeug.utils import secure_filename
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired, Email, Optional
 from datetime import datetime, timedelta
@@ -52,6 +54,10 @@ def send_async_email(app, msg):
         mail.send(msg)
 
 def send_email(subject, recipients, body, html=None):
+    recipients = [r for r in recipients if r]
+    if not recipients:
+        print("No valid email recipients provided, email not sent.")
+        return
     msg = Message(subject, recipients=recipients)
     msg.body = body
     if html:
@@ -95,6 +101,95 @@ def dashboard():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin.admin_login'))
     return render_template('admin_dashboard.html')
+
+
+@admin_bp.route('/products/pending')
+def pending_products():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin.admin_login'))
+    pending_products = Product.query.filter_by(status='pending').all()
+    return render_template('pending_products.html', products=pending_products)
+
+@admin_bp.route('/products/<int:product_id>/approve', methods=['POST'])
+def approve_product(product_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin.admin_login'))
+    product = Product.query.get_or_404(product_id)
+    product.status = 'approved'
+    db.session.commit()
+    flash(f'Product {product.name} approved successfully.', 'success')
+    return redirect(url_for('admin.pending_products'))
+
+@admin_bp.route('/products/<int:product_id>/reject', methods=['POST'])
+def reject_product(product_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin.admin_login'))
+    product = Product.query.get_or_404(product_id)
+    product.status = 'rejected'
+    db.session.commit()
+    flash(f'Product {product.name} rejected successfully.', 'warning')
+    return redirect(url_for('admin.pending_products'))
+
+
+@admin_bp.route('/products')
+def admin_products():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin.admin_login'))
+
+    products = products_data
+    return render_template('admin_products.html', products=products)
+
+
+@admin_bp.route('/products/<product_id>', methods=['GET', 'POST'])
+def admin_product_detail(product_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin.admin_login'))
+
+    # Dummy product (starts with 'd')
+    if str(product_id).startswith('d'):
+        dummy_id = int(str(product_id)[1:])
+        from types import SimpleNamespace
+        match = next((p for p in products_data if p['id'] == dummy_id), None)
+        if not match:
+            abort(404)
+        product = SimpleNamespace(**match)
+        return render_template('admin_product_detail.html', product=product, is_dummy=True)
+
+    # Real DB product
+    product = Product.query.get_or_404(int(product_id))
+
+    if request.method == 'POST':
+        product.name = request.form['name']
+        product.description = request.form['description']
+        product.price = float(request.form['price'])
+        product.image_url = request.form['image_url']
+        product.category = request.form['category']
+        db.session.commit()
+        flash('Product updated successfully')
+        return redirect(url_for('admin.admin_products'))
+
+    return render_template('admin_product_detail.html', product=product, is_dummy=False)
+
+
+@admin_bp.route('/products/<int:product_id>/request-change', methods=['POST'])
+def request_change(product_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin.admin_login'))
+    product = Product.query.get_or_404(product_id)
+    change_note = request.form.get('change_note')
+
+    flash(f'Requested changes for "{product.name}": {change_note}, info')
+    return redirect(url_for('admin.admin_product_detail'), product_id=product_id)
+
+@admin_bp.route('/products/<int:product_id>/delete', methods=['POST'])
+def delete_product(product_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin.admin_login'))
+    product = Product.query.get_or_404(product_id)
+    db.session.delete(product)
+    db.session.commit()
+    flash(f'Product {product.name} has been deleted', 'danger')
+    return redirect(url_for('admin.admin_products'))
 
 @admin_bp.route('/supplier-applications')
 def supplier_applications():
@@ -503,14 +598,14 @@ collections_list = [
         'name': 'Eco-Friendly',
         'slug': 'ecofriendly',
         'products': [p for p in products_data if p['category'] == 'ecofriendly'],
-        'cover_image': 'images/eco-friendly.jpg',
+        'cover_image': 'images/eco-friendly-removebg-preview.png',
         'product_count': sum(1 for p in products_data if p['category'] == 'ecofriendly')
     },
     {
         'name': 'Organic',
         'slug': 'organic',
         'products': [p for p in products_data if p['category'] == 'organic'],
-        'cover_image': 'images/organic.jpg',
+        'cover_image': 'images/organic-removebg-preview.png',
         'product_count': sum(1 for p in products_data if p['category'] == 'organic')
     }
     ,
@@ -518,7 +613,7 @@ collections_list = [
         'name': 'Recycled',
         'slug': 'recycled',
         'products': [p for p in products_data if p['category'] == 'recycled'],
-        'cover_image': 'images/recycled.jpg',
+        'cover_image': 'images/recycled-removebg-preview.png',
         'product_count': sum(1 for p in products_data if p['category'] == 'recycled')
     }
 ]
@@ -533,9 +628,9 @@ def collections():
         collections[category].append(product)
 
     collection_covers = {
-        'ecofriendly': 'images/eco-friendly.jpg',
-        'organic': 'images/organic.jpg',
-        'recycled': 'images/recycled.jpg'
+        'ecofriendly': 'images/eco-friendly-removebg-preview.png',
+        'organic': 'images/organic-removebg-preview.png',
+        'recycled': 'images/recycled-removebg-preview.png'
     }
 
     collections_list = []
@@ -559,9 +654,9 @@ def collection_page(category_name):
     ]
 
     collection_covers = {
-        'ecofriendly': 'images/eco-friendly.jpg',
-        'organic': 'images/organic.jpg',
-        'recycled': 'images/recycled.jpg'
+        'ecofriendly': 'images/eco-friendly-removebg-preview.png',
+        'organic': 'images/organic-removebg-preview.png',
+        'recycled': 'images/recycled-removebg-preview.png'
     }
 
     cover_image = collection_covers.get(category, 'images/default_collection.jpg')
@@ -735,9 +830,11 @@ def checkout_success():
 
     total = sum(item['price'] * item.get('quantity', 1) for item in cart)
 
+    buyer_email = buyer_info.get('email')
+
     new_order = Order(
         buyer_id=session.get('user_id') if 'user_id' in session else None,
-        email=buyer_info.get('email'),
+        email=buyer_email,  # Store buyer email here
         total_price=total,
         status='Completed',
         # add any other fields you need
@@ -745,7 +842,30 @@ def checkout_success():
     db.session.add(new_order)
     db.session.commit()
 
+    # Build email content
+    subject = "Order Confirmation"
+    body = (
+        f"Hi {buyer_info.get('name', 'Customer')},\n\n"
+        f"Thank you for your order! Here are the details:\n\n"
+        f"Order ID: {new_order.id}\n"
+        f"Total Price: ${total:.2f}\n"
+        f"Items:\n"
+    )
+    for item in cart:
+        quantity = item.get('quantity', 1)
+        body += f"- {item['name']} (x{quantity}) - ${item['price'] * quantity:.2f}\n"
 
+    body += (
+        "\nWe will process your order shortly.\n"
+        "Thank you for shopping with us!\n\n"
+        "Best regards,\n"
+        "Green2B Team"
+    )
+
+    # Send confirmation email using the saved email in order
+    send_email(subject, [buyer_email], body)
+
+    # Save order info in session for further use
     session['last_order'] = {
         'order_id': new_order.id,
         'total_price': total,
@@ -753,7 +873,7 @@ def checkout_success():
         **buyer_info
     }
 
-    # Clear cart and buyer info after order created
+    # Clear cart and buyer info after order completion
     session.pop('cart', None)
     session.pop('buyer_info', None)
 
@@ -768,10 +888,24 @@ def contact():
         name = request.form.get('name')
         email = request.form.get('email')
         message = request.form.get('message')
-        print(f"Received message from {name} ({email}): {message}")
-        return redirect('/contact-success')
-    return render_template('contact.html')
 
+        flash("Thank you for reaching out! We'll get back to you soon.")
+
+        subject = "New Contact Form Submission"
+        body = f"Name: {name}\nEmail: {email}\nMessage: {message}"
+        recipients = ['green2bteam@gmail.com']  # your support email
+
+        send_email(subject, recipients, body)
+
+        subject_user = "Thank you for contacting Green2B"
+        body_user = f"Hello {name},\n\nThank you for reaching out to us. We have received your message and will get back to you shortly.\n\nBest regards,\nGreen2B Team"
+        send_email(subject_user, [email], body_user)
+
+        flash("Thank you for your message! We'll get back to you soon.")
+
+        return redirect('/contact-success')
+
+    return render_template('contact.html')
 @app.route('/contact-success')
 def contact_success():
     return render_template('contact_success.html')
@@ -785,8 +919,11 @@ def supplier_apply():
         website = request.form.get('website')
         products = request.form.get('products')
         message = request.form.get('message')
+
+        user_id = current_user.id if current_user.is_authenticated else None
         
         new_app = SupplierApplication(
+            user_id=user_id,
             name=name,
             company=company,
             email=email,
@@ -800,6 +937,19 @@ def supplier_apply():
         
         print(f"New supplier application: \nName: {name}\nCompany: {company}\nEmail: {email}\nWebsite: {website}\nProducts: {products}\nMessage: {message}")
         
+        subject = "New Supplier Application Received"
+        body = f"""
+        A new supplier application has been submitted:\n
+        Name: {name}\n
+        Company: {company}\n
+        Email: {email}\n
+        Website: {website}\n
+        Products: {products}\n
+        Message: {message}
+        """
+        recipients = ['green2bteam@gmail.com']
+        send_email(subject, recipients, body)
+        
         return redirect('/supplier-success')
     return render_template('supplier_apply.html')
 
@@ -809,7 +959,16 @@ def supplier_success():
 
 
 def get_current_supplier_id():
-    return session.get('user_id')
+    if not current_user.is_authenticated:
+        abort(401, description="User not logged in")
+    if current_user.role != 'supplier':
+        abort(403, description="Access denied: Not a supplier")
+
+    supplier = Supplier.query.filter_by(user_id=current_user.id).first()
+    if not supplier:
+        abort(404, description="Supplier not found")
+
+    return supplier.id
 
 
 
@@ -855,9 +1014,20 @@ def supplier_login():
                     flash('Your supplier account is not verified yet. Please wait for approval.', 'warning')
                     login_user(user)
                     return redirect(url_for('supplier_apply'))
+
+                    subject = "Supplier Account Pending Approval"
+                    body = f"Hello {user.name},\n\nThank you for registering as a supplier on Green2B. Your account is currently pending approval. We will notify you once your account is verified.\n\nBest regards,\nGreen2B Team"
+                    send_email(subject, [email], body)
         
         flash('Invalid email or password', 'danger')
     return render_template('supplier_login.html')
+
+
+@app.route('/supplier/logout')
+def supplier_logout():
+    logout_user()
+    flash('Logged out successfully', 'success')
+    return redirect(url_for('supplier_login'))
             
 
 @app.route('/supplier/products')
@@ -875,11 +1045,26 @@ def add_product():
         category = request.form['category']
         price = float(request.form['price'])
 
+        image_file = request.files.get('image')
+        if image_file and image_file.filename:
+            image_filename = secure_filename(image_file.filename)
+            upload_folder = os.path.join(app.root_path, 'static/images')
+            os.makedirs(upload_folder, exist_ok=True)
+            image_path = os.path.join(upload_folder, image_filename)
+            image_file.save(image_path)
+            
+            image_url = f'static/images/{image_filename}'
+        
+        else:
+            image_url = None
+        
+
         new_product = Product(
             name=name,
             category=category,
             price=price,
             supplier_id=supplier_id,
+            image_url=image_url,
             status='pending'
         )
         db.session.add(new_product)
@@ -909,7 +1094,7 @@ def edit_product(product_id):
 
         db.session.commit()
         flash('Product updated successfully', 'success')
-        return redirect(url_for(supplier_products))
+        return redirect(url_for('supplier_products'))
     
     return render_template('edit_product.html', product=product)
 
@@ -1076,7 +1261,7 @@ def create_checkout_session():
             payment_method_types=['card'],
             line_items=line_items,
             mode='payment',
-            customer_email=buyer_info.get('email') if current_user.is_authenticated else None,
+            customer_email=buyer_info.get('email'), 
             success_url=url_for('checkout_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=url_for('cart', _external=True),
         )
