@@ -35,14 +35,21 @@ class EmailSubscription(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Supplier(db.Model):
+    __tablename__ = 'supplier'
+
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Fix here
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) # Fix here
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(120), unique=True, nullable=False)
     company_name = db.Column(db.String(120))
     verified = db.Column(db.Boolean, default=False)
     sustainability_score = db.Column(db.Float)
 
     products = db.relationship('Product', backref='supplier', lazy=True)
+    views = db.relationship('ProductView', back_populates='supplier', cascade='all, delete-orphan')
 
+    reset_token = db.Column(db.String(100), nullable=True)
+    reset_token_expiry = db.Column(db.DateTime, nullable=True)
 
 class SupplierApplication(db.Model):
     __tablename__ = 'supplier_application'
@@ -64,17 +71,35 @@ class SupplierApplication(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
+class ProductView(db.Model):
+    __tablename__ = 'product_views'
+
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    supplier_id = db.Column(db.Integer, db.ForeignKey('supplier.id'), nullable=False)
+
+    viewed_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    product = db.relationship('Product', back_populates='views')
+    supplier = db.relationship('Supplier', back_populates='views')
+
+
 class Product(db.Model):
+
+    __tablename__ = 'product'
+
     id = db.Column(db.Integer, primary_key=True)
     supplier_id = db.Column(db.Integer, db.ForeignKey('supplier.id'), nullable=False)
     name = db.Column(db.String(120), nullable=False)
     price = db.Column(db.Numeric(10, 2), nullable=False)
     category = db.Column(db.String(80))
     description = db.Column(db.Text)
+    impact = db.Column(db.Text)
     status = db.Column(db.String(50))
     image_url = db.Column(db.String(255))
 
     order_items = db.relationship('OrderItem', backref='order', lazy=True)
+    views = db.relationship('ProductView', back_populates='product', cascade='all, delete-orphan')
 
 class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)

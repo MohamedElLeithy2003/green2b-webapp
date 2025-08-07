@@ -5,14 +5,97 @@
 <div class="container" style="max-width: 900px; margin: auto; padding: 2rem;">
 
     <h2> Supplier Dashboard</h2>
+    <h3> Analytics (Last 7 Days) </h3>
+    <canvas id="analyticsChart", width="600" height="300"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('analyticsChart').getContext('2d');
+
+        // Data passed from Flask
+        const analyticsData = {{ analytics_data|tojson }};
+
+        const labels = analyticsData.map(d => d.day);
+        const views = analyticsData.map(d => d.views);
+        const orders = analyticsData.map(d => d.orders);
+        const sales = analyticsData.map(d => d.sales);
+
+        const analyticsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+            labels: labels,
+            datasets: [
+                {
+                label: 'Views',
+                data: views,
+                borderColor: 'blue',
+                backgroundColor: 'rgba(0,0,255,0.1)',
+                fill: true,
+                tension: 0.3,
+                },
+                {
+                label: 'Orders',
+                data: orders,
+                borderColor: 'green',
+                backgroundColor: 'rgba(0,255,0,0.1)',
+                fill: true,
+                tension: 0.3,
+                },
+                {
+                label: 'Sales ($)',
+                data: sales,
+                borderColor: 'orange',
+                backgroundColor: 'rgba(255,165,0,0.1)',
+                fill: true,
+                tension: 0.3,
+                yAxisID: 'ySales'
+                }
+            ]
+            },
+            options: {
+            responsive: true,
+            scales: {
+                y: {
+                beginAtZero: true,
+                position: 'left',
+                title: {
+                    display: true,
+                    text: 'Count'
+                }
+                },
+                ySales: {
+                beginAtZero: true,
+                position: 'right',
+                grid: {
+                    drawOnChartArea: false
+                },
+                title: {
+                    display: true,
+                    text: 'Sales ($)'
+                }
+                }
+            },
+            plugins: {
+                legend: {
+                position: 'top',
+                },
+                title: {
+                display: false,
+                text: 'Product Analytics - Last 7 Days'
+                }
+            }
+            }
+        });
+        </script>
 
     <a href="products/add" style="background: #095c43;color:#fff;padding:0.5rem 1rem;border:none;border-radius:4px; text-decoration:none;">Add New Product</a>
     <table style="width: 100%; margin-top: 1rem; border-collapse: collapse;">
         <thead style="background-color: #095c43; color:white;">
             <tr>
+                <th style="padding: 0.5rem; border: 1px solid #ddd;">Image</th>
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Product Name</th>
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Category</th>
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Price</th>
+                <th style="padding 0.5rem; border: 1px solid #ddd"> Impact </th>
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Status</th>
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Actions</th>
             </tr>
@@ -21,9 +104,17 @@
         <tbody>
             {% for product in products %}
             <tr>
+                <td style="text-align: center; padding: 0.5rem; border: 1px solid #ddd;">
+                    {% if product.image_url %}
+                        <img src="{{ url_for('static', filename=product.image_url.split('static/')[1]) }}" alt="{{ product.name }}" style="max-width: 80px; max-height: 80px; object-fit: contain;"/>
+                    {% else %}
+                        <span>No Image</span>
+                    {% endif %}
+                </td>
                 <td>{{ product.name }}</td>
                 <td>{{ product.category }}</td>
                 <td>{{ product.price }}</td>
+                <td>{{ product.impact }}</td>
                 <td>{{ product.status }}</td>
                 <td>
                 <a href="{{ url_for('edit_product', product_id=product.id) }}">Edit</a> | 

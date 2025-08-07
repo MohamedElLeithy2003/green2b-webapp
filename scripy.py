@@ -1,7 +1,10 @@
-from sqlalchemy import create_engine, text
 
-engine = create_engine('sqlite:///green2b.db')
-with engine.connect() as conn:
-    result = conn.execute(text("SELECT name FROM sqlite_master WHERE type='table';"))
-    tables = result.fetchall()
-    print([t[0] for t in tables])
+from app import app, db
+from sqlalchemy import text
+
+with app.app_context():
+    db.session.execute(text('ALTER TABLE supplier ADD COLUMN reset_token VARCHAR(100);'))
+    db.session.execute(text('ALTER TABLE supplier ADD COLUMN reset_token_expiry DATETIME;'))
+    db.session.commit()
+
+    print("Columns added successfully.")

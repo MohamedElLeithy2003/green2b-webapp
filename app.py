@@ -6,14 +6,16 @@ from flask import Flask, Blueprint, render_template, request, redirect, url_for,
 from flask_mail import Mail, Message
 from flask_login import current_user, LoginManager, login_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
-from models import db, Product, User, CartItem, Order, OrderItem, SupplierApplication, Supplier
+from models import db, Product, User, CartItem, Order, OrderItem, SupplierApplication, Supplier, ProductView
 from flask_migrate import Migrate
 from flask_wtf import FlaskForm
 from werkzeug.utils import secure_filename
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired, Email, Optional
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from threading import Thread
+from sqlalchemy import func, cast, Date
+from sqlalchemy.sql import func, expression
 
 
 
@@ -178,11 +180,36 @@ def request_change(product_id):
     product = Product.query.get_or_404(product_id)
     change_note = request.form.get('change_note')
 
-    flash(f'Requested changes for "{product.name}": {change_note}, info')
-    return redirect(url_for('admin.admin_product_detail'), product_id=product_id)
+    supplier = product.supplier
+    if not supplier or not supplier.user:
+        flash("Supplier not found for this product.", "danger")
+        return redirect(url_for('admin.admin_product_detail', product_id=product_id))
 
-@admin_bp.route('/products/<int:product_id>/delete', methods=['POST'])
-def delete_product(product_id):
+    subject = f"Change Request for Your Product: {product.name}"
+    recipient = supplier.user.email
+    body = f"""Hello {supplier.company_name},
+
+Your product "{product.name}" requires some changes.
+
+Requested Change:
+{change_note}
+
+Please make the necessary updates in your supplier dashboard.
+
+Regards,
+Green2B Admin Team
+"""
+    try:
+        msg = Message(subject=subject, recipients=[recipient], body=body)
+        mail.send(msg)
+        flash(f'Requested changes for "{product.name}": {change_note}, info')
+    except Exception as e:
+        print(str(e))
+        flash("Error sending email to supplier", 'danger')
+    return redirect(url_for('admin.admin_product_detail', product_id=product_id))
+
+@admin_bp.route('/products/<int:product_id>/remove', methods=['POST'])
+def remove_product(product_id):
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin.admin_login'))
     product = Product.query.get_or_404(product_id)
@@ -216,7 +243,28 @@ def supplier_approve(app_id):
         supplier.verified = True
 
     db.session.commit()
-    flash(f'Supplier application #{application.id} approved successfully.', 'success')
+
+    try:
+        subject = "Your Supplier Application Has Been Approved"
+        recipient = user.email
+        body = f"""Hello {application.company},
+
+Congratulations! Your supplier application has been approved.
+
+You can now log in to your supplier dashboard and start listing your sustainable products.
+
+Login here: {url_for('supplier.supplier_login', _external=True)}
+
+Regards,  
+Green2B Admin Team
+"""
+        msg = Message(subject=subject, recipients=[recipient], body=body)
+        mail.send(msg)
+        flash(f'Supplier application #{application.id} approved and email sent.', 'success')
+    except Exception as e:
+        print(str(e))
+        flash("Error sending approval email to supplier", 'danger')
+
     return redirect(url_for('admin.supplier_applications'))
 
 @admin_bp.route('/supplier-reject/<int:app_id>', methods=['POST'])
@@ -224,8 +272,32 @@ def supplier_reject(app_id):
     application = SupplierApplication.query.get_or_404(app_id)
     application.status = 'Rejected'
     db.session.commit()
-    flash(f'Supplier application #{application.id} rejected successfully.', 'warning')
+
+    # Send rejection email
+    try:
+        if application.user and application.user.email:
+            subject = "Your Supplier Application Has Been Rejected"
+            recipient = application.user.email
+            body = f"""Hello {application.company},
+
+We regret to inform you that your supplier application has been rejected after review.
+
+If you believe this was a mistake or would like to reapply in the future, feel free to reach out to us.
+
+Regards,  
+Green2B Admin Team
+"""
+            msg = Message(subject=subject, recipients=[recipient], body=body)
+            mail.send(msg)
+            flash(f'Supplier application #{application.id} rejected and email sent.', 'warning')
+        else:
+            flash(f'Supplier application #{application.id} rejected (email not sent: user missing)', 'warning')
+    except Exception as e:
+        print(str(e))
+        flash("Error sending rejection email to supplier", 'danger')
+
     return redirect(url_for('admin.supplier_applications'))
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -1022,6 +1094,46 @@ def supplier_login():
         flash('Invalid email or password', 'danger')
     return render_template('supplier_login.html')
 
+@app.route('/supplier/forgot-password', methods=['GET', 'POST'])
+def supplier_forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        supplier = Supplier.query.filter_by(email=email).first()
+        if supplier:
+            token = secrets.token_urlsafe(16)
+            supplier.reset_token = token
+            supplier.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
+            db.session.commit()
+
+            reset_link = url_for('supplier_reset_password', token=token, _external=True)
+            subject = "Supplier Password Reset Request"
+            body = f"Click the link below to reset your password:\n{reset_link}\n\nIf you did not request this, please ignore this email."
+            send_email(subject, [email], body)
+
+            flash('Password reset link sent to your email')
+            return redirect(url_for('supplier_login'))
+        else:
+            flash('Email not found')
+            return redirect(url_for('supplier_forgot_password'))
+    return render_template('supplier_forgot_password.html')
+
+@app.route('/supplier/reset_password/<token>', methods=['GET', 'POST'])
+def supplier_reset_password(token):
+    supplier = Supplier.query.filter_by(reset_token=token).first()
+    if not supplier or supplier.reset_token_expiry < datetime.utcnow():
+        flash('Invalid or expired token')
+        return redirect(url_for('supplier_forgot_password'))
+
+    if request.method == 'POST':
+        new_password = request.form['new_password']
+        supplier.set_password(new_password)
+        supplier.reset_token = None
+        supplier.reset_token_expiry = None
+        db.session.commit()
+        flash('Password reset successfully. You can now login.')
+        return redirect(url_for('supplier_login'))
+
+    return render_template('supplier_reset_password.html', token=token)
 
 @app.route('/supplier/logout')
 def supplier_logout():
@@ -1032,10 +1144,25 @@ def supplier_logout():
 
 @app.route('/supplier/products')
 def supplier_products():
-
     supplier_id = get_current_supplier_id()
     products = Product.query.filter_by(supplier_id=supplier_id).all()
-    return render_template('supplier_products.html', products=products)
+
+    today = date.today()
+    start_date = today - timedelta(days=6)
+
+    # Just create empty analytics data with zeros
+    analytics_data = []
+    for i in range(7):
+        day = start_date + timedelta(days=i)
+        day_str = day.strftime('%Y-%m-%d')
+        analytics_data.append({
+            'day': day_str,
+            'views': 0,
+            'orders': 0,
+            'sales': 0.0,
+        })
+
+    return render_template('supplier_products.html', products=products, analytics_data=analytics_data)
 
 @app.route('/supplier/products/add', methods=['GET', 'POST'])
 def add_product():
@@ -1044,6 +1171,8 @@ def add_product():
         name = request.form['name']
         category = request.form['category']
         price = float(request.form['price'])
+        description = request.form.get('description')
+        impact = request.form.get('impact')
 
         image_file = request.files.get('image')
         if image_file and image_file.filename:
@@ -1065,7 +1194,9 @@ def add_product():
             price=price,
             supplier_id=supplier_id,
             image_url=image_url,
-            status='pending'
+            status='pending',
+            description=description,
+            impact=impact
         )
         db.session.add(new_product)
         db.session.commit()
@@ -1091,6 +1222,17 @@ def edit_product(product_id):
         product.name = request.form['name']
         product.category = request.form['category']
         product.price = float(request.form['price'])
+        product.description = request.form.get('description')
+        product.impact = request.form.get('impact')
+        image_file = request.files.get('image')
+        
+        if image_file and image_file.filename:
+            image_filename = secure_filename(image_file.filename)
+            upload_folder = os.path.join(app.root_path, 'static/images')
+            os.makedirs(upload_folder, exist_ok=True)
+            image_path = os.path.join(upload_folder, image_filename)
+            image_file.save(image_path)
+            product.image_url = f'static/images/{image_filename}'
 
         db.session.commit()
         flash('Product updated successfully', 'success')

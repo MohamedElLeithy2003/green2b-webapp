@@ -102,7 +102,7 @@
     </form>
 
     <!-- Delete Product -->
-    <form method="POST" action="{{ url_for('admin.delete_product', product_id=product.id) }}" onsubmit="return confirm('Are you sure you want to delete this product?');">
+    <form method="POST" action="{{ url_for('admin.remove_product', product_id=product.id) }}" onsubmit="return confirm('Are you sure you want to delete this product?');">
         <button type="submit" class="btn btn-danger mt-2">Delete Product</button>
     </form>
 </body>
