@@ -1,6 +1,7 @@
 import stripe
 import openai
 import os
+import re
 import secrets
 from flask import Flask, Blueprint, render_template, request, redirect, url_for, session, flash, abort, jsonify, current_app
 from flask_mail import Mail, Message
@@ -65,6 +66,15 @@ def send_email(subject, recipients, body, html=None):
     if html:
         msg.html = body
     mail.send(msg)
+
+def is_valid_input(text):
+    if not text:
+        return False
+    if re.search(r'https?://', text):
+        return False
+    if re.search(r'[^\w\s.,!?@\-]', text):
+        return False
+    return True
 
 
 
@@ -307,6 +317,10 @@ def register():
         email = request.form['email']
         password = request.form['password']
 
+        if not is_valid_input(name):
+            flash('Name contains invalid characters on links', 'danger')
+            return redirect(url_for('register'))
+        
         if User.query.filter_by(email=email).first():
             flash('Email already registered')
             return redirect(url_for('register'))
@@ -960,6 +974,10 @@ def contact():
         name = request.form.get('name')
         email = request.form.get('email')
         message = request.form.get('message')
+
+        if not all([is_valid_input(name), is_valid_input(message)]):
+            flash("Your message contains invalid characters or links.", 'danger')
+            return redirect(url_for('contact'))
 
         flash("Thank you for reaching out! We'll get back to you soon.")
 
