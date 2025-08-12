@@ -2,29 +2,39 @@
 
 {% block title %} Register as a Supplier | Green 2B{% endblock %}
 {% block content %}
-<h2 style="text-align: center;"> Register as a Supplier </h2>
-<p style="text-align: center;"> Join our network of verified sustainable suppliers and connect with businesses looking for eco-friendly products </p>
-<div class="container mt-5" style="max-width: 500px;">
-    <h2 class="text-center mb-4">Supplier Registration</h2>
-    <form method="POST" action="{{ url_for('supplier_register') }}">
-        <div class="form-group">
-            <label for="name">Name:</label>
-            <input type="text" class="form-control" id="name" name="name" required>
-        </div>
-        <div class="form-group">
-            <label for="company">Company Name:</label>
-            <input type="text" class="form-control" id="company" name="company" required>
-        </div>
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" class="form-control" id="email" name="email" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" class="form-control" id="password" name="password" required>
-        </div>
-        <button type="submit" class="btn btn-primary btn-block">Register</button>
-        <p class="text-center mt-3">Already have an account? <a href="{{ url_for('supplier_login') }}">Login here</a></p>
-    </form>
+<style>
+  /* Full viewport height flex container to center vertically and horizontally */
+  .centered-container {
+    display: flex;
+    justify-content: center; /* horizontal center */
+    align-items: center;     /* vertical center */
+    min-height: 80vh;        /* adjust vertical height */
+  }
+</style>
+
+<div class="centered-container">
+  <div class="container" style="max-width: 500px;">
+      <h2 class="text-center mb-4">Supplier Registration</h2>
+      <form method="POST" action="{{ url_for('supplier_register') }}">
+          <div class="form-group">
+              <label for="name">Name:</label>
+              <input type="text" class="form-control" id="name" name="name" required>
+          </div>
+          <div class="form-group">
+              <label for="company">Company Name:</label>
+              <input type="text" class="form-control" id="company" name="company" required>
+          </div>
+          <div class="form-group">
+              <label for="email">Email:</label>
+              <input type="email" class="form-control" id="email" name="email" required>
+          </div>
+          <div class="form-group">
+              <label for="password">Password:</label>
+              <input type="password" class="form-control" id="password" name="password" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Register</button>
+          <p class="text-center mt-3">Already have an account? <a href="{{ url_for('supplier_login') }}">Login here</a></p>
+      </form>
+  </div>
 </div>
 {% endblock %}

@@ -7,7 +7,7 @@ from flask import Flask, Blueprint, render_template, request, redirect, url_for,
 from flask_mail import Mail, Message
 from flask_login import current_user, LoginManager, login_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
-from models import db, Product, User, CartItem, Order, OrderItem, SupplierApplication, Supplier, ProductView
+from models import db, Product, User, Cart, CartItem, Order, OrderItem, SupplierApplication, Supplier, ProductView
 from flask_migrate import Migrate
 from flask_wtf import FlaskForm
 from werkzeug.utils import secure_filename
@@ -17,6 +17,7 @@ from datetime import date, datetime, timedelta
 from threading import Thread
 from sqlalchemy import func, cast, Date
 from sqlalchemy.sql import func, expression
+from types import SimpleNamespace
 
 
 
@@ -129,6 +130,26 @@ def approve_product(product_id):
     product = Product.query.get_or_404(product_id)
     product.status = 'approved'
     db.session.commit()
+    supplier = product.supplier
+    subject = f"{product.name} has been approved"
+    recipient = supplier.user.email
+    body = f"""Hello {supplier.company_name},
+
+Your product "{product.name}" has been approved and is now live on the marketplace.
+
+Thank you for partnering with us.
+
+Best regards,
+Green2B Team
+
+"""
+    try:
+        msg = Message(subject=subject, recipients=[recipient], body=body)
+        mail.send(msg)
+        flash(f'Product "{product.name}" approved, info')
+    except Exception as e:
+        print(str(e))
+        flash("Error sending email to supplier", 'danger')
     flash(f'Product {product.name} approved successfully.', 'success')
     return redirect(url_for('admin.pending_products'))
 
@@ -148,8 +169,12 @@ def admin_products():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin.admin_login'))
 
-    products = products_data
-    return render_template('admin_products.html', products=products)
+    dummy_products_objs = [SimpleNamespace(**p) for p in products_data]
+    approved_products = Product.query.filter_by(status='approved').all()
+
+    all_products = dummy_products_objs + approved_products
+
+    return render_template('admin_products.html', products=all_products)
 
 
 @admin_bp.route('/products/<product_id>', methods=['GET', 'POST'])
@@ -317,6 +342,18 @@ def register():
         email = request.form['email']
         password = request.form['password']
 
+        address_street = request.form.get('address_street', '')
+        address_city = request.form.get('address_city', '')
+        address_state = request.form.get('address_state', '')
+        address_postcode = request.form.get('address_postcode', '')
+        address_country = request.form.get('address_country', '')
+
+        billing_street = request.form.get('billing_street', '')
+        billing_city = request.form.get('billing_city', '')
+        billing_state = request.form.get('billing_state', '')
+        billing_postcode = request.form.get('billing_postcode', '')
+        billing_country = request.form.get('billing_country', '')
+
         if not is_valid_input(name):
             flash('Name contains invalid characters on links', 'danger')
             return redirect(url_for('register'))
@@ -325,7 +362,17 @@ def register():
             flash('Email already registered')
             return redirect(url_for('register'))
         
-        new_user = User(email=email, role=role)
+        new_user = User(name=name, email=email, role=role, address_street=address_street,
+            address_city=address_city,
+            address_state=address_state,
+            address_postcode=address_postcode,
+            address_country=address_country,
+            billing_street=billing_street,
+            billing_city=billing_city,
+            billing_state=billing_state,
+            billing_postcode=billing_postcode,
+            billing_country=billing_country,
+            )
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
@@ -355,6 +402,18 @@ class EditProfileForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('New Password', validators=[Optional()])
 
+    address_street = StringField('Shipping Street', validators=[Optional()])
+    address_city = StringField('Shipping City', validators=[Optional()])
+    address_state = StringField('Shipping State', validators=[Optional()])
+    address_postcode = StringField('Shipping Postcode', validators=[Optional()])
+    address_country = StringField('Shipping Country', validators=[Optional()])
+
+    billing_street = StringField('Billing Street', validators=[Optional()])
+    billing_city = StringField('Billing City', validators=[Optional()])
+    billing_state = StringField('Billing State', validators=[Optional()])
+    billing_postcode = StringField('Billing Postcode', validators=[Optional()])
+    billing_country = StringField('Billing Country', validators=[Optional()])
+
 @profile_bp.route('/profile/edit', methods=['GET', 'POST'])
 def edit_profile():
     if 'user_id' not in session:
@@ -371,6 +430,19 @@ def edit_profile():
         user.email = form.email.data
         if form.password.data:
             user.set_password(form.password.data)
+
+        user.address_street = form.address_street.data
+        user.address_city = form.address_city.data
+        user.address_state = form.address_state.data
+        user.address_postcode = form.address_postcode.data
+        user.address_country = form.address_country.data
+        
+        user.billing_street = form.billing_street.data
+        user.billing_city = form.billing_city.data
+        user.billing_state = form.billing_state.data
+        user.billing_postcode = form.billing_postcode.data
+        user.billing_country = form.billing_country.data
+        
         try:
             db.session.commit()
             flash('Profile updated successfully.')
@@ -382,6 +454,18 @@ def edit_profile():
     if request.method == 'GET':
         form.username.data = user.name
         form.email.data = user.email
+
+        form.address_street.data = user.address_street
+        form.address_city.data = user.address_city
+        form.address_state.data = user.address_state
+        form.address_postcode.data = user.address_postcode
+        form.address_country.data = user.address_country
+
+        form.billing_street.data = user.billing_street
+        form.billing_city.data = user.billing_city
+        form.billing_state.data = user.billing_state
+        form.billing_postcode.data = user.billing_postcode
+        form.billing_country.data = user.billing_country
 
     return render_template('edit_profile.html', form=form, user=user)
 
@@ -500,6 +584,46 @@ def order_detail(order_id):
     order_items = OrderItem.query.filter_by(order_id=order.id).all()
 
     return render_template('order_detail.html', order=order, order_items=order_items)
+
+
+@orders_bp.route('/<int:order_id>/track')
+def track_order(order_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    order = Order.query.get(order_id)
+    if not order or order.buyer_id != session['user_id']:
+        return redirect(url_for('order.orders_list'))
+
+    tracking_info = None
+    if order.shipping:
+        tracking_info = {
+            'status': order.shipping.status,
+            'estimated_delivery': order.shipping.estimated_delivery.strftime('%B %d, %Y'),
+            'current_location': order.shipping.current_location,
+            'shipping_address': {
+                'name': order.shipping.recipient_name,
+                'street': order.shipping.street,
+                'city': order.shipping.city,
+                'postcode': order.shipping.postcode,
+                'country': order.shipping.country
+            }
+        }  # <-- This closing brace was missing
+    else:
+        tracking_info = {
+            'status': 'Processing',
+            'estimated_delivery': 'TBD',
+            'current_location': 'Warehouse',
+            'shipping_address': {
+                'name': order.buyer.name,
+                'street': order.buyer.address_street or 'Not Provided',
+                'city': order.buyer.address_city or '',
+                'postcode': order.buyer.address_postcode or '',
+                'country': order.buyer.address_country or ''
+            }
+        }
+
+    return render_template('track_order.html', order_id=order.id, tracking_info=tracking_info)
 
 
 
@@ -630,54 +754,105 @@ def products():
 
     try:
         min_price = float(min_price) if min_price else None
-    except(ValueError):
+    except ValueError:
         min_price = None
     
     try:
         max_price = float(max_price) if max_price else None
-    except(ValueError):
+    except ValueError:
         max_price = None
 
-    filtered_products = products_data
+    # Fetch approved products from DB
+    db_products = Product.query.filter_by(status='approved').all()
 
+    db_products_list = []
+    for p in db_products:
+        db_products_list.append({
+            'id': p.id,
+            'supplier': p.supplier.id if p.supplier else "Unknown",  # assuming relationship .supplier.name
+            'name': p.name or "",
+            'image': p.image_url or 'default_image.png',
+            'category': (p.category or "").lower(),
+            'quantity': getattr(p, 'quantity', 100),
+            'price': p.price or 0,
+            'score': getattr(p, 'score', 'N/A'),
+            'description': p.description or "",
+            'impact': (p.impact or "").lower()
+        })
+
+    # Add impact key to dummy products with empty string for consistency
+    dummy_products = []
+    for p in products_data:
+        p_copy = p.copy()
+        if 'impact' not in p_copy:
+            p_copy['impact'] = ''
+        # normalize category and impact to lowercase for filtering
+        p_copy['category'] = p_copy.get('category', '').lower()
+        p_copy['impact'] = p_copy.get('impact', '').lower()
+        dummy_products.append(p_copy)
+
+    all_products = dummy_products + db_products_list
+
+    # Filter by search query in name or score
     if query:
-        filtered_products = [
-            p for p in filtered_products
-            if query in p['name'].lower() or query in p['score'].lower()
-        ]
-    
-    if filter_category:
-        filtered_products = [
-            p for p in filtered_products
-            if filter_category == p['category'].lower()
-        ]
-    
-    if filter_impact:
-        filtered_products = [
-            p for p in filtered_products
-            if filter_impact in p['impact'].lower()
+        all_products = [
+            p for p in all_products
+            if query in p.get('name', '').lower() or query in p.get('score', '').lower()
         ]
 
+    # Filter by category
+    if filter_category:
+        all_products = [
+            p for p in all_products
+            if p.get('category', '') == filter_category
+        ]
+
+    # Filter by impact substring
+    if filter_impact:
+        all_products = [
+            p for p in all_products
+            if filter_impact in p.get('impact', '')
+        ]
+
+    # Filter by min_price
     if min_price is not None:
-        filtered_products = [
-            p for p in filtered_products
+        all_products = [
+            p for p in all_products
             if p.get('price') is not None and p['price'] >= min_price
         ]
 
+    # Filter by max_price
     if max_price is not None:
-        filtered_products = [
-            p for p in filtered_products
+        all_products = [
+            p for p in all_products
             if p.get('price') is not None and p['price'] <= max_price
         ]
 
-    return render_template('products.html', products=filtered_products, query=query, filter_category=filter_category, filter_impact=filter_impact, min_price=min_price, max_price=max_price)
+    return render_template(
+        'products.html',
+        products=all_products,
+        query=query,
+        filter_category=filter_category,
+        filter_impact=filter_impact,
+        min_price=min_price,
+        max_price=max_price
+    )
+
 
 @app.route('/products/<int:product_id>')
 def product_detail(product_id):
+    # First try the database product:
+    product_db = Product.query.filter_by(id=product_id, status='approved').first()
+    if product_db:
+        return render_template('product_details.html', product=product_db, is_dummy=False)
+
+    # If not found in DB, try dummy data fallback:
     product = next((p for p in products_data if p['id'] == product_id), None)
-    if not product:
-        return "Product not found", 404
-    return render_template('product_details.html', product=product)
+    if product:
+        return render_template('product_details.html', product=product, is_dummy=True)
+
+    # Not found anywhere:
+    return "Product not found", 404
 
 collections_list = [
     {
@@ -691,7 +866,7 @@ collections_list = [
         'name': 'Organic',
         'slug': 'organic',
         'products': [p for p in products_data if p['category'] == 'organic'],
-        'cover_image': 'images/organic-removebg-preview.png',
+        'cover_image': 'images/organic_new.png',
         'product_count': sum(1 for p in products_data if p['category'] == 'organic')
     }
     ,
@@ -769,12 +944,20 @@ def add_to_cart(product_id):
         quantity = 1
 
     if current_user.is_authenticated:
+        # Check if the user has a cart, if not create one
+        if not current_user.cart:
+            new_cart = Cart(user_id=current_user.id)
+            db.session.add(new_cart)
+            db.session.commit()  # commit to get new_cart.id
+            current_user.cart = new_cart  # link cart to user
+        
         existing_item = CartItem.query.filter_by(user_id=current_user.id, product_id=product['id']).first()
         if existing_item:
             existing_item.quantity += quantity
         else:
             item = CartItem(
                 user_id=current_user.id,
+                cart_id=current_user.cart.id,
                 product_id=product['id'],
                 product_name=product['name'],
                 price=product['price'],
@@ -789,13 +972,11 @@ def add_to_cart(product_id):
 
         for item in session['cart']:
             if item['id'] == product['id']:
-                # Ensure quantity key exists and is an int
                 if 'quantity' not in item or not isinstance(item['quantity'], int):
                     item['quantity'] = 0
                 item['quantity'] += quantity
                 break
         else:
-            # This else belongs to the for loop: runs if break never happens
             session['cart'].append({
                 'id': product['id'],
                 'name': product['name'],
@@ -850,16 +1031,27 @@ def update_cart_quantity(product_id):
 
     if new_quantity < 1:
         new_quantity = 1
-    cart = session.get('cart', [])
-    for item in cart:
-        if item['id'] == product_id:
-            item['quantity'] = new_quantity
-            item['subtotal'] = item['price'] * new_quantity
-            break
 
-    session['cart'] = cart
+    if current_user.is_authenticated:
+        item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+        if item:
+            item.quantity = new_quantity
+            db.session.commit()
+            flash(f"Updated quantity for {item.product_name}")
+        else:
+            flash("Item not found in your cart")
+    else:
+        cart = session.get('cart', [])
+        for item in cart:
+            if item['id'] == product_id:
+                item['quantity'] = new_quantity
+                # subtotal will be recalculated on rendering cart, so no need to store here
+                break
+        session['cart'] = cart
+        session.modified = True
+        flash("Updated quantity in your cart")
+
     return redirect(url_for('cart'))
-
 
 
 
@@ -880,7 +1072,7 @@ def remove_from_cart(product_id):
         session.modified = True
         flash("Item removed from cart")
 
-        return redirect(url_for('cart'))
+    return redirect(url_for('cart'))
 
 
 
@@ -1101,13 +1293,11 @@ def supplier_login():
                     login_user(user)
                     return redirect(url_for('supplier_products'))
                 else:
-                    flash('Your supplier account is not verified yet. Please wait for approval.', 'warning')
-                    login_user(user)
-                    return redirect(url_for('supplier_apply'))
 
                     subject = "Supplier Account Pending Approval"
                     body = f"Hello {user.name},\n\nThank you for registering as a supplier on Green2B. Your account is currently pending approval. We will notify you once your account is verified.\n\nBest regards,\nGreen2B Team"
                     send_email(subject, [email], body)
+                    return redirect(url_for('supplier_apply'))
         
         flash('Invalid email or password', 'danger')
     return render_template('supplier_login.html')
@@ -1182,6 +1372,31 @@ def supplier_products():
 
     return render_template('supplier_products.html', products=products, analytics_data=analytics_data)
 
+@app.route('/supplier/analytics')
+def supplier_analytics():
+    supplier_id = get_current_supplier_id()
+
+    today = date.today()
+    start_date = today - timedelta(days=6)
+
+    analytics_data = []
+    for i in range(7):
+        day = start_date + timedelta(days=i)
+        day_str = day.strftime('%Y-%m-%d')
+        analytics_data.append({
+            'day': day_str,
+            'views': 0,
+            'orders': 0,
+            'sales': 0.0,
+        })
+    top_products = [
+        {'id': 1, 'name': 'Product A', 'views': 10, 'orders': 3, 'sales': 120.0},
+        {'id': 2, 'name': 'Product B', 'views': 8, 'orders': 2, 'sales': 75.0},
+        {'id': 3, 'name': 'Product C', 'views': 15, 'orders': 5, 'sales': 200.0},
+    ]
+
+    return render_template('supplier_analytics.html', analytics_data=analytics_data, top_products=top_products, supplier_id=supplier_id)
+
 @app.route('/supplier/products/add', methods=['GET', 'POST'])
 def add_product():
     supplier_id = get_current_supplier_id()
@@ -1223,13 +1438,37 @@ def add_product():
 
     return render_template('add_products.html')
 
+
 @app.route('/supplier/products/<int:product_id>')
 def supplier_product_detail(product_id):
     supplier_id = get_current_supplier_id()
     product = Product.query.filter_by(id=product_id, supplier_id=supplier_id).first()
     if not product:
         return "Product not found or access denied", 404
-    return render_template('supplier_product_details.html', product=product)
+
+    today = date.today()
+    start_date = today - timedelta(days=6)
+
+    views = 10
+    orders_count = db.session.query(OrderItem).join(Order).filter(
+        OrderItem.product_id == product_id,
+        Order.created_at >= start_date
+    ).count() or 0
+
+    total_sales = db.session.query(
+        db.func.sum(OrderItem.quantity * OrderItem.unit_price)).join(Order).filter(
+        OrderItem.product_id == product_id,
+        Order.created_at >= start_date
+    ).scalar() or 0
+
+    stats = {
+        'views': views,
+        'orders': orders_count,
+        'sales': total_sales
+    }
+
+    return render_template('supplier_product_details.html', product=product, stats=stats)
+
 
 @app.route('/supplier/products/edit/<int:product_id>', methods=['GET', 'POST'])
 def edit_product(product_id):
@@ -1266,6 +1505,64 @@ def delete_product(product_id):
     db.session.commit()
     flash('Product deleted successfully', 'success')
     return redirect(url_for('supplier_products'))
+
+
+@app.route('/supplier/orders/recent')
+def supplier_recent_orders():
+    supplier_id = get_current_supplier_id()
+
+    product_ids = [p.id for p in Product.query.filter_by(supplier_id=supplier_id).all()]
+
+    recent_orders_query = (
+        db.session.query(Order)
+        .join(OrderItem)
+        .filter(OrderItem.product_id.in_(product_ids))
+        .order_by(Order.created_at.desc())
+        .limit(10)
+        .all()
+    )
+
+    recent_orders = []
+    for order in recent_orders_query:
+        order_items = [
+            {
+                'product_name': oi.product.name,
+                'quantity': oi.quantity
+            }
+            for oi in order.items if oi.product_id in product_ids
+        ]
+        recent_orders.append({
+            'id': order.id,
+            'customer_name': order.customer_name,
+            'order_items': order_items,
+            'date': order.created_at,
+            'status': order.status
+        })
+
+    if not recent_orders:
+        recent_orders = [
+            {
+                'id': 1234,
+                'customer_name': 'John Doe',
+                'items': [
+                    {'product_name': 'Eco-friendly Bamboo Toothbrush', 'quantity': 2},
+                    {'product_name': 'Recycled Paper Notebook', 'quantity': 1},
+                ],
+                'date': date.today(),
+                'status': 'shipped',
+            },
+            {
+                'id': 1235,
+                'customer_name': 'Jane Smith',
+                'items': [
+                    {'product_name': 'Organic Cotton Tote Bag', 'quantity': 3}
+                ],
+                'date': date.today(),
+                'status': 'pending',
+            },
+        ]
+
+    return render_template('supplier_recent_orders.html', recent_orders=recent_orders)
 
 
 #def ai_sustainability_score(product):
@@ -1355,6 +1652,7 @@ def stripe_webhook():
         session = event['data']['object']
 
         customer_email = session.get('customer_details', {}).get('email')
+        shipping = session.get('shipping', {})
         metadata = session.get('metadata', {})
 
         new_order = Order(
@@ -1363,7 +1661,15 @@ def stripe_webhook():
             total_amount=session['amount_total'] / 100,  # convert pence to GBP
             currency='gbp',  # optional but good to save currency
             stripe_session_id=session['id'],
-            created_at=datetime.utcnow()
+            created_at=datetime.utcnow(),
+            
+            shipping_name = shipping.get('name'),
+            shipping_street=shipping.get('address', {}).get('line1'),
+            shipping_city=shipping.get('address', {}).get('city'),
+            shipping_postcode=shipping.get('address', {}).get('postal_code'),
+            shipping_country=shipping.get('address', {}).get('country'),
+
+
         )
         db.session.add(new_order)
         db.session.commit()
@@ -1423,7 +1729,12 @@ def create_checkout_session():
             mode='payment',
             customer_email=buyer_info.get('email'), 
             success_url=url_for('checkout_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url=url_for('cart', _external=True),
+            cancel_url =url_for('cart', _external=True),
+            
+            shipping_address_collection = {
+                'allowed_countries': ['GB', 'US', 'CA', 'FR', 'DE'],
+            },
+
         )
         return redirect(stripe_session.url, code=303)
 

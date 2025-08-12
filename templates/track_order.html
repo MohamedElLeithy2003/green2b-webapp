@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %} Track Your Order | Green2B {% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h2> Track Order #{{ order_id }}</h2>
+
+    {% if tracking_info %}
+        <div class="card p-3 my-3">
+            <p><strong>Status:</strong> {{tracking_info.status}}</p>
+            <p><strong>Estimated Delivery:</strong> {{ tracking_info.estimated_delivery }}</p>
+            <p><strong>Current Location:</strong> {{ tracking_info.current_location }}</p>
+            <p><strong>Shipping Address:</strong></p> {{ tracking_info.shipping_address }}</p>
+        </div>
+
+    {% else %}
+        <div class="alert alert-info my-3" role="alert">
+        Tracking information is not yet available for this order.
+        </div>
+    {% endif %}
+     <a href="{{ url_for('orders.orders_list') }}" class="btn btn-secondary">
+    Back to Orders
+  </a>
+</div>
+{% endblock %}

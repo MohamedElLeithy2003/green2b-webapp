@@ -8,8 +8,24 @@
 
   <div style="margin-top: 2rem;">
     <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>Role:</strong> {{ user.role|capitalize }}</p>
     <p><strong>Account Created:</strong> {{ user.created_at.strftime('%B %d, %Y') }}</p>
+
+    <h3>Shipping Address</h3>
+    <p>
+      {{ user.address_street }}<br>
+      {{ user.address_city }}, {{ user.address_state }}<br>
+      {{ user.address_postcode }}<br>
+      {{ user.address_country }}
+    </p>
+
+    <h3>Billing Address</h3>
+    <p>
+      {{ user.billing_street }}<br>
+      {{ user.billing_city }}, {{ user.billing_state }}<br>
+      {{ user.billing_postcode }}<br>
+      {{ user.billing_country }}
+    </p>
+  </div>
 
   <div style="margin-top: 1.5rem;">
     <a href="{{ url_for('profile.edit_profile') }}" class="btn btn-primary">Edit Profile</a>

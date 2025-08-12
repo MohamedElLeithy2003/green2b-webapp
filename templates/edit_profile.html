@@ -9,9 +9,49 @@
     <form method="POST" action="{{ url_for('profile.edit_profile') }}">
         {{ form.hidden_tag() }}
 
-          {{ form.username.label }} {{ form.username() }}
-          {{ form.email.label }} {{ form.email() }}
-          {{ form.password.label }} {{ form.password() }}
+        <div class="form-group">
+            {{ form.username.label }} {{ form.username() }}
+        </div>
+        <div class="form-group">
+            {{ form.email.label }} {{ form.email() }}
+        </div>
+        <div class="form-group">
+            {{ form.password.label }} {{ form.password() }}
+        </div>
+
+        <h3>Shipping Address</h3>
+        <div class="form-group">
+            {{ form.address_street.label }} {{ form.address_street() }}
+        </div>
+        <div class="form-group">
+            {{ form.address_city.label }} {{ form.address_city() }}
+        </div>
+        <div class="form-group">
+            {{ form.address_state.label }} {{ form.address_state() }}
+        </div>
+        <div class="form-group">
+            {{ form.address_postcode.label }} {{ form.address_postcode() }}
+        </div>
+        <div class="form-group">
+            {{ form.address_country.label }} {{ form.address_country() }}
+        </div>
+
+        <h3>Billing Address</h3>
+        <div class="form-group">
+            {{ form.billing_street.label }} {{ form.billing_street() }}
+        </div>
+        <div class="form-group">
+            {{ form.billing_city.label }} {{ form.billing_city() }}
+        </div>
+        <div class="form-group">
+            {{ form.billing_state.label }} {{ form.billing_state() }}
+        </div>
+        <div class="form-group">
+            {{ form.billing_postcode.label }} {{ form.billing_postcode() }}
+        </div>
+        <div class="form-group">
+            {{ form.billing_country.label }} {{ form.billing_country() }}
+        </div>
 
         <button type="submit" class="btn btn-primary">Save Changes</button>
         <a href="{{ url_for('profile.profile') }}" class="btn btn-secondary">Cancel</a>

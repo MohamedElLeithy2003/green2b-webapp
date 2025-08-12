@@ -48,28 +48,39 @@
 </section>
 
 <!-- Introduction -->
-<section style="max-width: 900px; margin: 0 auto 3rem; text-align: center;">
+<section style="max-width: 900px; margin: 2rem auto; padding: 1rem; background: #f5f9f6; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center;">
+  <h2 style="color: #095c43; font-weight: 700; margin-bottom: 1rem;">Featured Product</h2>
+  <a href="/products/1" style="text-decoration: none; color: inherit;">
+    <div style="max-width: 400px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;">
+      <img src="{{ url_for('static', filename='images/starch_straw.png') }}" alt="Featured Product" style="width: 100%; display: block;">
+      <div style="padding: 1rem;">
+        <h4 style="margin: 0 0 0.5rem; font-size: 1.25rem;">Rice Starch Straw</h4>
+        <p style="color: #444; font-size: 1rem; margin: 0;"> Made from food-grade rice & tapioca starch, holds strong in cold drinks, resists for 45+ minutes, 100% biodegradable and compostable, odourless, tasteless, and chemical-free</p>
+      </div>
+    </div>
+  </a>
 </section>
 
  <section class="trust-badges" style="text-align: center; padding: 2rem 1rem; background: #e8f5e9;">
   <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 2rem; max-width: 1200px; margin: 0 auto;">
     
     <div style="flex: 1 1 280px; max-width: 320px; padding: 1rem; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <img src="/static/images/verify.png" alt="Verified Suppliers" style="height: 80px; margin-bottom: 1rem;">
+      <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 1.3rem;">Verified Green Suppliers</h4>
+      <p style="font-size: 0.95rem; color: #333; line-height: 1.5;">We only list certified, trustworthy suppliers committed to real sustainability.</p>
+    </div>
+    
+    <div style="flex: 1 1 280px; max-width: 320px; padding: 1rem; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
       <img src="/static/images/ai.png" alt="AI-Driven" style="height: 80px; margin-bottom: 1rem;">
-      <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 1.3rem;">AI-Driven Sustainability</h4>
-      <p style="font-size: 0.95rem; color: #333; line-height: 1.5;">Advanced AI rates supplier sustainability to help you make smarter, greener decisions.</p>
+      <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 1.3rem;">Track Your Impact in Real Time</h4>
+      <p style="font-size: 0.95rem; color: #333; line-height: 1.5;">Every product gets a Sustainability Score. Compare suppliers, monitor your carbon savings, and see the difference your business makes.
+.</p>
     </div>
     
     <div style="flex: 1 1 280px; max-width: 320px; padding: 1rem; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
       <img src="/static/images/bulk_order.png" alt="Bulk Order" style="height: 80px; margin-bottom: 1rem;">
-      <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 1.3rem;">Bulk Order Aggregation</h4>
-      <p style="font-size: 0.95rem; color: #333; line-height: 1.5;">Combine supplier orders to maximize cost-efficiency and reduce environmental waste.</p>
-    </div>
-    
-    <div style="flex: 1 1 280px; max-width: 320px; padding: 1rem; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-      <img src="/static/images/verify.png" alt="Verified Suppliers" style="height: 80px; margin-bottom: 1rem;">
-      <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 1.3rem;">Verified Green Suppliers</h4>
-      <p style="font-size: 0.95rem; color: #333; line-height: 1.5;">We only list certified, trustworthy suppliers committed to real sustainability.</p>
+      <h4 style="color: #095c43; margin-bottom: 0.5rem; font-size: 1.3rem;">Sustainable Sourcing Made Cost-Effective</h4>
+      <p style="font-size: 0.95rem; color: #333; line-height: 1.5;">Aggregated SME demand means competitive prices without compromising quality. We handle logistics — you focus on your business.</p>
     </div>
 
   </div>

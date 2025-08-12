@@ -4,7 +4,7 @@
 
 {% block content %}
 <div style="display: flex; justify-content: center; align-items: center; height: 90vh;">
-  <div style="width: 100%; max-width: 200px;">
+  <div style="width: 100%; max-width: 600px;">
     <h2 style="text-align: center;">Register</h2>
 
     {% with messages = get_flashed_messages() %}
@@ -17,7 +17,7 @@
     {% endif %}
     {% endwith %}
 
-    <form method="POST" action="{{ url_for('register') }}" style="display: flex; flex-direction: column; gap: 1rem;">
+    <form method="POST" action="{{ url_for('register') }}" style="display: flex; flex-direction: column; gap: 0.75rem;">
       <label>Name:</label>
       <input type="text" name="name" required>
 
@@ -28,6 +28,46 @@
       <input type="password" name="password" required>
 
       <input type="hidden" name="role" value="buyer">
+
+      <div style="display: flex; gap: 2rem; margin-top: 1rem;">
+        <fieldset style="flex: 1; border: 1px solid #ccc; padding: 10px;">
+          <legend>Shipping Address</legend>
+
+          <label>Street:</label>
+          <input type="text" name="address_street">
+
+          <label>City:</label>
+          <input type="text" name="address_city">
+
+          <label>State:</label>
+          <input type="text" name="address_state">
+
+          <label>Postcode:</label>
+          <input type="text" name="address_postcode">
+
+          <label>Country:</label>
+          <input type="text" name="address_country">
+        </fieldset>
+
+        <fieldset style="flex: 1; border: 1px solid #ccc; padding: 10px;">
+          <legend>Billing Address</legend>
+
+          <label>Street:</label>
+          <input type="text" name="billing_street">
+
+          <label>City:</label>
+          <input type="text" name="billing_city">
+
+          <label>State:</label>
+          <input type="text" name="billing_state">
+
+          <label>Postcode:</label>
+          <input type="text" name="billing_postcode">
+
+          <label>Country:</label>
+          <input type="text" name="billing_country">
+        </fieldset>
+      </div>
 
       <div style="text-align: center; margin-top: 1rem;">
         <button type="submit" class="btn btn-success">Register</button>

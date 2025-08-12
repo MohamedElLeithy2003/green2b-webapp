@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}Admin Dashboard - Green2B{% endblock %}</title>
+    <style>
+        body {
+             font-family: Arial, sans-serif;
+            background: #e9f5ec;
+            margin: 0;
+            padding: 0;
+        }
+        .dashboard-header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dashboard-header h1 {
+            margin: 0;
+        }
+        .dashboard-header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .dashboard-content {
+            padding: 2rem;
+        }
+        .section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        .section h2 {
+            margin-top: 0;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: #095c43;
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+        <div class="dashboard-header">
+        <h1>{% block header_title %}Admin Dashboard{% endblock %}</h1>
+        <a href="{{ url_for('admin.admin_logout') }}">Logout</a>
+    </div>
+
+    <div class="dashboard-content">
+        {% block content %}
+        <!-- Default content if any -->
+        {% endblock %}
+</body>

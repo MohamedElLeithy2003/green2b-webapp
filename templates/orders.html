@@ -30,6 +30,10 @@
                  style="padding: 0.5rem 1rem; background-color: #00704a; color: white; text-decoration: none; border-radius: 4px;">
                  View Details
               </a>
+              <a href="{{ url_for('orders.track_order', order_id=order.id) }}" 
+                 style="padding: 0.5rem 1rem; background-color: #00704a; color: white; text-decoration: none; border-radius: 4px;">
+                 Track Order
+              </a>
             </div>
           </li>
         {% endfor %}

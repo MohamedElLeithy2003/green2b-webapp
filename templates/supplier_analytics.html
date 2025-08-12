@@ -1,0 +1,129 @@
+{% extends "supplier_base.html" %}
+{% block title %} Supplier Analytics | Green2B {% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1000px; margin: auto; padding: 2rem;">
+    <h2>Supplier Analytics</h2>
+
+    <section>
+        <h3>Performance Over Last 7 Days</h3>
+        <canvas id="analyticsChart" width="800" height="350"></canvas>
+    </section>
+
+    <section style="margin-top: 3rem;">
+        <h3>Top Products</h3>
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead style="background-color: #095c43; color: white;">
+                <tr>
+                    <th> Product </th>
+                    <th> Views </th>
+                    <th> Orders </th>
+                    <th> Sales </th>
+                    <th> Conversion Rate </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.views }}</td>
+                    <td>{{ product.orders }}</td>
+                    <td>{{ "%.2f"|format(product.sales) }}</td>
+                    <td>
+                    {% if product.views > 0 %}
+                       {{ "%.2f"|format((product.orders / product.views) * 100) }}
+                    {% else %}
+                        0.00
+                    {% endif %}
+                    </td>
+                </tr>
+                    {% else %}
+                    <tr><td colspan="5">No product data available</td></tr>
+                    {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+
+<canvas id="analyticsChart" width="600" height="300"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('analyticsChart').getContext('2d');
+
+        // Data passed from Flask
+        const analyticsData = {{ analytics_data|tojson }};
+
+        const labels = analyticsData.map(d => d.day);
+        const views = analyticsData.map(d => d.views);
+        const orders = analyticsData.map(d => d.orders);
+        const sales = analyticsData.map(d => d.sales);
+
+        const analyticsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+            labels: labels,
+            datasets: [
+                {
+                label: 'Views',
+                data: views,
+                borderColor: 'blue',
+                backgroundColor: 'rgba(0,0,255,0.1)',
+                fill: true,
+                tension: 0.3,
+                },
+                {
+                label: 'Orders',
+                data: orders,
+                borderColor: 'green',
+                backgroundColor: 'rgba(0,255,0,0.1)',
+                fill: true,
+                tension: 0.3,
+                },
+                {
+                label: 'Sales ($)',
+                data: sales,
+                borderColor: 'orange',
+                backgroundColor: 'rgba(255,165,0,0.1)',
+                fill: true,
+                tension: 0.3,
+                yAxisID: 'ySales'
+                }
+            ]
+            },
+            options: {
+            responsive: true,
+            scales: {
+                y: {
+                beginAtZero: true,
+                position: 'left',
+                title: {
+                    display: true,
+                    text: 'Count'
+                }
+                },
+                ySales: {
+                beginAtZero: true,
+                position: 'right',
+                grid: {
+                    drawOnChartArea: false
+                },
+                title: {
+                    display: true,
+                    text: 'Sales ($)'
+                }
+                }
+            },
+            plugins: {
+                legend: {
+                position: 'top',
+                },
+                title: {
+                display: false,
+                text: 'Product Analytics - Last 7 Days'
+                }
+            }
+            }
+        });
+        </script>
+
+    {% endblock %}

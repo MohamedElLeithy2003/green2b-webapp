@@ -1,88 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <title>Product Details</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #e9f5ec;
-            margin: 0;
-            padding: 0;
-        }
-        .dashboard-header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .dashboard-header h1 {
-            margin: 0;
-        }
-        .dashboard-header a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .dashboard-content {
-            padding: 2rem;
-        }
-        .section {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
-            margin-bottom: 1.5rem;
-        }
-        .section h2 {
-            margin-top: 0;
-        }
-        nav {
-            margin-bottom: 1rem;
-            color: #4CAF50;
-        }
-    label { font-weight: bold; display: block; margin-top: 10px; }
-    input, textarea { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
-    textarea { resize: vertical; min-height: 80px; }
-    .buttons { margin-top: 20px; }
-    .hidden { display: none; }
-    img.preview { max-height: 200px; margin-top: 10px; }
-    .readonly { background: #f3f3f3; border: 1px solid #ccc; }
-  </style>
-  <script>
-    function toggleEdit() {
-        const form = document.getElementById('product-form');
-        const view = document.getElementById('product-view');
-        form.classList.toggle('hidden');
-        view.classList.toggle('hidden');
-    }
+{% extends "admin_base.html" %}
 
-    function previewImage(event) {
-        const preview = document.getElementById('image-preview');
-        preview.src = URL.createObjectURL(event.target.files[0]);
-        preview.classList.remove('hidden');
-    }
-    </script>
-</head>
-</body>
-<h2> Product: {{ product.name }} </h2>
-<form method="POST">
+{% block title %}Product Details - Green2B{% endblock %}
+
+{% block header_title %}Product Details{% endblock %}
+
+{% block content %}
+<h2>Product: {{ product.name }}</h2>
+
+<form method="POST" id="product-form" class="hidden">
     <label>Name</label>
-    <input class="editable readonly" type="text" name="name" value="{{ product.name }}" disabled>
+    <input class="editable" type="text" name="name" value="{{ product.name }}">
 
     <label>Description</label>
-    <textarea class="editable readonly" name="description" disabled>{{ product.description }}</textarea>
+    <textarea class="editable" name="description">{{ product.description }}</textarea>
 
     <label>Price</label>
-    <input class="editable readonly" type="text" name="price" value="{{ product.price }}" disabled>
+    <input class="editable" type="text" name="price" value="{{ product.price }}">
 
     <label>Category</label>
-    <input class="editable readonly" type="text" name="category" value="{{ product.category }}" disabled>
+    <input class="editable" type="text" name="category" value="{{ product.category }}">
 
     <label>Image URL</label>
-    <input class="editable readonly" type="text" name="image_url" value="{{ product.image_url }}" disabled>
+    <input class="editable" type="text" name="image_url" value="{{ product.image_url }}">
+    {% if product.image_url %}
+      <img src="{{ product.image_url }}" alt="Product Image" class="preview" />
+    {% endif %}
+
+    <label>Status</label>
+    <input type="text" value="{{ product.status|capitalize }}" disabled class="readonly">
+
+    <div class="buttons">
+      <button type="button"><a href="{{ url_for('admin.admin_products', product_id='d' ~ product.id) }}">Back to Products</a></button>
+      <button type="button" onclick="toggleEdit()">Cancel</button>
+      <button type="submit" id="saveBtn">Save Changes</button>
+    </div>
+</form>
+
+<!-- View Mode -->
+<div id="product-view">
+    <label>Name</label>
+    <input type="text" value="{{ product.name }}" disabled class="readonly">
+
+    <label>Description</label>
+    <textarea disabled class="readonly">{{ product.description }}</textarea>
+
+    <label>Price</label>
+    <input type="text" value="{{ product.price }}" disabled class="readonly">
+
+    <label>Category</label>
+    <input type="text" value="{{ product.category }}" disabled class="readonly">
+
+    <label>Image URL</label>
+    <input type="text" value="{{ product.image_url }}" disabled class="readonly">
     {% if product.image_url %}
       <img src="{{ product.image_url }}" alt="Product Image" class="preview" />
     {% endif %}
@@ -92,19 +61,40 @@
 
     <div class="buttons">
       <button type="button" onclick="toggleEdit()">Edit</button>
-      <button type="submit" id="saveBtn" class="hidden">Save Changes</button>
     </div>
-  </form>
-    <form method="POST" action="{{ url_for('admin.request_change', product_id=product.id) }}">
-        <textarea name="change_note" placeholder="Describe changes needed..." required style="width:100%; height:100px;"></textarea>
-        <br>
-        <button type="submit" class="btn btn-warning">Request Changes</button>
-    </form>
+</div>
 
-    <!-- Delete Product -->
-    <form method="POST" action="{{ url_for('admin.remove_product', product_id=product.id) }}" onsubmit="return confirm('Are you sure you want to delete this product?');">
-        <button type="submit" class="btn btn-danger mt-2">Delete Product</button>
-    </form>
-</body>
-</html>
+<form method="POST" action="{{ url_for('admin.request_change', product_id=product.id) }}">
+    <textarea name="change_note" placeholder="Describe changes needed..." required style="width:100%; height:100px; margin-top: 2rem;"></textarea>
+    <br>
+    <button type="submit" class="btn btn-warning">Request Changes</button>
+</form>
+
+<form method="POST" action="{{ url_for('admin.admin_products') }}"  style="margin-top: 1rem;">
+    <button type="back" class="btn btn-danger">Back to Products</button>
+</form>
+
+<form method="POST" action="{{ url_for('admin.remove_product', product_id=product.id) }}" onsubmit="return confirm('Are you sure you want to delete this product?');" style="margin-top: 1rem;">
+    <button type="submit" class="btn btn-danger">Delete Product</button>
+</form>
+
+<script>
+function toggleEdit() {
+    const form = document.getElementById('product-form');
+    const view = document.getElementById('product-view');
+    form.classList.toggle('hidden');
+    view.classList.toggle('hidden');
+}
+</script>
+
+<style>
+    label { font-weight: bold; display: block; margin-top: 10px; }
+    input, textarea { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+    textarea { resize: vertical; min-height: 80px; }
+    .buttons { margin-top: 20px; }
+    .hidden { display: none; }
+    img.preview { max-height: 200px; margin-top: 10px; }
+    .readonly { background: #f3f3f3; border: 1px solid #ccc; }
+</style>
+{% endblock %}
 
