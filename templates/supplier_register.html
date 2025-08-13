@@ -1,40 +1,47 @@
 {% extends "base.html" %}
 
-{% block title %} Register as a Supplier | Green 2B{% endblock %}
-{% block content %}
-<style>
-  /* Full viewport height flex container to center vertically and horizontally */
-  .centered-container {
-    display: flex;
-    justify-content: center; /* horizontal center */
-    align-items: center;     /* vertical center */
-    min-height: 80vh;        /* adjust vertical height */
-  }
-</style>
+{% block title %} Become a Supplier | Green2B {% endblock %}
 
-<div class="centered-container">
-  <div class="container" style="max-width: 500px;">
-      <h2 class="text-center mb-4">Supplier Registration</h2>
-      <form method="POST" action="{{ url_for('supplier_register') }}">
-          <div class="form-group">
-              <label for="name">Name:</label>
-              <input type="text" class="form-control" id="name" name="name" required>
-          </div>
-          <div class="form-group">
-              <label for="company">Company Name:</label>
-              <input type="text" class="form-control" id="company" name="company" required>
-          </div>
-          <div class="form-group">
-              <label for="email">Email:</label>
-              <input type="email" class="form-control" id="email" name="email" required>
-          </div>
-          <div class="form-group">
-              <label for="password">Password:</label>
-              <input type="password" class="form-control" id="password" name="password" required>
-          </div>
-          <button type="submit" class="btn btn-primary btn-block">Register</button>
-          <p class="text-center mt-3">Already have an account? <a href="{{ url_for('supplier_login') }}">Login here</a></p>
-      </form>
-  </div>
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Become a Supplier</h2>
+    <form method="POST" action="{{ url_for('supplier_register') }}">
+        <div class="form-group mb-3">
+            <label>Name</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+
+        <div class="form-group mb-3">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control" required>
+        </div>
+
+        <div class="form-group mb-3">
+            <label>Password</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+
+        <div class="form-group mb-3">
+            <label>Company</label>
+            <input type="text" name="company" class="form-control" required>
+        </div>
+
+        <div class="form-group mb-3">
+            <label>Website</label>
+            <input type="url" name="website" class="form-control">
+        </div>
+
+        <div class="form-group mb-3">
+            <label>Products</label>
+            <input type="text" name="products" class="form-control" required>
+        </div>
+
+        <div class="form-group mb-3">
+            <label>Message</label>
+            <textarea name="message" class="form-control" rows="4"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success">Register</button>
+    </form>
 </div>
 {% endblock %}

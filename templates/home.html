@@ -48,18 +48,6 @@
 </section>
 
 <!-- Introduction -->
-<section style="max-width: 900px; margin: 2rem auto; padding: 1rem; background: #f5f9f6; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center;">
-  <h2 style="color: #095c43; font-weight: 700; margin-bottom: 1rem;">Featured Product</h2>
-  <a href="/products/1" style="text-decoration: none; color: inherit;">
-    <div style="max-width: 400px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;">
-      <img src="{{ url_for('static', filename='images/starch_straw.png') }}" alt="Featured Product" style="width: 100%; display: block;">
-      <div style="padding: 1rem;">
-        <h4 style="margin: 0 0 0.5rem; font-size: 1.25rem;">Rice Starch Straw</h4>
-        <p style="color: #444; font-size: 1rem; margin: 0;"> Made from food-grade rice & tapioca starch, holds strong in cold drinks, resists for 45+ minutes, 100% biodegradable and compostable, odourless, tasteless, and chemical-free</p>
-      </div>
-    </div>
-  </a>
-</section>
 
  <section class="trust-badges" style="text-align: center; padding: 2rem 1rem; background: #e8f5e9;">
   <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 2rem; max-width: 1200px; margin: 0 auto;">
@@ -84,6 +72,21 @@
     </div>
 
   </div>
+</section>
+
+<section style="max-width: 400px; margin: 2rem auto; padding: 1rem; background: #f5f9f6; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center;">
+  <h2 style="color: #095c43; font-weight: 700; margin-bottom: 1rem;">Featured Product</h2>
+    <div style="max-width: 250px; max-height: 550px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease;">
+      <img src="{{ url_for('static', filename='images/starch_straw.png') }}" alt="Featured Product" style="width: 100%; display: block;">
+      <div style="padding: 1rem;">
+        <h4 style="margin: 0 0 0.5rem; font-size: 1.25rem;">Rice Starch Straw</h4>
+        <p style="color: #444; font-size: 1rem; margin: 0;"> Made from food-grade rice & tapioca starch, holds strong in cold drinks, resists for 45+ minutes, 100% biodegradable and compostable, odourless, tasteless, and chemical-free</p>
+        <a href="/products/10000" style="display: inline-block; padding: 0.5rem 1rem; background-color: #095c43; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; transition: background-color 0.3s ease;">
+          View Details
+        </a>
+      </div>
+    </div>
+  </a>
 </section>
 
 <!-- Newsletter Signup -->
