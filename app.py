@@ -821,7 +821,7 @@ products_data = [
         'supplier': 'Note',
         'name': 'Plantable Pens',
         'image': 'images/plantable_pen.jpeg',
-        'category': 'recyclable',
+        'category': 'recycled',
         'quantity': 10000,
         'min_quantity': 100,
         'price': 0.1,
