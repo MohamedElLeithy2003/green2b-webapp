@@ -3,93 +3,81 @@
 
 {% block content %}
 <div class="container" style="max-width: 900px; margin: auto; padding: 2rem;">
-
-    <h2> Supplier Dashboard</h2>
-    <h3> Analytics (Last 7 Days) </h3>
+    <h2>Supplier Dashboard</h2>
+    <h3>Analytics (Last 7 Days)</h3>
+    
     <canvas id="analyticsChart" width="600" height="300"></canvas>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('analyticsChart').getContext('2d');
+<script>
+    // Random data generator for demo purposes
+    function getRandomArray(length, max) {
+        return Array.from({ length }, () => Math.floor(Math.random() * max));
+    }
 
-        // Data passed from Flask
-        const analyticsData = {{ analytics_data|tojson }};
+    const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const views = getRandomArray(labels.length, 100);   // Random views up to 100
+    const orders = getRandomArray(labels.length, 50);   // Random orders up to 50
+    const sales = getRandomArray(labels.length, 1000);  // Random sales up to 1000
 
-        const labels = analyticsData.map(d => d.day);
-        const views = analyticsData.map(d => d.views);
-        const orders = analyticsData.map(d => d.orders);
-        const sales = analyticsData.map(d => d.sales);
-
-        const analyticsChart = new Chart(ctx, {
-            type: 'line',
-            data: {
+    const ctx = document.getElementById('analyticsChart').getContext('2d');
+    const analyticsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
             labels: labels,
             datasets: [
                 {
-                label: 'Views',
-                data: views,
-                borderColor: 'blue',
-                backgroundColor: 'rgba(0,0,255,0.1)',
-                fill: true,
-                tension: 0.3,
+                    label: 'Views',
+                    data: views,
+                    borderColor: 'blue',
+                    backgroundColor: 'rgba(0,0,255,0.1)',
+                    fill: true,
+                    tension: 0.3,
                 },
                 {
-                label: 'Orders',
-                data: orders,
-                borderColor: 'green',
-                backgroundColor: 'rgba(0,255,0,0.1)',
-                fill: true,
-                tension: 0.3,
+                    label: 'Orders',
+                    data: orders,
+                    borderColor: 'green',
+                    backgroundColor: 'rgba(0,255,0,0.1)',
+                    fill: true,
+                    tension: 0.3,
                 },
                 {
-                label: 'Sales ($)',
-                data: sales,
-                borderColor: 'orange',
-                backgroundColor: 'rgba(255,165,0,0.1)',
-                fill: true,
-                tension: 0.3,
-                yAxisID: 'ySales'
+                    label: 'Sales',
+                    data: sales,
+                    borderColor: 'orange',
+                    backgroundColor: 'rgba(255,165,0,0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    yAxisID: 'ySales'
                 }
             ]
-            },
-            options: {
+        },
+        options: {
             responsive: true,
             scales: {
                 y: {
-                beginAtZero: true,
-                position: 'left',
-                title: {
-                    display: true,
-                    text: 'Count'
-                }
+                    beginAtZero: true,
+                    position: 'left',
+                    title: { display: true, text: 'Count' }
                 },
                 ySales: {
-                beginAtZero: true,
-                position: 'right',
-                grid: {
-                    drawOnChartArea: false
-                },
-                title: {
-                    display: true,
-                    text: 'Sales ($)'
-                }
+                    beginAtZero: true,
+                    position: 'right',
+                    grid: { drawOnChartArea: false },
+                    title: { display: true, text: 'Sales' }
                 }
             },
             plugins: {
-                legend: {
-                position: 'top',
-                },
-                title: {
-                display: false,
-                text: 'Product Analytics - Last 7 Days'
-                }
+                legend: { position: 'top' }
             }
-            }
-        });
-        </script>
+        }
+    });
+</script>
 
-<div style="margin-top: 2rem;">
-    <a href="/supplier/analytics" style="background: #095c43;color:#fff;padding:0.5rem 1rem;border:none;border-radius:4px; text-decoration:none;">View Analytics</a>
-</div>
+    <div style="margin-top: 2rem;">
+        <a href="/supplier/analytics" style="background: #095c43;color:#fff;padding:0.5rem 1rem;border:none;border-radius:4px; text-decoration:none;">View Analytics</a>
+    </div>
 
     <table style="width: 100%; margin-top: 1rem; border-collapse: collapse;">
         <thead style="background-color: #095c43; color:white;">
@@ -98,14 +86,13 @@
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Product Name</th>
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Category</th>
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Price</th>
-                <th style="padding: 0.5rem; border: 1px solid #ddd"> Impact </th>
+                <th style="padding: 0.5rem; border: 1px solid #ddd;">Impact</th>
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Status</th>
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Actions</th>
             </tr>
-
         </thead>
         <tbody>
-            {% for product in products %}
+            {% for product in top_products %}
             <tr>
                 <td style="text-align: center; padding: 0.5rem; border: 1px solid #ddd;">
                     {% if product.image_url %}
@@ -115,31 +102,33 @@
                     {% endif %}
                 </td>
                 <td>{{ product.name }}</td>
-                <td>{{ product.category }}</td>
-                <td>{{ product.price }}</td>
-                <td>{{ product.impact }}</td>
-                <td>{{ product.status }}</td>
+                <td>{{ product.category or 'N/A' }}</td>
+                <td>${{ product.price or 'N/A' }}</td>
+                <td>{{ product.impact or 'N/A' }}</td>
+                <td>{{ product.status or 'Active' }}</td>
                 <td>
-                <a href="{{ url_for('supplier_product_detail', product_id=product.id) }}">View</a> |
-                <a href="{{ url_for('edit_product', product_id=product.id) }}">Edit</a> | 
-                <a href="{{ url_for('delete_product', product_id=product.id) }}">Delete</a>
+                    <a href="{{ url_for('supplier_product_detail', product_id=product.id) }}">View</a> |
+                    <a href="{{ url_for('edit_product', product_id=product.id) }}">Edit</a> | 
+                    <a href="{{ url_for('delete_product', product_id=product.id) }}">Delete</a>
                 </td>
             </tr>
             {% else %}
-            <tr><td colspan="5">No products found</td></tr>
+            <tr><td colspan="7">No products found</td></tr>
             {% endfor %}
         </tbody>
     </table>
+
     <div style="margin-top: 2rem;">
         <a href="products/add" style="background: #095c43;color:#fff;padding:0.5rem 1rem;border:none;border-radius:4px; text-decoration:none;">Add New Product</a>
     </div>
+
     <div style="margin-top: 2rem;">
-        <a href="{{ url_for('supplier_recent_orders') }}" class="btn btn-danger" style="background-color: #095c43; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer;">View Orders</a>
-        
-</div>
+        <a href="{{ url_for('supplier_recent_orders') }}" style="background-color: #095c43; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; text-decoration:none;">View Orders</a>
+    </div>
+
     <div style="margin-top: 2rem;">
-        <a href="{{ url_for('supplier_logout') }}" class="btn btn-danger" style="background-color: #f44336; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer;">Logout</a>
-        
+        <a href="{{ url_for('supplier_logout') }}" style="background-color: #f44336; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; text-decoration:none;">Logout</a>
+    </div>
 </div>
 {% endblock %}
 
