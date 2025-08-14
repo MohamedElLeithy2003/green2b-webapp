@@ -3,45 +3,55 @@
 {% block title %} Become a Supplier | Green2B {% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4">Become a Supplier</h2>
-    <form method="POST" action="{{ url_for('supplier_register') }}">
-        <div class="form-group mb-3">
-            <label>Name</label>
-            <input type="text" name="name" class="form-control" required>
-        </div>
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="text-center" style="max-width: 500px; width: 100%;">
+        <h2 class="mb-4">Become a Supplier</h2>
+        <form method="POST" action="{{ url_for('supplier_register') }}">
+            <div class="mb-3">
+                <label>Name</label>
+                <input type="text" name="name" class="form-control mx-auto" style="display:block;" required>
+            </div>
 
-        <div class="form-group mb-3">
-            <label>Email</label>
-            <input type="email" name="email" class="form-control" required>
-        </div>
+            <div class="mb-3">
+                <label>Email</label>
+                <input type="email" name="email" class="form-control mx-auto" style="display:block;" required>
+            </div>
 
-        <div class="form-group mb-3">
-            <label>Password</label>
-            <input type="password" name="password" class="form-control" required>
-        </div>
+            <div class="mb-3">
+                <label>Password</label>
+                <input type="password" name="password" class="form-control mx-auto" style="display:block;" required>
+            </div>
 
-        <div class="form-group mb-3">
-            <label>Company</label>
-            <input type="text" name="company" class="form-control" required>
-        </div>
+            <div class="mb-3">
+                <label>Company</label>
+                <input type="text" name="company" class="form-control mx-auto" style="display:block;" required>
+            </div>
 
-        <div class="form-group mb-3">
-            <label>Website</label>
-            <input type="url" name="website" class="form-control">
-        </div>
+            <div class="mb-3">
+                <label>Website</label>
+                <input type="url" name="website" class="form-control mx-auto" style="display:block;">
+            </div>
 
-        <div class="form-group mb-3">
-            <label>Products</label>
-            <input type="text" name="products" class="form-control" required>
-        </div>
+            <div class="mb-3">
+                <label>Products</label>
+                <input type="text" name="products" class="form-control mx-auto" style="display:block;" required>
+            </div>
 
-        <div class="form-group mb-3">
-            <label>Message</label>
-            <textarea name="message" class="form-control" rows="4"></textarea>
-        </div>
+            <div class="mb-3">
+                <label>Message</label>
+                <textarea name="message" class="form-control mx-auto" rows="4" style="display:block;"></textarea>
+            </div>
 
-        <button type="submit" class="btn btn-success">Register</button>
-    </form>
+            <button type="submit" class="btn btn-success w-100">Register</button>
+        </form>
+    </div>
 </div>
 {% endblock %}
+
+
+
+
+
+
+
+

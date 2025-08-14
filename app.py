@@ -30,7 +30,6 @@ orders_bp = Blueprint('orders', __name__, url_prefix='/orders')
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 app.secret_key = 'd11c57a2dde5240c1ba0a1bd96be6fdc979173696d613bb44342ea520a3e6379'
 
-app.config['DEBUG'] = True
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -191,18 +190,28 @@ def admin_product_detail(product_id):
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin.admin_login'))
 
-    # Dummy product (starts with 'd')
+    # Check if this is a dummy product (starts with 'd')
     if str(product_id).startswith('d'):
-        dummy_id = int(str(product_id)[1:])
-        from types import SimpleNamespace
-        match = next((p for p in products_data if p['id'] == dummy_id), None)
-        if not match:
+        try:
+            dummy_id = int(product_id[1:])
+        except ValueError:
             abort(404)
-        product = SimpleNamespace(**match)
+        from types import SimpleNamespace
+        product_data = next((p for idx, p in enumerate(products_data, start=10000) if idx == dummy_id), None)
+        if not product_data:
+            abort(404)
+        product = SimpleNamespace(**product_data)
         return render_template('admin_product_detail.html', product=product, is_dummy=True)
 
-    # Real DB product
-    product = Product.query.get_or_404(int(product_id))
+    # Otherwise, treat it as a DB product ID
+    try:
+        pid = int(product_id)
+    except ValueError:
+        abort(404)
+
+    product = Product.query.get(pid)
+    if not product:
+        abort(404)
 
     if request.method == 'POST':
         product.name = request.form['name']
@@ -262,6 +271,38 @@ def remove_product(product_id):
     flash(f'Product {product.name} has been deleted', 'danger')
     return redirect(url_for('admin.admin_products'))
 
+@admin_bp.route('/users')
+def admin_users():
+    users = User.query.filter_by(role='buyer').all()
+    return render_template('admin_users.html', users=users)
+
+@admin_bp.route('/users/<int:user_id>/activity')
+def user_activity(user_id):
+    user = User.query.get_or_404(user_id)
+    orders = user.orders  # example
+    return render_template('admin_user_activity.html', user=user, orders=orders)
+
+@admin_bp.route('/users/<int:user_id>/block', methods=['POST'])
+def block_user(user_id):
+    user = User.query.get_or_404(user_id)
+    user.is_blocked = True
+    db.session.commit()
+    flash(f"{user.email} has been blocked.")
+    return redirect(url_for('admin_bp.user_activity', user_id=user_id))
+
+@admin_bp.route('/users/<int:user_id>/unblock', methods=['POST'])
+def unblock_user(user_id):
+    user = User.query.get_or_404(user_id)
+    user.is_blocked = False
+    db.session.commit()
+    flash(f"{user.email} has been unblocked.")
+    return redirect(url_for('admin_bp.user_activity', user_id=user_id))
+
+
+
+
+
+
 @admin_bp.route('/supplier-applications')
 def supplier_applications():
     applications = SupplierApplication.query.order_by(SupplierApplication.created_at.desc()).all()
@@ -296,13 +337,23 @@ def supplier_approve(app_id):
     db.session.commit()
 
     # Send approval email
+
     try:
+        login_url = url_for('supplier_login', _external=True)
         msg = Message(
             "Supplier Application Approved",
             sender=app.config['MAIL_USERNAME'],
             recipients=[user.email]
         )
-        msg.body = f"Hi {user.name},\n\nYour supplier application has been approved.\nWelcome aboard!"
+        msg.body = f"""Hi {user.name},
+
+Your supplier application has been approved. Welcome aboard!
+
+You can log in here: {login_url}
+
+Best regards,
+The Green2B Team
+"""
         mail.send(msg)
     except Exception as e:
         print(str(e))
@@ -773,7 +824,7 @@ products_data = [
         'category': 'recyclable',
         'quantity': 10000,
         'min_quantity': 100,
-        'price': 0.4,
+        'price': 0.1,
         'description': "100% recyclable"
     },
     {
@@ -784,7 +835,7 @@ products_data = [
         'category': 'organic',
         'quantity': 10000,
         'min_quantity': 100,
-        'price': 0.6,
+        'price': 0.4,
         'description': "Pens made out of bamboo"
     }
 ]
@@ -1130,62 +1181,40 @@ def remove_from_cart(product_id):
     return redirect(url_for('cart'))
 
 
-# Stripe checkout
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
-    # Fetch cart based on user status
-    if current_user.is_authenticated:
-        cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
-        cart = [
-            {
-                'name': item.product_name,
-                'price': float(item.price),
-                'quantity': item.quantity
-            }
-            for item in cart_items
-        ]
-    else:
-        cart = session.get('cart', [])
-
+    cart = session.get('cart', [])
     if not cart:
         flash("Cart is empty")
         return redirect(url_for('products'))
 
-    buyer_info = session.get('buyer_info', {})
+    # Save cart temporarily for post-checkout
+    session['temp_order'] = cart.copy()
 
-    line_items = [
-        {
+    # Create Stripe checkout session...
+    checkout_session = stripe.checkout.Session.create(
+        payment_method_types=['card'],
+        line_items=[{
             'price_data': {
-                'currency': 'gbp',
-                'product_data': {'name': item['name']},
-                'unit_amount': int(float(item['price']) * 100),
+                'currency': 'usd',
+                'product_data': {
+                    'name': item['name'],
+                },
+                'unit_amount': int(item['price'] * 100),
             },
-            'quantity': int(item.get('quantity', 1)),
-        }
-        for item in cart
-    ]
-
-    try:
-        stripe_session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=line_items,
-            mode='payment',
-            customer_email=buyer_info.get('email'),
-            success_url=url_for('checkout_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url=url_for('cart', _external=True),
-            shipping_address_collection={'allowed_countries': ['GB', 'US', 'CA', 'FR', 'DE']}
-        )
-        return redirect(stripe_session.url, code=303)
-    except Exception as e:
-        flash("Error creating Stripe session")
-        print(f"Stripe Error: {e}")
-        return redirect(url_for('cart'))
+            'quantity': item['quantity'],
+        } for item in cart],
+        mode='payment',
+        success_url=url_for('checkout_success', _external=True),
+        cancel_url=url_for('cart', _external=True),
+    )
+    return redirect(checkout_session.url, code=303)
 
 
 # Checkout success
 @app.route('/checkout-success')
 def checkout_success():
-    cart = session.get('cart', [])
+    cart = session.get('temp_order', [])
     buyer_info = session.get('buyer_info', {})
 
     if not cart:
@@ -1220,7 +1249,8 @@ def checkout_success():
         **buyer_info
     }
 
-    session.pop('cart', None)
+    # Clear temp order & buyer info
+    session.pop('temp_order', None)
     session.pop('buyer_info', None)
 
     return render_template('checkout_success.html', order=new_order)
@@ -1315,7 +1345,7 @@ def supplier_register():
         send_email(subject, ['green2bteam@gmail.com'], body)
 
         flash('Registration successful! Please wait for approval.', 'success')
-        return redirect(url_for('supplier_login'))
+        return redirect(url_for('supplier_success'))
 
     return render_template('supplier_register.html')
 

@@ -52,7 +52,7 @@
 </head>
 <body>
         <div class="dashboard-header">
-        <h1>{% block header_title %}Admin Dashboard{% endblock %}</h1>
+        <h1><a href="{{ url_for( 'admin.dashboard' )}}">{% block header_title %}Admin Dashboard{% endblock %}</a></h1>
         <a href="{{ url_for('admin.admin_logout') }}">Logout</a>
     </div>
 

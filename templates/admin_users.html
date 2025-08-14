@@ -1,0 +1,37 @@
+{% extends "admin_base.html" %}
+
+{% block title %}User Management{% endblock %}
+
+{% block content %}
+<h1>Registered Buyers</h1>
+<p> Manage all buyer accounts </p>
+
+<table border="1" cellpadding="8" cellspacing="8" width="100">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Registered On</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ 'Blocked' if user.is_blocked else 'Active' }}</td>
+            <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+            <td>
+                {% if not user.is_blocked %}
+                {% endif %}
+                <a href="{{ url_for('admin.user_activity', user_id=user.id) }}">View Activity</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

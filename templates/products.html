@@ -28,183 +28,50 @@
 
 <!-- Filter/Search Form -->
 <form method="get" action="{{ url_for('products') }}" style="margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center;">
-  <input 
-    type="text" 
-    name="q" 
-    placeholder="Search by name or score" 
-    value="{{ query or '' }}" 
-    style="
-      padding: 0.75rem 1rem; 
-      font-size: 1.1rem; 
-      border: 2px solid #0b3d2e; 
-      border-radius: 6px; 
-      min-width: 300px; 
-      flex: 1 1 300px;
-      box-sizing: border-box;
-      transition: border-color 0.3s ease;
-    "
-    onfocus="this.style.borderColor='#095c43'"
-    onblur="this.style.borderColor='#0b3d2e'"
-  >
-
-  <select name="category" style="
-      padding: 0.75rem 1rem; 
-      font-size: 1.1rem; 
-      border: 2px solid #0b3d2e; 
-      border-radius: 6px; 
-      min-width: 200px; 
-      flex: 1 1 200px;
-      box-sizing: border-box;
-      background-color: white;
-      color: #0b3d2e;
-      transition: border-color 0.3s ease;
-    "
-    onfocus="this.style.borderColor='#095c43'"
-    onblur="this.style.borderColor='#0b3d2e'"
-  >
+  <input type="text" name="q" placeholder="Search by name or score" value="{{ query or '' }}" style="padding: 0.75rem 1rem; font-size: 1.1rem; border: 2px solid #0b3d2e; border-radius: 6px; min-width: 300px; flex: 1 1 300px; box-sizing: border-box; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#095c43'" onblur="this.style.borderColor='#0b3d2e'">
+  
+  <select name="category" style="padding: 0.75rem 1rem; font-size: 1.1rem; border: 2px solid #0b3d2e; border-radius: 6px; min-width: 200px; flex: 1 1 200px; box-sizing: border-box; background-color: white; color: #0b3d2e; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#095c43'" onblur="this.style.borderColor='#0b3d2e'">
     <option value="">All Categories</option>
     <option value="ecofriendly" {% if filter_category == 'ecofriendly' %}selected{% endif %}>Ecofriendly</option>
     <option value="organic" {% if filter_category == 'organic' %}selected{% endif %}>Organic</option>
     <option value="recycled" {% if filter_category == 'recycled' %}selected{% endif %}>Recycled</option>
   </select>
 
-  <input
-    type="number"
-    name="min_price"
-    placeholder="Min Price (£)"
-    value="{{ min_price or '' }}"
-    min="0"
-    step="0.01"
-    style="
-      padding: 0.75rem 1rem; 
-      font-size: 1.1rem; 
-      border: 2px solid #0b3d2e; 
-      border-radius: 6px; 
-      min-width: 140px; 
-      flex: 1 1 140px;
-      box-sizing: border-box;
-      transition: border-color 0.3s ease;
-    "
-    onfocus="this.style.borderColor='#095c43'"
-    onblur="this.style.borderColor='#0b3d2e'"
-  >
+  <input type="number" name="min_price" placeholder="Min Price (£)" value="{{ min_price or '' }}" min="0" step="0.01" style="padding: 0.75rem 1rem; font-size: 1.1rem; border: 2px solid #0b3d2e; border-radius: 6px; min-width: 140px; flex: 1 1 140px; box-sizing: border-box; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#095c43'" onblur="this.style.borderColor='#0b3d2e'">
 
-  <input
-    type="number"
-    name="max_price"
-    placeholder="Max Price (£)"
-    value="{{ max_price or '' }}"
-    min="0"
-    step="0.01"
-    style="
-      padding: 0.75rem 1rem; 
-      font-size: 1.1rem; 
-      border: 2px solid #0b3d2e; 
-      border-radius: 6px; 
-      min-width: 140px; 
-      flex: 1 1 140px;
-      box-sizing: border-box;
-      transition: border-color 0.3s ease;
-    "
-    onfocus="this.style.borderColor='#095c43'"
-    onblur="this.style.borderColor='#0b3d2e'"
-  >
+  <input type="number" name="max_price" placeholder="Max Price (£)" value="{{ max_price or '' }}" min="0" step="0.01" style="padding: 0.75rem 1rem; font-size: 1.1rem; border: 2px solid #0b3d2e; border-radius: 6px; min-width: 140px; flex: 1 1 140px; box-sizing: border-box; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#095c43'" onblur="this.style.borderColor='#0b3d2e'">
 
-  <button type="submit" style="
-      padding: 0.75rem 2rem; 
-      font-size: 1.15rem; 
-      font-weight: 700;
-      color: white; 
-      background-color: #0b3d2e; 
-      border: none; 
-      border-radius: 6px; 
-      cursor: pointer; 
-      transition: background-color 0.3s ease;
-      flex: 0 0 auto;
-      min-width: 130px;
-    "
-    onmouseover="this.style.backgroundColor='#095c43'"
-    onmouseout="this.style.backgroundColor='#0b3d2e'"
-  >Search</button>
+  <button type="submit" style="padding: 0.75rem 2rem; font-size: 1.15rem; font-weight: 700; color: white; background-color: #0b3d2e; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.3s ease; flex: 0 0 auto; min-width: 130px;" onmouseover="this.style.backgroundColor='#095c43'" onmouseout="this.style.backgroundColor='#0b3d2e'">Search</button>
 </form>
 
 <!-- Product List -->
 <h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 2rem; text-align: center;">Products</h1>
 
-<div style="
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2rem;
-  padding: 1rem;
-">
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; padding: 1rem;">
   {% for product in products %}
-  <div style="
-    border: 1px solid #ccc;
-    padding: 1rem;
-    width: 320px;
-    border-radius: 8px;
-    background: #e8f5e9;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  ">
+  <div style="border: 1px solid #ccc; padding: 1rem; width: 320px; border-radius: 8px; background: #e8f5e9; text-align: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
     {% if product.image %}
-    <div style="
-      height: 250px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      margin-bottom: 1rem;
-    ">
+    <div style="height: 250px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1rem;">
       <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
     </div>
     {% else %}
-    <div style="
-      height: 250px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      margin-bottom: 1rem;
-      background: #e8f5e9;
-      color: #999;
-      font-size: 1rem;
-    ">
+    <div style="height: 250px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1rem; background: #e8f5e9; color: #999; font-size: 1rem;">
       No Image Found
     </div>
     {% endif %}
 
     <h3 style="margin: 0.5rem 0;">{{ product.name }}</h3>
     <p><strong>Category:</strong> {{ product.category }}</p>
-    <p><strong>Price/Quantity:</strong> £{{ product.price }}/{{ product.min_quantity }}</p>
+    <p><strong>Minimum Quantity:</strong> {{ product.min_quantity }}</p>
+    <p><strong>Price:</strong> £{{ product.price }}</p>
 
-    <a href="{{ url_for('product_detail', product_id=product.id) }}" style="
-      display: inline-block;
-      margin-top: 0.5rem;
-      margin-right: 0.5rem;
-      padding: 0.5rem 1rem;
-      background-color: #0b3d2e;
-      color: white;
-      border-radius: 4px;
-      text-decoration: none;
-      text-align: center;
-      font-weight: 500;
-      min-width: 120px;
-    ">View Details</a>
+    <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem;">
+      <a href="{{ url_for('product_detail', product_id=product.id) }}" style="flex: 1; padding: 0.75rem 0; background-color: #0b3d2e; color: white; border-radius: 6px; text-decoration: none; font-weight: 500; text-align: center; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#095c43'" onmouseout="this.style.backgroundColor='#0b3d2e'">View Details</a>
 
-    <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post" style="display: inline-block; margin: 0;">
-      <button type="submit" style="
-        padding: 0.5rem 1rem;
-        background-color: #0b3d2e;
-        color: white;
-        border-radius: 4px;
-        border: none;
-        cursor: pointer;
-        font-weight: 500;
-        min-width: 120px;
-      ">Add to Cart</button>
-    </form>
+      <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post" style="flex: 1; padding: 0.75rem 0; background-color: #0b3d2e; color: white; border-radius: 6px; border: none; cursor: pointer; font-size: 18px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#095c43'" onmouseout="this.style.backgroundColor='#0b3d2e'">
+        <button type="submit" style="flex: 1; padding: 0.75rem 0; background-color: #0b3d2e; color: white; border-radius: 6px; border: none; cursor: pointer; font-size: 18px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#095c43'" onmouseout="this.style.backgroundColor='#0b3d2e'">Add to Cart</button>
+      </form>
+    </div>
   </div>
   {% else %}
   <p style="text-align: center; width: 100%;">No products found matching your criteria.</p>

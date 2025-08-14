@@ -31,24 +31,26 @@
       {{ product.category if is_dummy else (product.category or 'N/A') }}
     </p>
 
-    <p style="font-size: 1.5rem; margin-bottom: 0.5rem;">
-      <strong>Price/Quantity:</strong> £<span id="unit-price">{{ product.price }}</span>/{{ product.min_quantity if is_dummy else (product.quantity or 'N/A') }}
+    <!-- Minimum Quantity -->
+    <p style="font-size: 1.3rem; margin-bottom: 0.5rem;">
+      <strong>Minimum Quantity:</strong> {{ product.min_quantity }}
     </p>
 
+    <!-- Quantity Input -->
     <p style="font-size: 1.5rem; margin-bottom: 0.5rem;">
       <label for="quantity"><strong>Quantity:</strong></label>
-      <input type="number", id="quantity" name="quantity"
-              min="{{ product.min_quantity }}"
-              max="{{ product.quantity if is_dummy else (product.quantity or 1) }}"
-              value="{{ product.min_quantity }}" 
-              style="width: 70px; margin-left: 0.5rem; font-size: 1.2rem;">
-
+      <input type="number" id="quantity" name="quantity"
+             min="{{ product.min_quantity }}"
+             max="{{ product.quantity if is_dummy else (product.quantity or 1) }}"
+             value="{{ product.min_quantity }}" 
+             style="width: 70px; margin-left: 0.5rem; font-size: 1.2rem;">
     </p>
 
     <p style="font-size: 1.5rem; margin-bottom: 1rem;">
       <strong>Sustainability Score: <span id="score">{{ product.score if is_dummy else (product.score or 'N/A') }}</span></strong>
     </p>
 
+    <!-- Total Price -->
     <p style="font-size: 1.5rem; margin-bottom: 1rem;">
       <strong>Total: £<span id="total-price">{{ product.price }}</span></strong>
     </p>
@@ -97,7 +99,7 @@
 <script>
   const quantityInput = document.getElementById('quantity');
   const totalPrice = document.getElementById('total-price');
-  const unitPrice = parseFloat(document.getElementById('unit-price').textContent);
+  const unitPrice = parseFloat({{ product.price|tojson }});
   const addToCartQuantity = document.getElementById('add-to-cart-quantity');
   const buyNowQuantity = document.getElementById('buy-now-quantity');
 
@@ -107,12 +109,11 @@
   addToCartQuantity.value = minQty;
   buyNowQuantity.value = minQty;
 
-
   quantityInput.addEventListener('input', () => {
     const qty = parseInt(quantityInput.value) || minQty;
     totalPrice.textContent = (unitPrice * qty).toFixed(2);
     addToCartQuantity.value = qty;
     buyNowQuantity.value = qty;
-  })
+  });
 </script>
 {% endblock %}

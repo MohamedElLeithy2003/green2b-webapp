@@ -24,6 +24,12 @@
           <td>${{ product.price }}</td>
           <td>
             <a href="{{ url_for('admin.admin_product_detail', product_id='d' ~ product.id) }}">View</a>
+             <form action="{{ url_for('admin.remove_product', product_id=product.id) }}" method="POST" style="display:inline;">
+    <button type="submit" onclick="return confirm('Are you sure you want to delete this product?');"
+            style="background:none;border:none;color:#095c43;font-weight:bold;cursor:pointer;">
+      Delete
+    </button>
+  </form>
             <!-- Add Edit/Delete links if needed -->
           </td>
         </tr>

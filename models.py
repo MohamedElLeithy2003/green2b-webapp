@@ -32,6 +32,8 @@ class User(db.Model, UserMixin):
     billing_postcode = db.Column(db.String(20), nullable=True)
     billing_country = db.Column(db.String(100), nullable=True)
 
+    is_blocked = db.Column(db.Boolean, default=False)
+
 
 
     def set_password(self, password):

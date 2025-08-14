@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
+{% extends "admin_base.html" %}
+
+{% block head %}
     <title>Pending Products</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
         .product-card {
             border: 1px solid #ccc;
             padding: 15px;
@@ -45,103 +43,38 @@
             border-radius: 4px;
         }
     </style>
-</head>
-<body>
-    <h1>Pending Products for Approval</h1>
+{% endblock %}
 
-    {% if products %}
-        {% for product in products %}
-            <div class="product-info">
-                <h3>{{ product.name }}</h3>
-                <p><strong>Supplier:</strong> {{ product.supplier }}</p>
-                <p><strong>Category:</strong> {{ product.category }}</p>
-                <p><strong>Price:</strong> ${{ "%.2f"|format(product.price) }}</p>
-                <p>{{ product.description }}</p>
-                <a href="{{ url_for('admin.admin_product_detail', product_id=product.id) }}" style="color: #095c43; font-weight: bold; text-decoration: underline;">
-                    View Product
-                </a>
-            </div>
-                <div class="actions">
-                    <form method="POST" action="{{ url_for('admin.approve_product', product_id=product.id) }}">
-                        <button type="submit" class="approve-btn">Approve</button>
-                    </form>
-                    <form method="POST" action="{{ url_for('admin.reject_product', product_id=product.id) }}">
-                        <button type="submit" class="reject-btn">Reject</button>
-                    </form>
+{% block content %}
+    <div class="dashboard-content">
+        <h1>Pending Products for Approval</h1>
+
+        {% if products %}
+            {% for product in products %}
+                <div class="product-card">
+                    <img src="{{ product.image_url or '/static/images/default.png' }}" alt="{{ product.name }}">
+                    <div class="product-info">
+                        <h3>{{ product.name }}</h3>
+                        <p><strong>Supplier:</strong> {{ product.supplier }}</p>
+                        <p><strong>Category:</strong> {{ product.category }}</p>
+                        <p><strong>Price:</strong> ${{ "%.2f"|format(product.price) }}</p>
+                        <p>{{ product.description }}</p>
+                        <a href="{{ url_for('admin.admin_product_detail', product_id=product.id) }}" style="color: #095c43; font-weight: bold; text-decoration: underline;">
+                            View Product
+                        </a>
+                    </div>
+                    <div class="actions">
+                        <form method="POST" action="{{ url_for('admin.approve_product', product_id=product.id) }}">
+                            <button type="submit" class="approve-btn">Approve</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('admin.reject_product', product_id=product.id) }}">
+                            <button type="submit" class="reject-btn">Reject</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>No pending products right now.</p>
-    {% endif %}
-
-    <!-- Dummy products for local testing: Uncomment below block if needed -->
-
-    {# 
-    <h2>Dummy Products (For Testing)</h2>
-    {% set dummy_products = [
-        {'id': 101, 'name': 'Test Eco Straw', 'supplier': 'Dummy Supplier', 'category': 'ecofriendly', 'price': 1.50, 'description': 'Dummy eco-friendly straw.', 'image_url': '/static/images/test_straw.png'},
-        {'id': 102, 'name': 'Test Bamboo Cutlery', 'supplier': 'Dummy Supplier', 'category': 'organic', 'price': 9.99, 'description': 'Dummy bamboo cutlery set.', 'image_url': '/static/images/test_cutlery.png'}
-    ] %}
-    {% for product in dummy_products %}
-        <div class="product-card">
-            <img src="{{ product.image_url }}" alt="{{ product.name }}">
-            <div class="product-info">
-                <h3>{{ product.name }}</h3>
-                <p><strong>Supplier:</strong> {{ product.supplier }}</p>
-                <p><strong>Category:</strong> {{ product.category }}</p>
-                <p><strong>Price:</strong>  £{{ "%.2f"|format(product.price) }}</p>
-                <p>{{ product.description }}</p>
-            </div>
-            <a href="{{ url_for('admin.admin_product_detail', product_id='d' ~ product.id) }}">View</a>
-            <div class="actions">
-                <form method="POST" action="{{ url_for('admin.approve_product', product_id=product.id) }}">
-                    <button type="submit" class="approve-btn">Approve</button>
-                </form>
-                <form method="POST" action="{{ url_for('admin.reject_product', product_id=product.id) }}">
-                    <button type="submit" class="reject-btn">Reject</button>
-                </form>
-            </div>
-        </div>
-    {% endfor %}
-    #}
-
-</body>
-<style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #e9f5ec;
-            margin: 0;
-            padding: 0;
-        }
-        .dashboard-header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .dashboard-header h1 {
-            margin: 0;
-        }
-        .dashboard-header a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .dashboard-content {
-            padding: 2rem;
-        }
-        .section {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
-            margin-bottom: 1.5rem;
-        }
-        .section h2 {
-            margin-top: 0;
-        }
-    </style>
-</html>
+            {% endfor %}
+        {% else %}
+            <p>No pending products right now.</p>
+        {% endif %}
+    </div>
+{% endblock %}
