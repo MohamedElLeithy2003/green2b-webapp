@@ -31,13 +31,13 @@ migrate = Migrate(app, db)
 profile_bp = Blueprint('profile', __name__)
 orders_bp = Blueprint('orders', __name__, url_prefix='/orders')
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
-app.secret_key = os.getenv("FLASK_SECRET_KEY")
+app.secret_key = "d11c57a2dde5240c1ba0a1bd96be6fdc979173696d613bb44342ea520a3e6379"
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_USERNAME'] = "green2bteam@gmail.com"
+app.config['MAIL_PASSWORD'] = "ejtt rttq poqc krge"
 app.config['MAIL_DEFAULT_SENDER'] = ('Green2B', 'green2bteam@gmail.com')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///green2b.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -48,12 +48,12 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
     
-stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+stripe.api_key = "sk_test_51O8jQdE43TmUArKlFz7rQnZI4yeZ9iVsoImn0Bs2wI5Bx8PqufupGZ8KZBYB00jy6h8qlI0s8hoiD1z2UOJcUPBy00CHFoTpGp"
 
 subscribers = []
 
-ADMIN_USERNAME = os.getenv('ADMIN_USERNAME')
-ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
+ADMIN_USERNAME = "adminuser"
+ADMIN_PASSWORD = "supersecretpassword"
 
 def send_async_email(app, msg):
     with app.app_context():
