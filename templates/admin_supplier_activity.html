@@ -1,0 +1,68 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<h1>Activity for {{ supplier.company_name }}</h1>
+
+<h3>Products</h3>
+{% if products %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Stock</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.price }}</td>
+            <td>{{ product.stock }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No products listed.</p>
+{% endif %}
+
+<h3>Orders</h3>
+{% if orders %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Item</th>
+            <th>Amount</th>
+            <th>Customer</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.item }}</td>
+            <td>{{ order.amount }}</td>
+            <td>{{ order.customer.name }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No orders yet.</p>
+{% endif %}
+{% if supplier.is_blocked %}
+                <form action="{{ url_for('admin.unblock_supplier', supplier_id=supplier.id) }}" method="POST" style="display:inline-block;">
+                    <button type="submit" class="btn btn-sm btn-success">Unblock</button>
+                </form>
+                {% else %}
+                <form action="{{ url_for('admin.block_supplier', supplier_id=supplier.id) }}" method="POST" style="display:inline-block;">
+                    <button type="submit" class="btn btn-sm btn-danger">Block</button>
+                </form>
+                {% endif %}
+
+<a href="{{ url_for('admin.admin_suppliers') }}" class="btn btn-secondary mt-3">Back to Suppliers</a>
+{% endblock %}

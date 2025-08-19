@@ -9,13 +9,9 @@
   <div style="flex: 1 1 400px;">
     <div style="background: #f4f4f4; height: 400px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
       {% if not is_dummy and product.image_url %}
-        <img src="{{ product.image_url }}" 
-             alt="{{ product.name }}" 
-             style="max-height: 100%; max-width: 100%; object-fit: contain;">
+         <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
       {% elif is_dummy and product.image %}
-        <img src="{{ url_for('static', filename=product.image) }}" 
-             alt="{{ product.name }}" 
-             style="max-height: 100%; max-width: 100%; object-fit: contain;">
+         <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
       {% else %}
         <span style="color: #999;">No Image Available</span>
       {% endif %}
@@ -33,16 +29,16 @@
 
     <!-- Minimum Quantity -->
     <p style="font-size: 1.3rem; margin-bottom: 0.5rem;">
-      <strong>Minimum Quantity:</strong> {{ product.min_quantity }}
+      <strong>Minimum Quantity:</strong> {{ product.minimum_quantity or 'N/A' }}
     </p>
 
     <!-- Quantity Input -->
     <p style="font-size: 1.5rem; margin-bottom: 0.5rem;">
       <label for="quantity"><strong>Quantity:</strong></label>
       <input type="number" id="quantity" name="quantity"
-             min="{{ product.min_quantity }}"
+             min="{{ product.minimum_quantity }}"
              max="{{ product.quantity if is_dummy else (product.quantity or 1) }}"
-             value="{{ product.min_quantity }}" 
+             value="{{ product.minimum_quantity }}" 
              style="width: 70px; margin-left: 0.5rem; font-size: 1.2rem;">
     </p>
 

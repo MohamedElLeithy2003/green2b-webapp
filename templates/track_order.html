@@ -1,26 +1,26 @@
 {% extends "base.html" %}
 
-{% block title %} Track Your Order | Green2B {% endblock %}
+{% block title %}Track Order #{{ order_id }} | Green2B{% endblock %}
 
 {% block content %}
-<div class="container my-4">
-    <h2> Track Order #{{ order_id }}</h2>
+<div style="max-width: 600px; margin: auto; padding: 20px;">
+    <h1>Tracking Order #{{ order_id }}</h1>
 
-    {% if tracking_info %}
-        <div class="card p-3 my-3">
-            <p><strong>Status:</strong> {{tracking_info.status}}</p>
-            <p><strong>Estimated Delivery:</strong> {{ tracking_info.estimated_delivery }}</p>
-            <p><strong>Current Location:</strong> {{ tracking_info.current_location }}</p>
-            <p><strong>Shipping Address:</strong></p> {{ tracking_info.shipping_address }}</p>
-        </div>
+    <p><strong>Status:</strong> {{ order.status or tracking_info.status }}</p>
+    <p><strong>Estimated Delivery:</strong> {{ tracking_info.estimated_delivery }}</p>
+    <p><strong>Current Location:</strong> {{ tracking_info.current_location }}</p>
 
-    {% else %}
-        <div class="alert alert-info my-3" role="alert">
-        Tracking information is not yet available for this order.
-        </div>
-    {% endif %}
-     <a href="{{ url_for('orders.orders_list') }}" class="btn btn-secondary">
-    Back to Orders
-  </a>
+    <h3>Shipping Address</h3>
+    <p>
+        {{ tracking_info.shipping_address.name }}<br>
+        {{ tracking_info.shipping_address.street }}<br>
+        {{ tracking_info.shipping_address.city }} {{ tracking_info.shipping_address.postcode }}<br>
+        {{ tracking_info.shipping_address.country }}
+    </p>
+
+    <a href="{{ url_for('orders.order_detail', order_id=order_id) }}" 
+       style="display: inline-block; margin-top: 15px; background: #095c43; color: white; padding: 8px 12px; border-radius: 5px; text-decoration: none;">
+       Back to Order Details
+    </a>
 </div>
 {% endblock %}

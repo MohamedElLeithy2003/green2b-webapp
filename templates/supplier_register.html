@@ -4,45 +4,48 @@
 
 {% block content %}
 <div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-    <div class="text-center" style="max-width: 500px; width: 100%;">
+    <div class="text-center" style="max-width: 400px; width: 100%;">
         <h2 class="mb-4">Become a Supplier</h2>
-        <form method="POST" action="{{ url_for('supplier_register') }}">
+        <form method="POST" action="{{ url_for('supplier_register') }}" class="mx-auto" style="width: 100%; max-width: 350px;">
             <div class="mb-3">
-                <label>Name</label>
-                <input type="text" name="name" class="form-control mx-auto" style="display:block;" required>
+                <label class="form-label">Name</label>
+                <input type="text" name="name" class="form-control" required>
             </div>
 
             <div class="mb-3">
-                <label>Email</label>
-                <input type="email" name="email" class="form-control mx-auto" style="display:block;" required>
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" required>
             </div>
 
             <div class="mb-3">
-                <label>Password</label>
-                <input type="password" name="password" class="form-control mx-auto" style="display:block;" required>
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" required>
             </div>
 
             <div class="mb-3">
-                <label>Company</label>
-                <input type="text" name="company" class="form-control mx-auto" style="display:block;" required>
+                <label class="form-label">Company</label>
+                <input type="text" name="company" class="form-control" required>
             </div>
 
             <div class="mb-3">
-                <label>Website</label>
-                <input type="url" name="website" class="form-control mx-auto" style="display:block;">
+                <label class="form-label">Website</label>
+                <input type="url" name="website" class="form-control">
             </div>
 
             <div class="mb-3">
-                <label>Products</label>
-                <input type="text" name="products" class="form-control mx-auto" style="display:block;" required>
+                <label class="form-label">Products</label>
+                <input type="text" name="products" class="form-control" required>
             </div>
 
             <div class="mb-3">
-                <label>Message</label>
-                <textarea name="message" class="form-control mx-auto" rows="4" style="display:block;"></textarea>
+                <label class="form-label">Message</label>
+                <textarea name="message" class="form-control" rows="4"></textarea>
             </div>
 
             <button type="submit" class="btn btn-success w-100">Register</button>
+            <p class="mt-3">
+                Already a Supplier? <a href="{{ url_for('supplier_login') }}">Login</a>
+            </p>
         </form>
     </div>
 </div>

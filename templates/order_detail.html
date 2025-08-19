@@ -1,23 +1,31 @@
 {% extends "base.html" %}
-{% block title %}Order Details{% endblock %}
+
+{% block title %}Order #{{ order.id }} | Green2B{% endblock %}
 
 {% block content %}
-<h2>Order #{{ order.id }}</h2>
+<div style="max-width: 600px; margin: auto; padding: 20px;">
+    <h1>Order #{{ order.id }}</h1>
+    <p><strong>Status:</strong> {{ order.status or "Pending" }}</p>
+    <p><strong>Placed on:</strong> {{ order.created_at.strftime("%Y-%m-%d %H:%M") }}</p>
 
-<p>Status: {{ order.status }}</p>
-<p>Placed on: {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+    <h3>Items:</h3>
+    <ul>
+        {% for item in order_items %}
+            <li>{{ item.product_name }} — Quantity: {{ item.quantity }} @ {{ item.unit_price }} each</li>
+        {% endfor %}
+    </ul>
 
-<h3>Items:</h3>
-<ul>
-  {% for item in order.items %}
-    <li>{{ item.product_name }} - Quantity: {{ item.quantity }}</li>
-  {% endfor %}
-</ul>
+    <p><strong>Total:</strong> {{ order.total_amount or "N/A" }}</p>
 
-<!-- Action Buttons -->
+    <a href="{{ url_for('orders.track_order', order_id=order.id) }}" 
+       style="display: inline-block; margin-top: 10px; background: #095c43; color: white; padding: 8px 12px; border-radius: 5px; text-decoration: none;">
+       Track Shipment
+    </a>
 
-<!-- Back to Orders -->
-<div style="margin-top: 20px;">
-  <a href="{{ url_for('orders.orders_list') }}" style="padding: 0.5rem 1rem; background-color: #00704a; color: white; text-decoration: none; border-radius: 4px;">Back to Orders</a>
+    <br><br>
+    <a href="{{ url_for('orders.orders_list') }}" 
+       style="display: inline-block; margin-top: 5px; background: #555; color: white; padding: 6px 10px; border-radius: 5px; text-decoration: none;">
+       Back to Orders
+    </a>
 </div>
 {% endblock %}

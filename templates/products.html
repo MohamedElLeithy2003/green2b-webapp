@@ -62,7 +62,7 @@
 
     <h3 style="margin: 0.5rem 0;">{{ product.name }}</h3>
     <p><strong>Category:</strong> {{ product.category }}</p>
-    <p><strong>Minimum Quantity:</strong> {{ product.min_quantity }}</p>
+    <p><strong>Minimum Quantity:</strong> {{ product.minimum_quantity or 'N/A' }}</p>
     <p><strong>Price:</strong> £{{ product.price }}</p>
 
     <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem;">

@@ -57,7 +57,7 @@
                         <h3>{{ product.name }}</h3>
                         <p><strong>Supplier:</strong> {{ product.supplier }}</p>
                         <p><strong>Category:</strong> {{ product.category }}</p>
-                        <p><strong>Price:</strong> ${{ "%.2f"|format(product.price) }}</p>
+                        <p><strong>Price:</strong> {{ "%.2f"|format(product.price) }}</p>
                         <p>{{ product.description }}</p>
                         <a href="{{ url_for('admin.admin_product_detail', product_id=product.id) }}" style="color: #095c43; font-weight: bold; text-decoration: underline;">
                             View Product

@@ -27,6 +27,10 @@
         </div>
 
         <div style="display: flex; flex-direction: column;">
+            <label for="minimum_quantity">Minimum Quantity</label>
+            <input type="number" name="minimum_quantity" id="minimum_quantity" min="1" value="{{ product.minimum_quantity }}" required>
+
+        <div style="display: flex; flex-direction: column;">
             <label for="description">Description</label>
             <textarea id="description" name="description" rows="4">{{ product.description or '' }}</textarea>
         </div>

@@ -6,38 +6,40 @@
 <h1> Recent Orders </h1>
 
 {% if recent_orders %}
-<table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
-    <thead>
-        <tr style="background-color: #095c43; color: white;">
-            <th style="padding: 0.75rem 1rem; border: 1px solid #ddd;">Order ID</th>
-            <th style="padding: 0.75rem 1rem; border: 1px solid #ddd;">Customer</th>
-            <th style="padding: 0.75rem 1rem; border: 1px solid #ddd;">Items</th>
-            <th style="padding: 0.75rem 1rem; border: 1px solid #ddd;">Date</th>
-            <th style="padding: 0.75rem 1rem; border: 1px solid #ddd;">Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for order in recent_orders %}
+    <a href="{{ url_for('supplier_products') }}" class="btn btn-danger" style="background-color: #095c43; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer;">Back To Dashboard</a>
+
+    <table>
         <tr>
-            <td style="padding: 0.5rem; border: 1px solid #ddd;">{{ order.id }}</td>
-            <td style="padding: 0.5rem; border: 1px solid #ddd;">{{ order.customer_name }}</td>
-            <td style="padding: 0.5rem; border: 1px solid #ddd;">
-                <ul style="margin: 0; padding-left: 1.2rem;">
-                    {% for item in order.order_items %}
-                        <li>{{ item.product_name }} (x{{ item.quantity }})</li>
-                    {% endfor %}
-                </ul>
-            </td>
-            <td style="padding: 0.5rem; border: 1px solid #ddd;">{{ order.date.strftime('%Y-%m-%d') }}</td>
+            <th>Order ID</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
         </tr>
+        {% for order in recent_orders %}
+            {% for item in order.order_items %}
+            <tr>
+                <td>Order ID: {{ order.id }}</td>
+                <td>Product: {{ item.product_name }}</td>
+                <td>Quantity: {{ item.quantity }}</td>
+                <td>Price: {{ item.unit_price }}</td>
+                <td>Status: {{ item.status }}</td>
+            </tr>
+            <td>
+                <form action="{{ url_for('update_order_status', item_id=item.id) }}" method="POST">
+                    <select name="status">
+                        <option value="Pending" {% if item.status == 'Pending' %}selected{% endif %}>Pending</option>
+                        <option value="Fulfilled" {% if item.status == 'Fulfilled' %}selected{% endif %}>Fulfilled</option>
+                        <option value="Shipped" {% if item.status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                        <option value="Delivered" {% if item.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                    </select>
+                   <button type="submit" class="btn btn-danger" 
+            style="background-color: #095c43; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer;">
+            Update
+        </button>
+            {% endfor %}
         {% endfor %}
-    </tbody>
-    <div style="margin-top: 2rem;">
-        <a href="{{ url_for('supplier_products') }}" class="btn btn-danger" style="background-color: #095c43; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer;">Back To Dashboard</a>
-        
-</div>
-</table>
+    </table>
 {% else %}
-<p>No recent orders found.</p>
+    <p>No recent orders found.</p>
 {% endif %}
 {% endblock %}

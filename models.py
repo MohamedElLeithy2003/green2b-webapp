@@ -111,8 +111,9 @@ class Product(db.Model):
     impact = db.Column(db.Text)
     status = db.Column(db.String(50))
     image_url = db.Column(db.String(255))
+    minimum_quantity = db.Column(db.Integer, default=1)
 
-    order_items = db.relationship('OrderItem', backref='order', lazy=True)
+    order_items = db.relationship('OrderItem', backref='product', lazy=True)
     views = db.relationship('ProductView', back_populates='product', cascade='all, delete-orphan')
 
 class Cart(db.Model):
@@ -158,6 +159,7 @@ class Order(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     shipping = db.relationship('Shipping', back_populates='order')
+    items = db.relationship('OrderItem', backref='order', lazy=True)
 
 
 class OrderItem(db.Model):
@@ -166,7 +168,8 @@ class OrderItem(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
     quantity = db.Column(db.Integer, nullable=False)
     unit_price = db.Column(db.Numeric(10, 2), nullable=False)
-
+    status = db.Column(db.String(50), default="Pending")
+    
 class ContactMessage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))

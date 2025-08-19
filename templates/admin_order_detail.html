@@ -1,0 +1,52 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Order #{{ order.id }}</h1>
+
+<div class="mb-6">
+    <h2 class="text-xl font-semibold mb-2">Buyer Info</h2>
+    <p><strong>Email:</strong> {{ order.buyer.email if order.buyer else order.email or 'Guest' }}</p>
+    <p><strong>Order Status:</strong> {{ order.status.capitalize() }}</p>
+    <p><strong>Created At:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+</div>
+
+<div class="mb-6">
+    <h2 class="text-xl font-semibold mb-2">Items</h2>
+    <table class="table-auto w-full border-collapse border border-gray-300">
+        <thead>
+            <tr class="bg-gray-100">
+                <th class="border px-4 py-2">Product</th>
+                <th class="border px-4 py-2">Quantity</th>
+                <th class="border px-4 py-2">Unit Price</th>
+                <th class="border px-4 py-2">Total</th>
+                <th class="border px-4 py-2">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items %}
+            <tr>
+                <td class="border px-4 py-2">{{ item.product.name if item.product else 'Deleted Product' }}</td>
+                <td class="border px-4 py-2">{{ item.quantity }}</td>
+                <td class="border px-4 py-2">${{ item.unit_price }}</td>
+                <td class="border px-4 py-2">${{ item.quantity * item.unit_price }}</td>
+                <td class="border px-4 py-2 capitalize">{{ item.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="mb-6">
+    <h2 class="text-xl font-semibold mb-2">Shipping Info</h2>
+    {% if order.shipping %}
+        <p><strong>Address:</strong> {{ order.shipping.address }}</p>
+        <p><strong>City:</strong> {{ order.shipping.city }}</p>
+        <p><strong>Postal Code:</strong> {{ order.shipping.postal_code }}</p>
+        <p><strong>Status:</strong> {{ order.shipping.status }}</p>
+    {% else %}
+        <p>No shipping information available.</p>
+    {% endif %}
+</div>
+
+<a href="{{ url_for('admin.admin_orders') }}" class="text-blue-600 hover:underline">Back to Orders</a>
+{% endblock %}

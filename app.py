@@ -18,8 +18,10 @@ from threading import Thread
 from sqlalchemy import func, cast, Date
 from sqlalchemy.sql import func, expression
 from types import SimpleNamespace
+from dotenv import load_dotenv
 
 
+load_dotenv()
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -28,13 +30,13 @@ migrate = Migrate(app, db)
 profile_bp = Blueprint('profile', __name__)
 orders_bp = Blueprint('orders', __name__, url_prefix='/orders')
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
-app.secret_key = 'd11c57a2dde5240c1ba0a1bd96be6fdc979173696d613bb44342ea520a3e6379'
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'green2bteam@gmail.com'
-app.config['MAIL_PASSWORD'] = 'ejtt rttq poqc krge'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = ('Green2B', 'green2bteam@gmail.com')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///green2b.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -45,12 +47,12 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
     
-stripe.api_key = "sk_test_51O8jQdE43TmUArKlFz7rQnZI4yeZ9iVsoImn0Bs2wI5Bx8PqufupGZ8KZBYB00jy6h8qlI0s8hoiD1z2UOJcUPBy00CHFoTpGp"
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 
 subscribers = []
 
-ADMIN_USERNAME = 'adminuser'
-ADMIN_PASSWORD = 'supersecretpassword'
+ADMIN_USERNAME = os.getenv('ADMIN_USERNAME')
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
 
 def send_async_email(app, msg):
     with app.app_context():
@@ -177,10 +179,7 @@ def admin_products():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin.admin_login'))
 
-    dummy_products_objs = [SimpleNamespace(**p) for p in products_data]
-    approved_products = Product.query.filter_by(status='approved').all()
-
-    all_products = dummy_products_objs + approved_products
+    all_products = Product.query.all()
 
     return render_template('admin_products.html', products=all_products)
 
@@ -236,7 +235,7 @@ def request_change(product_id):
     supplier = product.supplier
     if not supplier or not supplier.user:
         flash("Supplier not found for this product.", "danger")
-        return redirect(url_for('admin.admin_product_detail', product_id=product_id))
+        return redirect(url_for('admin.admin_products', product_id=product_id))
 
     subject = f"Change Request for Your Product: {product.name}"
     recipient = supplier.user.email
@@ -259,7 +258,7 @@ Green2B Admin Team
     except Exception as e:
         print(str(e))
         flash("Error sending email to supplier", 'danger')
-    return redirect(url_for('admin.admin_product_detail', product_id=product_id))
+    return redirect(url_for('admin.admin_products', product_id=product_id))
 
 @admin_bp.route('/products/<int:product_id>/remove', methods=['POST'])
 def remove_product(product_id):
@@ -298,10 +297,43 @@ def unblock_user(user_id):
     flash(f"{user.email} has been unblocked.")
     return redirect(url_for('admin_bp.user_activity', user_id=user_id))
 
+@admin_bp.route('/orders/')
+def admin_orders():
+    orders = Order.query.order_by(Order.created_at.desc()).all()
+    return render_template('admin_orders.html', orders=orders)
 
+@admin_bp.route('/orders/<int:order_id>')
+def admin_order_detail(order_id):
+    order = Order.query.get_or_404(order_id)
+    return render_template('admin_order_detail.html', order=order)
 
+@admin_bp.route('/suppliers/')
+def admin_suppliers():
+    suppliers = Supplier.query.filter_by(verified=True).all()
+    return render_template('admin_suppliers.html', suppliers=suppliers)
 
+@admin_bp.route('/suppliers/<int:supplier_id>/activity')
+def supplier_activity(supplier_id):
+    supplier = Supplier.query.filter_by(id=supplier_id, verified=True).first_or_404()
+    products = supplier.products
+    orders = supplier.orders if hasattr(supplier, 'orders') else[]
+    return render_template('admin_supplier_activity.html', supplier=supplier, products=products, orders=orders)
 
+@admin_bp.route('/suppliers/<int:supplier_id>/block', methods=['POST'])
+def block_supplier(supplier_id):
+    supplier = Supplier.query.get_or_404(supplier_id)
+    supplier.is_blocked = True
+    db.session.commit()
+    flash(f"{supplier.company_name} has been blocked.", "warning")
+    return redirect(url_for('admin.admin_suppliers'))
+
+@admin_bp.route('/suppliers/<int:supplier_id>/unblock', methods=['POST'])
+def unblock_supplier(supplier_id):
+    supplier = Supplier.query.get_or_404(supplier_id)
+    supplier.is_blocked = False
+    db.session.commit()
+    flash(f"{supplier.company_name} has been unblocked.", "success")
+    return redirect(url_for('admin.admin_suppliers'))
 
 @admin_bp.route('/supplier-applications')
 def supplier_applications():
@@ -623,9 +655,31 @@ def signup():
     
     subscribers.append(email)
     flash("Thank you for subscribing!")
-    subject = "Thank you for subscribing to Green2B"
-    body = "Thank you for subscribing to Green2B! We will keep you updated with our latest products and sustainability initiatives."
-    send_email(subject, [email], body)
+    msg = Message("Thank you for subscribing to Green2B", recipients=[email])
+    msg.html = f"""
+        <html>
+        <body>
+            <p>Hello,</p>
+            <p>Thank you for subscribing to Green2B! We will keep you updated with our latest products and sustainability initiatives.</p>
+            <hr>
+            <footer>
+            <img src="cid:green2b_logo" alt="Green2B Logo" width="150">
+            <p>Green2B - Connecting sustainable suppliers with businesses</p>
+            </footer>
+        </body>
+        </html>
+        """
+
+    with app.open_resource("static/images/green2b_new.png") as img:
+            msg.attach(
+                "green2b_new.png",
+                "image/png",
+                img.read(),
+                'inline',
+                headers={"Content-ID": "<green2b_logo>"}
+            )
+
+    mail.send(msg)
 
     return redirect(url_for('home'))
 
@@ -691,7 +745,7 @@ def track_order(order_id):
             }
         }
 
-    return render_template('track_order.html', order_id=order.id, tracking_info=tracking_info)
+    return render_template('track_order.html', order=order, order_id=order.id, tracking_info=tracking_info)
 
 
 
@@ -728,7 +782,7 @@ products_data = [
         'image': 'images/starch_straw.png',
         'category': 'ecofriendly',
         'quantity': 50000,
-        'min_quantity': 500,
+        'minimum_quantity': 500,
         'price': 0.017,
         'score': "95/100",
         'description': "Made from food-grade rice & tapioca starch, holds strong in cold drinks, resists for 45+ minutes, 100% biodegradable and compostable, odourless, tasteless, and chemical-free"
@@ -740,7 +794,7 @@ products_data = [
         'image': 'images/chuck_eat_safe.png',
         'category': 'ecofriendly',
         'quantity': 10000,
-        'min_quantity': 200,
+        'minimum_quantity': 200,
         'price': 0.10,
         'score': "80/100",
         'description': "Made from eco-friendly sugarcane bagasse, reheatable and freezer-safe, suitable for all applications"
@@ -752,7 +806,7 @@ products_data = [
         'image': 'images/takeaway_spoon (1).png',
         'category': 'organic',
         'quantity': 100000,
-        'min_quantity': 200,
+        'minimum_quantity': 200,
         'price': 0.012,
         'score': "80/100",
         'description': "Made from birchwood, sturdy even in hot gravy, ideal for parties, picnics, events, and gatherings"
@@ -764,7 +818,7 @@ products_data = [
         'image': 'images/container_lid.png',
         'category': 'ecofriendly',
         'quantity': 100000,
-        'min_quantity': 200,
+        'minimum_quantity': 200,
         'price': 0.08,
         'score': "80/100",
         'description': "Bagasse lid for spill-free dining, perfect for curries and salads, fully compostable and eco-friendly"
@@ -776,7 +830,7 @@ products_data = [
         'image': 'images/greenR_paper.png',
         'category': 'recycled',
         'quantity': 100000,
-        'min_quantity:': 2,
+        'minimum_quantity:': 2,
         'price': 4.70,
         'score': "85/100",
         'description': "75 GSM A4-size paper made from 8000 cigarette butts, repurposed waste into usable stationary"
@@ -788,7 +842,7 @@ products_data = [
         'image': 'images/Gift Hamper .jpeg.jpg',
         'category': 'organic',
         'quantity': 1000000,
-        'min_quantity': 10,
+        'minimum_quantity': 10,
         'price': 10.00,
         'score': "90/100",
         'description': "Includes Cork Diary, Mug, Card Holder, Pen, and Keychain – all sustainably made from cork"
@@ -800,7 +854,8 @@ products_data = [
         'image': 'images/Jute Folder .jpeg.jpg',
         'category': 'organic',
         'quantity': 100000,
-        'price': 9.00,
+        'minimum_quantity': 100,
+        'price': 0.8,
         'score': "80/100",
         'description': "Made from natural jute, biodegradable and reusable alternative to plastic folders"
     },
@@ -811,7 +866,7 @@ products_data = [
         'image': 'images/bamboo_bottle_mugs.png',
         'category': 'organic',
         'quantity': 100000,
-        'min_quantity': 10,
+        'minimum_quantity': 10,
         'price': 10.00,
         'score': "85/100",
         'description': "Natural color bottle and mugs crafted from sustainable bamboo"
@@ -823,7 +878,7 @@ products_data = [
         'image': 'images/plantable_pen.jpeg',
         'category': 'recycled',
         'quantity': 10000,
-        'min_quantity': 100,
+        'minimum_quantity': 100,
         'price': 0.1,
         'description': "100% recyclable"
     },
@@ -834,7 +889,7 @@ products_data = [
         'image': 'images/bamboo_pen.jpeg',
         'category': 'organic',
         'quantity': 10000,
-        'min_quantity': 100,
+        'minimum_quantity': 100,
         'price': 0.4,
         'description': "Pens made out of bamboo"
     }
@@ -944,7 +999,16 @@ def product_detail(product_id):
     # First try the database product:
     product_db = Product.query.filter_by(id=product_id, status='approved').first()
     if product_db:
+        # Track the view (assuming you have a supplier_id)
+        new_view = ProductView(
+            product_id=product_db.id,
+            supplier_id=current_user.id  # or some supplier/user id
+        )
+        db.session.add(new_view)
+        db.session.commit()
+
         return render_template('product_details.html', product=product_db, is_dummy=False)
+
 
     # If not found in DB, try dummy data fallback:
     product = next((p for p in products_data if p['id'] == product_id), None)
@@ -1047,15 +1111,11 @@ def add_to_cart(product_id):
         flash("Product not found")
         return redirect(url_for('products'))
 
-    # Quantity
     try:
-        quantity = int(request.form.get('quantity', 1))
-        if quantity < 1:
-            quantity = 1
+        quantity = max(1, int(request.form.get('quantity', 1)))
     except ValueError:
         quantity = 1
 
-    # Authenticated user
     if current_user.is_authenticated:
         if not current_user.cart:
             new_cart = Cart(user_id=current_user.id)
@@ -1063,11 +1123,11 @@ def add_to_cart(product_id):
             db.session.commit()
             current_user.cart = new_cart
 
-        existing_item = CartItem.query.filter_by(user_id=current_user.id, product_id=product['id']).first()
-        if existing_item:
-            existing_item.quantity += quantity
+        item = CartItem.query.filter_by(user_id=current_user.id, product_id=product['id']).first()
+        if item:
+            item.quantity += quantity
         else:
-            new_item = CartItem(
+            item = CartItem(
                 user_id=current_user.id,
                 cart_id=current_user.cart.id,
                 product_id=product['id'],
@@ -1075,24 +1135,22 @@ def add_to_cart(product_id):
                 price=product['price'],
                 quantity=quantity
             )
-            db.session.add(new_item)
+            db.session.add(item)
         db.session.commit()
-
-    else:  # Guest user
-        if not isinstance(session.get('cart'), list):
-            session['cart'] = []
-
-        for item in session['cart']:
+    else:
+        cart = session.get('cart', [])
+        for item in cart:
             if item['id'] == product['id']:
                 item['quantity'] += quantity
                 break
         else:
-            session['cart'].append({
+            cart.append({
                 'id': product['id'],
                 'name': product['name'],
                 'price': product['price'],
                 'quantity': quantity
             })
+        session['cart'] = cart
         session.modified = True
 
     flash("Added to cart")
@@ -1161,7 +1219,7 @@ def update_cart_quantity(product_id):
     return redirect(url_for('cart'))
 
 
-# Remove item
+# Remove from cart
 @app.route('/remove-from-cart/<int:product_id>', methods=['POST'])
 def remove_from_cart(product_id):
     if current_user.is_authenticated:
@@ -1183,23 +1241,32 @@ def remove_from_cart(product_id):
 
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
-    cart = session.get('cart', [])
+    # Determine cart items based on user authentication
+    if current_user.is_authenticated:
+        cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
+        cart = [{
+            'id': item.product_id,
+            'name': item.product_name,
+            'price': float(item.price),
+            'quantity': item.quantity
+        } for item in cart_items]
+    else:
+        cart = session.get('cart', [])
+
     if not cart:
         flash("Cart is empty")
         return redirect(url_for('products'))
 
-    # Save cart temporarily for post-checkout
+    # Save temp order for later use
     session['temp_order'] = cart.copy()
 
-    # Create Stripe checkout session...
+    # Create Stripe checkout session
     checkout_session = stripe.checkout.Session.create(
         payment_method_types=['card'],
         line_items=[{
             'price_data': {
-                'currency': 'usd',
-                'product_data': {
-                    'name': item['name'],
-                },
+                'currency': 'gbp',
+                'product_data': {'name': item['name']},
                 'unit_amount': int(item['price'] * 100),
             },
             'quantity': item['quantity'],
@@ -1224,6 +1291,7 @@ def checkout_success():
     total = sum(float(item['price']) * int(item.get('quantity', 1)) for item in cart)
     buyer_email = buyer_info.get('email')
 
+    # create the order
     new_order = Order(
         buyer_id=session.get('user_id'),
         email=buyer_email,
@@ -1233,7 +1301,18 @@ def checkout_success():
     db.session.add(new_order)
     db.session.commit()
 
-    # Email
+    # create order items
+    for item in cart:
+        order_item = OrderItem(
+            order_id=new_order.id,
+            product_id=item['id'],  # assuming cart item has product ID
+            quantity=int(item.get('quantity', 1)),
+            unit_price=float(item['price'])
+        )
+        db.session.add(order_item)
+    db.session.commit()
+
+    # send confirmation email
     subject = "Order Confirmation"
     body = f"Hi {buyer_info.get('name', 'Customer')},\n\nYour order #{new_order.id} for ${total:.2f} was successful.\nItems:\n"
     for item in cart:
@@ -1241,20 +1320,24 @@ def checkout_success():
     body += "\nThank you for shopping with us!\nGreen2B Team"
     send_email(subject, [buyer_email], body)
 
-    # Save last order
-    session['last_order'] = {
-        'order_id': new_order.id,
-        'total_price': total,
-        'items': cart,
-        **buyer_info
-    }
+    admin_email = "green2bteam@gmail.com"
+    subject_admin = f"New Order Received: #{new_order.id}"
+    body_admin = f"A new order has been placed.\n\nOrder ID: {new_order.id}\nBuyer: {buyer_info.get('name', 'Guest')} ({buyer_email})\nTotal: ${total:.2f}\nItems:\n"
+    for item in cart:
+        body_admin += f"- {item['name']} x{int(item.get('quantity', 1))} - ${float(item['price']) * int(item.get('quantity', 1)):.2f}\n"
+    send_email(subject_admin, [admin_email], body_admin)
 
-    # Clear temp order & buyer info
+    # store last order in session
+    session['last_order'] = {'order_id': new_order.id, 'total_price': total, 'items': cart, **buyer_info}
+
+    # clear cart and buyer info
     session.pop('temp_order', None)
     session.pop('buyer_info', None)
+    if current_user.is_authenticated:
+        CartItem.query.filter_by(user_id=current_user.id).delete()
+        db.session.commit()
 
     return render_template('checkout_success.html', order=new_order)
-
 
 
 
@@ -1277,9 +1360,31 @@ def contact():
 
         send_email(subject, recipients, body)
 
-        subject_user = "Thank you for contacting Green2B"
-        body_user = f"Hello {name},\n\nThank you for reaching out to us. We have received your message and will get back to you shortly.\n\nBest regards,\nGreen2B Team"
-        send_email(subject_user, [email], body_user)
+        msg = Message("Contact Form Submission", recipients=[email])
+        msg.html = f"""
+        <html>
+        <body>
+            <p>Hello {name},</p>
+            <p>Thank you for reaching out to us. We have received your message and will get back to you shortly.</p>
+             <p>Best regards,<br>Green2B Team</p>
+            <hr>
+            <footer>
+            <img src="cid:green2b_logo" alt="Green2B Logo" width="150">
+            </footer>
+        </body>
+        </html>
+        """
+
+        with app.open_resource("static/images/green2b_new.png") as img:
+            msg.attach(
+                "green2b_new.png",
+                "image/png",
+                img.read(),
+                'inline',
+                headers={"Content-ID": "<green2b_logo>"}
+            )
+
+        mail.send(msg)
 
         flash("Thank you for your message! We'll get back to you soon.")
 
@@ -1440,12 +1545,13 @@ def supplier_logout():
 @app.route('/supplier/products')
 def supplier_products():
     supplier_id = get_current_supplier_id()
+    # Fetch all products for this supplier
     products = Product.query.filter_by(supplier_id=supplier_id).all()
 
     today = date.today()
     start_date = today - timedelta(days=6)
 
-    # Just create empty analytics data with zeros
+    # Placeholder analytics
     analytics_data = []
     for i in range(7):
         day = start_date + timedelta(days=i)
@@ -1493,6 +1599,7 @@ def add_product():
         price = float(request.form['price'])
         description = request.form.get('description')
         impact = request.form.get('impact')
+        minimum_quantity = request.form.get('minimum_quantity', 1)
 
         image_file = request.files.get('image')
         if image_file and image_file.filename:
@@ -1501,26 +1608,26 @@ def add_product():
             os.makedirs(upload_folder, exist_ok=True)
             image_path = os.path.join(upload_folder, image_filename)
             image_file.save(image_path)
-            
-            image_url = f'static/images/{image_filename}'
-        
+            image_url = f'images/{image_filename}'
         else:
             image_url = None
-        
 
         new_product = Product(
             name=name,
             category=category,
             price=price,
-            supplier_id=supplier_id,
+            supplier_id=supplier_id,  # Make sure this is the correct ID
             image_url=image_url,
-            status='pending',
+            status='pending',         # Keep pending for admin approval
             description=description,
-            impact=impact
+            impact=impact,
+            minimum_quantity=minimum_quantity
         )
         db.session.add(new_product)
         db.session.commit()
-        flash('Product added successfully and is pending approval.', 'success')
+
+        # Flash a confirmation so you instantly know it worked
+        flash(f"Product '{new_product.name}' added successfully!", "success")
         return redirect(url_for('supplier_products'))
 
     return render_template('add_products.html')
@@ -1569,6 +1676,7 @@ def edit_product(product_id):
         product.description = request.form.get('description')
         product.impact = request.form.get('impact')
         image_file = request.files.get('image')
+        product.minimum_quantity = int(request.form.get('minimum_quantity', 1)) 
         
         if image_file and image_file.filename:
             image_filename = secure_filename(image_file.filename)
@@ -1613,43 +1721,35 @@ def supplier_recent_orders():
     for order in recent_orders_query:
         order_items = [
             {
-                'product_name': oi.product.name,
-                'quantity': oi.quantity
+                'id': oi.id,
+                'order_id': order.id,
+                'quantity': oi.quantity,
+                'unit_price': oi.unit_price,
+                'status': oi.status
             }
             for oi in order.items if oi.product_id in product_ids
         ]
-        recent_orders.append({
-            'id': order.id,
-            'customer_name': order.customer_name,
-            'order_items': order_items,
-            'date': order.created_at,
-            'status': order.status
-        })
-
-    if not recent_orders:
-        recent_orders = [
-            {
-                'id': 1234,
-                'customer_name': 'John Doe',
-                'items': [
-                    {'product_name': 'Eco-friendly Bamboo Toothbrush', 'quantity': 2},
-                    {'product_name': 'Recycled Paper Notebook', 'quantity': 1},
-                ],
-                'date': date.today(),
-                'status': 'shipped',
-            },
-            {
-                'id': 1235,
-                'customer_name': 'Jane Smith',
-                'items': [
-                    {'product_name': 'Organic Cotton Tote Bag', 'quantity': 3}
-                ],
-                'date': date.today(),
-                'status': 'pending',
-            },
-        ]
+        if order_items:
+            recent_orders.append({
+                'id': order.id,
+                'order_items': order_items,
+                'date': order.created_at,
+                'status': order.status
+            })
 
     return render_template('supplier_recent_orders.html', recent_orders=recent_orders)
+
+
+@app.route('/supplier/update-status/<int:item_id>', methods=['POST'])
+def update_order_status(item_id):
+    new_status = request.form.get('status')
+
+    order_item = OrderItem.query.get_or_404(item_id)
+    order_item.status = new_status
+    db.session.commit()
+
+    flash("Order status updated!", "success")
+    return redirect(url_for('supplier_recent_orders'))
 
 
 #def ai_sustainability_score(product):

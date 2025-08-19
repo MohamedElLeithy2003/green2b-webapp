@@ -5,6 +5,18 @@
 <div class="container" style="max-width: 900px; margin: auto; padding: 2rem;">
     <h2>Supplier Dashboard</h2>
     <h3>Analytics (Last 7 Days)</h3>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
     
     <canvas id="analyticsChart" width="600" height="300"></canvas>
     
@@ -86,30 +98,41 @@
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Product Name</th>
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Category</th>
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Price</th>
+                <th style="padding: 0.5rem; border: 1px solid #ddd;">Minimum Quantity</th>
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Impact</th>
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Status</th>
                 <th style="padding: 0.5rem; border: 1px solid #ddd;">Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% for product in top_products %}
+            {% for product in products %}
             <tr>
                 <td style="text-align: center; padding: 0.5rem; border: 1px solid #ddd;">
                     {% if product.image_url %}
-                        <img src="{{ url_for('static', filename=product.image_url.split('static/')[1]) }}" alt="{{ product.name }}" style="max-width: 80px; max-height: 80px; object-fit: contain;"/>
+                        <img src="{{ url_for('static', filename=product.image_url) }}" 
+     alt="{{ product.name }}" 
+     style="max-width:150px; height:auto;">
                     {% else %}
                         <span>No Image</span>
                     {% endif %}
                 </td>
                 <td>{{ product.name }}</td>
                 <td>{{ product.category or 'N/A' }}</td>
-                <td>${{ product.price or 'N/A' }}</td>
-                <td>{{ product.impact or 'N/A' }}</td>
+                <td>{{ product.price or 'N/A' }}</td>
+                <td>{{ product.minimum_quantity or 'N/A' }}</td>
                 <td>{{ product.status or 'Active' }}</td>
                 <td>
-                    <a href="{{ url_for('supplier_product_detail', product_id=product.id) }}">View</a> |
-                    <a href="{{ url_for('edit_product', product_id=product.id) }}">Edit</a> | 
-                    <a href="{{ url_for('delete_product', product_id=product.id) }}">Delete</a>
+                    <a href="{{ url_for('supplier_product_detail', product_id=product.id) }}" 
+                    style="background-color: #28a745; color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; margin-right: 0.3rem;">View</a>
+                    <a href="{{ url_for('edit_product', product_id=product.id) }}" 
+                    style="background-color: #28a745; color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; margin-right: 0.3rem;">Edit</a>
+                    <form action="{{ url_for('delete_product', product_id=product.id) }}" method="post" style="display:inline;">
+                        <button type="submit" 
+                                onclick="return confirm('Are you sure?')" 
+                                style="background-color: #dc3545; color: #fff; padding: 0.3rem 0.6rem; border: none; border-radius: 4px; cursor: pointer;">
+                            Delete
+                        </button>
+                    </form>
                 </td>
             </tr>
             {% else %}

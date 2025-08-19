@@ -1,0 +1,30 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<h1>Approved Suppliers</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Company Name</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for supplier in suppliers %}
+        <tr>
+            <td>{{ supplier.id }}</td>
+            <td>{{ supplier.company_name }}</td>
+            <td>{{ supplier.user.email }}</td>
+            <td>
+                <a href="{{ url_for('admin.supplier_activity', supplier_id=supplier.id)}}" class="btn btn-sm btn-primary">
+                    View Activity
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

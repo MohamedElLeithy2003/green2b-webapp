@@ -11,8 +11,14 @@
 </div>
 
 <div class="section">
+    <h2>Orders</h2>
+    <a href="{{ url_for('admin.admin_orders') }}" class="btn">View All Orders</a>
+</div>
+
+<div class="section">
     <h2>Supplier Applications</h2>
     <a href="{{ url_for('admin.supplier_applications') }}" class="btn">View Applications</a>
+    <a href="{{ url_for('admin.admin_suppliers') }}" class="btn">Manage Approved Suppliers</a>
 </div>
 
 <div class="section">
