@@ -19,6 +19,7 @@ from sqlalchemy import func, cast, Date
 from sqlalchemy.sql import func, expression
 from types import SimpleNamespace
 from dotenv import load_dotenv
+from dotenv import load_dotenv
 
 
 load_dotenv()
