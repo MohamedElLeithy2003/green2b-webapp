@@ -20,6 +20,7 @@ from sqlalchemy.sql import func, expression
 from types import SimpleNamespace
 from dotenv import load_dotenv
 from dotenv import load_dotenv
+from sqlalchemy import func
 
 
 load_dotenv()
@@ -1548,6 +1549,7 @@ def supplier_products():
     supplier_id = get_current_supplier_id()
     # Fetch all products for this supplier
     products = Product.query.filter_by(supplier_id=supplier_id).all()
+    product_ids = [p.id for p in Product.query.filter_by(supplier_id=supplier_id).all()]
 
     today = date.today()
     start_date = today - timedelta(days=6)
@@ -1557,12 +1559,30 @@ def supplier_products():
     for i in range(7):
         day = start_date + timedelta(days=i)
         day_str = day.strftime('%Y-%m-%d')
+
+        orders_for_day = (
+            db.session.query(Order)
+            .join(OrderItem)
+            .filter(
+                OrderItem.product_id.in_(product_ids),
+                func.date(Order.created_at) == day
+            )
+            .all()
+        )
+
+        orders_count = len(orders_for_day)
+        sales_sum = sum(
+            float(oi.quantity * oi.unit_price)
+            for order in orders_for_day
+            for oi in order.items if oi.product_id in product_ids
+        )
+
         analytics_data.append({
             'day': day_str,
-            'views': 0,
-            'orders': 0,
-            'sales': 0.0,
+            'orders': orders_count,
+            'sales': sales_sum,
         })
+
 
     return render_template('supplier_products.html', products=products, analytics_data=analytics_data)
 
@@ -1570,6 +1590,7 @@ def supplier_products():
 def supplier_analytics():
     supplier_id = get_current_supplier_id()
 
+    product_ids = [p.id for p in Product.query.filter_by(supplier_id=supplier_id).all()]
     today = date.today()
     start_date = today - timedelta(days=6)
 
@@ -1577,19 +1598,67 @@ def supplier_analytics():
     for i in range(7):
         day = start_date + timedelta(days=i)
         day_str = day.strftime('%Y-%m-%d')
+
+        orders_for_day = (
+            db.session.query(Order)
+            .join(OrderItem)
+            .filter(
+                OrderItem.product_id.in_(product_ids),
+                func.date(Order.created_at) == day
+            )
+            .all()
+        )
+
+        orders_count = len(orders_for_day)
+        sales_sum = sum(
+            float(oi.quantity * oi.unit_price)
+            for order in orders_for_day
+            for oi in order.items if oi.product_id in product_ids
+        )
+
         analytics_data.append({
             'day': day_str,
-            'views': 0,
-            'orders': 0,
-            'sales': 0.0,
+            'orders': orders_count,
+            'sales': sales_sum,
         })
-    top_products = [
-        {'id': 1, 'name': 'Product A', 'views': 10, 'orders': 3, 'sales': 120.0},
-        {'id': 2, 'name': 'Product B', 'views': 8, 'orders': 2, 'sales': 75.0},
-        {'id': 3, 'name': 'Product C', 'views': 15, 'orders': 5, 'sales': 200.0},
-    ]
 
-    return render_template('supplier_analytics.html', analytics_data=analytics_data, top_products=top_products, supplier_id=supplier_id)
+    # Top products
+    recent_orders_query = (
+        db.session.query(Order)
+        .join(OrderItem)
+        .filter(OrderItem.product_id.in_(product_ids))
+        .order_by(Order.created_at.desc())
+        .limit(10)
+        .all()
+    )
+
+    recent_orders = []
+    for order in recent_orders_query:
+        order_items = [
+            {
+                'id': oi.id,
+                'order_id': order.id,
+                'quantity': oi.quantity,
+                'unit_price': oi.unit_price,
+                'status': oi.status
+            }
+            for oi in order.items if oi.product_id in product_ids
+        ]
+        if order_items:
+            recent_orders.append({
+                'id': order.id,
+                'order_items': order_items,
+                'date': order.created_at,
+                'status': order.status
+            })
+
+
+    return render_template(
+        'supplier_analytics.html',
+        analytics_data=analytics_data,
+        recent_orders=recent_orders,
+        supplier_id=supplier_id
+    )
 
 @app.route('/supplier/products/add', methods=['GET', 'POST'])
 def add_product():

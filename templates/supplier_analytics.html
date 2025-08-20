@@ -11,40 +11,35 @@
     </section>
 
     <section style="margin-top: 3rem;">
-        <h3>Top Products</h3>
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
-            <thead style="background-color: #095c43; color: white;">
+    <h3>Recent Orders</h3>
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead style="background-color: #095c43; color: white;">
+            <tr>
+                <th>Order ID</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price (GBP)</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in recent_orders %}
+                {% for item in order.order_items %}
                 <tr>
-                    <th> Product </th>
-                    <th> Views </th>
-                    <th> Orders </th>
-                    <th> Sales </th>
-                    <th> Conversion Rate </th>
+                    <td>{{ order.id }}</td>
+                    <td>{{ item.product_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>£{{ "%.2f"|format(item.unit_price) }}</td>
+                    <td>{{ item.status }}</td>
                 </tr>
-            </thead>
-            <tbody>
-                {% for product in products %}
-                <tr>
-                    <td>{{ product.name }}</td>
-                    <td>{{ product.views }}</td>
-                    <td>{{ product.orders }}</td>
-                    <td>{{ "%.2f"|format(product.sales) }}</td>
-                    <td>
-                    {% if product.views > 0 %}
-                       {{ "%.2f"|format((product.orders / product.views) * 100) }}
-                    {% else %}
-                        0.00
-                    {% endif %}
-                    </td>
-                </tr>
-                    {% else %}
-                    <tr><td colspan="5">No product data available</td></tr>
-                    {% endfor %}
-            </tbody>
-        </table>
-    </section>
+                {% endfor %}
+            {% else %}
+                <tr><td colspan="5">No recent orders available</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
 </div>
-
 <canvas id="analyticsChart" width="600" height="300"></canvas>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
