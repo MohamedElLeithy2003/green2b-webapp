@@ -791,42 +791,6 @@ products_data = [
     },
     {
         'id': 10001,
-        'supplier': 'Chuk eat safe',
-        'name': 'Dine-in Bagasse Container',
-        'image': 'images/chuck_eat_safe.png',
-        'category': 'ecofriendly',
-        'quantity': 10000,
-        'minimum_quantity': 200,
-        'price': 0.10,
-        'score': "80/100",
-        'description': "Made from eco-friendly sugarcane bagasse, reheatable and freezer-safe, suitable for all applications"
-    },
-    {
-        'id': 10002,
-        'supplier': 'Chuk eat safe',
-        'name': 'Disposable Wooden Spoon',
-        'image': 'images/takeaway_spoon (1).png',
-        'category': 'organic',
-        'quantity': 100000,
-        'minimum_quantity': 200,
-        'price': 0.012,
-        'score': "80/100",
-        'description': "Made from birchwood, sturdy even in hot gravy, ideal for parties, picnics, events, and gatherings"
-    },
-    {
-        'id': 10003,
-        'supplier': 'Chuk eat safe',
-        'name': 'Container Lids',
-        'image': 'images/container_lid.png',
-        'category': 'ecofriendly',
-        'quantity': 100000,
-        'minimum_quantity': 200,
-        'price': 0.08,
-        'score': "80/100",
-        'description': "Bagasse lid for spill-free dining, perfect for curries and salads, fully compostable and eco-friendly"
-    },
-    {
-        'id': 10004,
         'supplier': 'GreenR by BioMandi',
         'name': 'Paper made out of Cigarette Buds',
         'image': 'images/greenR_paper.png',
@@ -838,7 +802,7 @@ products_data = [
         'description': "75 GSM A4-size paper made from 8000 cigarette butts, repurposed waste into usable stationary"
     },
     {
-        'id': 10005,
+        'id': 10002,
         'supplier': 'Mesrii Private Limited',
         'name': 'Business Gift Hamper',
         'image': 'images/Gift Hamper .jpeg.jpg',
@@ -850,7 +814,7 @@ products_data = [
         'description': "Includes Cork Diary, Mug, Card Holder, Pen, and Keychain – all sustainably made from cork"
     },
     {
-        'id': 10006,
+        'id': 10003,
         'supplier': 'GreenR by BioMandi',
         'name': 'Jute Folder',
         'image': 'images/Jute Folder .jpeg.jpg',
@@ -862,7 +826,7 @@ products_data = [
         'description': "Made from natural jute, biodegradable and reusable alternative to plastic folders"
     },
     {
-        'id': 10007,
+        'id': 10004,
         'supplier': 'Mesrii Private Limited',
         'name': 'Bamboo Bottle and 2 Mugs',
         'image': 'images/bamboo_bottle_mugs.png',
@@ -874,7 +838,7 @@ products_data = [
         'description': "Natural color bottle and mugs crafted from sustainable bamboo"
     },
     {
-        'id': 10008,
+        'id': 10005,
         'supplier': 'Note',
         'name': 'Plantable Pens',
         'image': 'images/plantable_pen.jpeg',
@@ -885,7 +849,7 @@ products_data = [
         'description': "100% recyclable"
     },
     {
-        'id': 10009,
+        'id': 10006,
         'supplier': 'Note',
         'name': 'Bamboo Pens',
         'image': 'images/bamboo_pen.jpeg',
